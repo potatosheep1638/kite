@@ -31,7 +31,7 @@ Contributions are very much welcome. Here are some quick guidelines:
 - If refactoring, **make sure to open an issue** regarding it and explain the **reasoning behind your changes**.
 
 # Regarding updates
-In my country of residence, all male citizens are required to serve in the military for a period of around 2 years. As of writing, I am still on active duty, which means that I will often be away from my computer for long stretches of time. Thus, I seek your understanding if updates arqe slow.
+In my country of residence, all male citizens are required to serve in the military for a period of around 2 years. As of writing, I am still on active duty, which means that I will often be away from my computer for long stretches of time. Thus, I seek your understanding if updates are slow.
 
 # License
 ![](https://www.gnu.org/graphics/agplv3-155x51.png)
