@@ -21,6 +21,13 @@ A simple Redlib front-end for Android.
 
 There are a number of features that are still missing (e.g., user flairs). Unfortunately, these features will take some time to implement, even if they are simple ones. See [Regarding updates](#regarding-updates).
 
+# In-app screenshots
+![Screenshot_20250215-175212](https://github.com/user-attachments/assets/6260fdd1-58fe-4ec6-8351-d3698acf5ede)
+![Screenshot_20250215-172019](https://github.com/user-attachments/assets/c0b3d400-c87d-4bd0-9e0d-e445377cf09e)
+![Screenshot_20250215-175235](https://github.com/user-attachments/assets/046a3995-cecd-4b89-a4e3-34028746ae5c)
+![Screenshot_20250215-171842](https://github.com/user-attachments/assets/cb22a691-be9b-4f8e-a160-86bb7266aa6a)
+![Screenshot_20250215-171845](https://github.com/user-attachments/assets/46ccc25c-705a-496b-8fd4-4d32208cc184)
+
 # Contributing
 Contributions are very much welcome. Here are some quick guidelines:
 
