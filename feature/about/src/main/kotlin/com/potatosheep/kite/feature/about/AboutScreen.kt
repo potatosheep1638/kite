@@ -18,6 +18,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,6 +49,7 @@ internal fun AboutScreen(
     modifier: Modifier = Modifier
 ) {
     val backgroundColor = LocalBackgroundColor.current
+    val uriHandler = LocalUriHandler.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     Scaffold(
@@ -78,14 +80,14 @@ internal fun AboutScreen(
                 )
         ) {
             SettingRow(
-                text = "${stringResource(commonStrings.about_version)}",
+                text = stringResource(commonStrings.about_version),
                 description = version
             ) { }
 
             SettingRow(
                 text = stringResource(commonStrings.about_source_code),
                 description = stringResource(commonStrings.about_source_code_desc)
-            ) { }
+            ) { uriHandler.openUri(GITHUB_LINK) }
 
 
             Text(
@@ -99,6 +101,8 @@ internal fun AboutScreen(
         }
     }
 }
+
+private const val GITHUB_LINK = "https://github.com/potatosheep1638/kite"
 
 @Preview
 @Composable
