@@ -95,7 +95,11 @@ fun KiteTopAppBar(
         actions = {
             IconButton(
                 onClick = onOptionsClick,
-                modifier = Modifier
+                modifier = Modifier.windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(
+                        WindowInsetsSides.Horizontal
+                    )
+                )
             ) {
                 Icon(
                     imageVector = optionsIcon,
@@ -133,7 +137,11 @@ fun SmallTopAppBar(
         navigationIcon = {
             IconButton(
                 onClick = onBackClick,
-                modifier = modifier
+                modifier = Modifier.windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(
+                        WindowInsetsSides.Left
+                    )
+                )
             ) {
                 Icon(
                     imageVector = backIcon,
@@ -142,6 +150,7 @@ fun SmallTopAppBar(
             }
         },
         actions = actions,
+        modifier = modifier,
         colors = colors,
         scrollBehavior = scrollBehavior
     )
@@ -197,6 +206,11 @@ fun KiteSearchBar(
                     Row {
                         IconButton(
                             onClick = onBackClick,
+                            modifier = Modifier.windowInsetsPadding(
+                                WindowInsets.safeDrawing.only(
+                                    WindowInsetsSides.Left
+                                )
+                            )
                         ) {
                             Icon(
                                 imageVector = backIcon,
@@ -218,6 +232,11 @@ fun KiteSearchBar(
                                 inputQuery = ""
                                 onClear()
                             },
+                            modifier = Modifier.windowInsetsPadding(
+                                WindowInsets.safeDrawing.only(
+                                    WindowInsetsSides.Right
+                                )
+                            )
                         ) {
                             Icon(
                                 imageVector = KiteIcons.Clear,
@@ -261,7 +280,13 @@ fun MediaTopAppBar(
         navigationIcon = {
             ElevatedCard(
                 onClick = onBackClick,
-                modifier = modifier.size(40.dp),
+                modifier = Modifier
+                    .size(40.dp)
+                    .windowInsetsPadding(
+                        WindowInsets.safeDrawing.only(
+                            WindowInsetsSides.Left
+                        )
+                    ),
                 colors = CardDefaults.elevatedCardColors(
                     containerColor = MaterialTheme.colorScheme.background
                 ),
@@ -305,7 +330,13 @@ fun MediaTopAppBar(
 
             ElevatedCard(
                 onClick = onShareClick,
-                modifier = modifier.size(40.dp),
+                modifier = Modifier
+                    .size(40.dp)
+                    .windowInsetsPadding(
+                        WindowInsets.safeDrawing.only(
+                            WindowInsetsSides.Right
+                        )
+                    ),
                 colors = CardDefaults.elevatedCardColors(
                     containerColor = MaterialTheme.colorScheme.background
                 ),
@@ -326,6 +357,7 @@ fun MediaTopAppBar(
                 }
             }
         },
+        modifier = modifier,
         colors = colors,
         scrollBehavior = scrollBehavior
     )

@@ -179,6 +179,14 @@ class SearchViewModel @Inject constructor(
         savedStateHandle[SUBREDDIT_SCOPE] = subredditName
     }
 
+    fun changeSortOption(
+        sort: SortOption.Search? = null,
+        timeframe: SortOption.Timeframe? = null
+    ) {
+        if (sort != null) savedStateHandle[SORT_OPTION] = sort
+        if (timeframe != null) savedStateHandle[TIMEFRAME] = timeframe
+    }
+
     fun getPostLink(post: Post) = "${instanceUrl.value}/r/${post.subredditName}/comments/${post.id}"
 
     suspend fun checkIfPostExists(post: Post): Boolean =
@@ -216,26 +224,6 @@ class SearchViewModel @Inject constructor(
 
     private fun newQuery(query: String) {
         savedStateHandle[QUERY] = query
-    }
-
-    private fun resolveSortUri(uri: String): SortOption.Search {
-        for (entry in SortOption.Search.entries) {
-            if (entry.uri == uri) {
-                return entry
-            }
-        }
-
-        return SortOption.Search.RELEVANCE
-    }
-
-    private fun resolveTimeframeUri(uri: String): SortOption.Timeframe {
-        for (entry in SortOption.Timeframe.entries) {
-            if (entry.uri == uri) {
-                return entry
-            }
-        }
-
-        return SortOption.Timeframe.ALL
     }
 }
 

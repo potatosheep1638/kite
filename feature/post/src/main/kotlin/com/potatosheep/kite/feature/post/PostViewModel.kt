@@ -160,7 +160,7 @@ class PostViewModel @Inject constructor(
 
                                     else -> MediaType.GALLERY_LINK
                                 },
-                                link = getPostLink(post),
+                                link = post.mediaLinks[1].link,
                                 caption = null
                             )
                         )

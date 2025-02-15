@@ -1,6 +1,5 @@
 package com.potatosheep.kite.feature.post
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -71,6 +70,7 @@ import com.potatosheep.kite.core.designsystem.KiteTheme
 import com.potatosheep.kite.core.designsystem.LocalBackgroundColor
 import com.potatosheep.kite.core.designsystem.SmallTopAppBar
 import com.potatosheep.kite.core.model.Comment
+import com.potatosheep.kite.core.model.MediaType
 import com.potatosheep.kite.core.model.Post
 import com.potatosheep.kite.core.ui.CommentCard
 import com.potatosheep.kite.core.ui.MoreRepliesCard
@@ -286,7 +286,13 @@ internal fun PostScreen(
                                                 postUiState.post.subredditName,
                                                 postUiState.post.id,
                                                 null,
-                                                null,
+                                                when (postUiState.post.mediaLinks[0].mediaType) {
+                                                    MediaType.VIDEO_THUMBNAIL -> {
+                                                        postUiState.post.mediaLinks[0].link
+                                                    }
+
+                                                    else -> null
+                                                },
                                                 false,
                                                 false
                                             )
@@ -313,7 +319,13 @@ internal fun PostScreen(
                                                 postUiState.post.subredditName,
                                                 postUiState.post.id,
                                                 postUiState.comments[0].id,
-                                                null,
+                                                when (postUiState.post.mediaLinks[0].mediaType) {
+                                                    MediaType.VIDEO_THUMBNAIL -> {
+                                                        postUiState.post.mediaLinks[0].link
+                                                    }
+
+                                                    else -> null
+                                                },
                                                 false,
                                                 true
                                             )
@@ -424,11 +436,18 @@ internal fun PostScreen(
                                         comment = comment,
                                         onClick = onMoreRepliesClick,
                                         indents = postUiState.indents[index],
+                                        modifier = Modifier.fillMaxWidth(),
+                                        thumbnailLink = when (postUiState.post.mediaLinks[0].mediaType) {
+                                            MediaType.VIDEO_THUMBNAIL -> {
+                                                postUiState.post.mediaLinks[0].link
+                                            }
+
+                                            else -> null
+                                        },
                                         shape = RectangleShape,
                                         colors = CardDefaults.cardColors(
                                             containerColor = backgroundColor
-                                        ),
-                                        modifier = Modifier.fillMaxWidth()
+                                        )
                                     )
                                 }
                             }

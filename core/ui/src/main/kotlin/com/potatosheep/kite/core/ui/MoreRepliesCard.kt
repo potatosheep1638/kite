@@ -36,6 +36,7 @@ fun MoreRepliesCard(
     comment: Comment,
     onClick: (String, String, String?, String?, Boolean, Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    thumbnailLink: String? = null,
     shape: Shape = RectangleShape,
     colors: CardColors = CardDefaults.cardColors(
         containerColor =
@@ -57,7 +58,7 @@ fun MoreRepliesCard(
                     comment.subredditName,
                     comment.postId,
                     comment.id,
-                    null,
+                    thumbnailLink,
                     false,
                     false
                 )

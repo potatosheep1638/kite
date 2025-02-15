@@ -16,13 +16,17 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -138,6 +142,7 @@ fun SearchRoute(
         onImageClick = onImageClick,
         onVideoClick = onVideoClick,
         onSearchClick = onSearchClick,
+        changeSortOption =  viewModel::changeSortOption,
         changeSubredditScope = viewModel::changeSubredditScope,
         searchPostsAndSubreddits = viewModel::searchPostsAndSubreddits,
         loadMorePosts = viewModel::loadMorePosts,
@@ -170,6 +175,7 @@ internal fun SearchScreen(
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     searchPostsAndSubreddits: (String) -> Unit,
     changeSubredditScope: (String?) -> Unit,
+    changeSortOption: (SortOption.Search, SortOption.Timeframe) -> Unit,
     loadMorePosts: (String, SortOption.Search, SortOption.Timeframe) -> Unit,
     loadMoreSubreddits: (String) -> Unit,
     checkPostBookmarked: suspend (Post) -> Boolean,
@@ -273,6 +279,7 @@ internal fun SearchScreen(
                         if (searchUiState is SearchUiState.Initial) {
                             lastSubredditScope = ""
                             changeSubredditScope(newSubredditScope)
+                            changeSortOption(currentSortOption, currentSortTimeframe)
 
                             searchPostsAndSubreddits(it)
 
@@ -363,6 +370,11 @@ internal fun SearchScreen(
             Modifier
                 .padding(padding)
                 .consumeWindowInsets(padding)
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(
+                        WindowInsetsSides.Horizontal
+                    )
+                )
         ) {
             /*HorizontalDivider(
                 modifier = Modifier
@@ -911,6 +923,7 @@ private fun SearchScreenPreview(
                 onSearchClick = { _, _, _, _ -> },
                 searchPostsAndSubreddits = {},
                 changeSubredditScope = {},
+                changeSortOption = { _, _ -> },
                 loadMorePosts = { _, _, _ -> },
                 loadMoreSubreddits = {},
                 checkPostBookmarked = { _ -> false },

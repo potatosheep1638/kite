@@ -13,6 +13,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+/app/release
 
 # Project exclude paths
 /build-logic/conventions/build/

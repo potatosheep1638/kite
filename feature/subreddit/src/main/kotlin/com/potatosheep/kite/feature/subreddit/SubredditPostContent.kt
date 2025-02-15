@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
@@ -154,21 +155,30 @@ fun SubredditPostContent(
                     backIcon = KiteIcons.Back,
                     onBackClick = onBackClick,
                     actions = {
-                        IconButton(onClick = {
-                            onSearchClick(
-                                SortOption.Search.RELEVANCE,
-                                SortOption.Timeframe.ALL,
-                                subreddit.subredditName,
-                                ""
-                            )
-                        }) {
+                        IconButton(
+                            onClick = {
+                                onSearchClick(
+                                    SortOption.Search.RELEVANCE,
+                                    SortOption.Timeframe.ALL,
+                                    subreddit.subredditName,
+                                    ""
+                                )
+                            }
+                        ) {
                             Icon(
                                 imageVector = KiteIcons.Search,
                                 contentDescription = stringResource(commonStrings.content_desc_search)
                             )
                         }
 
-                        IconButton(onClick = { showBottomSheet = true }) {
+                        IconButton(
+                            onClick = { showBottomSheet = true },
+                            modifier = Modifier.windowInsetsPadding(
+                                WindowInsets.safeDrawing.only(
+                                    WindowInsetsSides.Right
+                                )
+                            )
+                        ) {
                             Icon(
                                 imageVector = KiteIcons.Sort,
                                 contentDescription = stringResource(commonStrings.content_desc_sort)

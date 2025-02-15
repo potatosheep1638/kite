@@ -59,9 +59,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.potatosheep.kite.core.common.enums.SortOption
 import com.potatosheep.kite.core.common.util.onShare
-import com.potatosheep.kite.core.common.R.string as commonStrings
 import com.potatosheep.kite.core.designsystem.KiteBottomSheet
-import com.potatosheep.kite.core.designsystem.KiteFonts
 import com.potatosheep.kite.core.designsystem.KiteIcons
 import com.potatosheep.kite.core.designsystem.KiteLoadingIndicator
 import com.potatosheep.kite.core.designsystem.KiteTheme
@@ -76,6 +74,7 @@ import com.potatosheep.kite.core.ui.UserCommentCard
 import com.potatosheep.kite.core.ui.param.PostsAndComments
 import com.potatosheep.kite.core.ui.param.PostsAndCommentsPreviewParameterProvider
 import com.potatosheep.kite.core.ui.post.PostCard
+import com.potatosheep.kite.core.common.R.string as commonStrings
 
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class,
@@ -145,17 +144,17 @@ internal fun UserContent(
                     backIcon = KiteIcons.Back,
                     onBackClick = onBackClick,
                     actions = {
-                        IconButton(onClick = { showBottomSheet = true }) {
+                        IconButton(
+                            onClick = { showBottomSheet = true },
+                            modifier = Modifier.windowInsetsPadding(
+                                WindowInsets.safeDrawing.only(
+                                    WindowInsetsSides.Right
+                                )
+                            )
+                        ) {
                             Icon(
                                 imageVector = KiteIcons.Sort,
                                 contentDescription = stringResource(commonStrings.content_desc_sort)
-                            )
-                        }
-
-                        IconButton(onClick = { /*TODO*/ }) {
-                            Icon(
-                                imageVector = KiteIcons.MoreOptions,
-                                contentDescription = stringResource(commonStrings.content_desc_more_options)
                             )
                         }
                     },

@@ -299,8 +299,8 @@ internal fun OnboardingScreen(
                                 modifier = Modifier
                                     .align(Alignment.End)
                                     .padding(
-                                        bottom = 12.dp,
-                                        end = 12.dp
+                                        bottom = 24.dp,
+                                        end = 24.dp
                                     ),
                                 enabled = when (currentSelectedOption) {
                                     OnboardingOption.PUBLIC -> {

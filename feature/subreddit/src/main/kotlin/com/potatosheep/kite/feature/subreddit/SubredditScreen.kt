@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -95,7 +96,7 @@ internal fun SubredditScreen(
     modifier: Modifier = Modifier,
 ) {
     val isLoading = subredditUiState is SubredditUiState.Loading
-    var showAbout by remember { mutableStateOf(false) }
+    var showAbout by rememberSaveable { mutableStateOf(false) }
 
     SharedTransitionLayout {
         AnimatedContent(
