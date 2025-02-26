@@ -29,13 +29,13 @@ There are a number of features that are still missing (e.g., user flairs). Unfor
 ![Screenshot_20250215-171845](https://github.com/user-attachments/assets/46ccc25c-705a-496b-8fd4-4d32208cc184)
 
 # Contributing
-Contributions are very much welcome. Here are some quick guidelines:
+Contributions are very much welcome. Here are some general guidelines:
 
 - For bugs or new features that **already have an issue**: assign this issue to yourself.
 - For bugs or new features that **do not have an existing issue**: open an issue or discussion regarding it.
 - Try to **avoid adding new dependencies** where feasible.
 - Ideally, code should be clean and performant. However, if you have to choose between the two, **favour performance**.
-- If refactoring, **make sure to open an issue** regarding it and explain the **reasoning behind your changes**.
+- If refactoring, **make sure to open an issue** regarding it first.
 
 # Regarding updates
 In my country of residence, all male citizens are required to serve in the military for a period of around 2 years. As of writing, I am still on active duty, which means that I will often be away from my computer for long stretches of time. Thus, I seek your understanding if updates are slow.
