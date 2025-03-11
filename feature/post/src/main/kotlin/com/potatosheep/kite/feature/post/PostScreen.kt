@@ -437,8 +437,10 @@ internal fun PostScreen(
                                         onClick = onMoreRepliesClick,
                                         indents = postUiState.indents[index],
                                         modifier = Modifier.fillMaxWidth(),
-                                        thumbnailLink = when (postUiState.post.mediaLinks[0].mediaType) {
-                                            MediaType.VIDEO_THUMBNAIL -> {
+                                        thumbnailLink = when {
+                                            postUiState.post.mediaLinks.isEmpty() -> null
+
+                                            postUiState.post.mediaLinks[0].mediaType == MediaType.VIDEO_THUMBNAIL -> {
                                                 postUiState.post.mediaLinks[0].link
                                             }
 
