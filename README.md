@@ -19,7 +19,7 @@ A simple Redlib front-end for Android.
 > [!TIP]
 > Remember to allow Kite to open reddit links in the **Open by default** settings page.
 
-There are a number of features that are still missing (e.g., user flairs). Unfortunately, these features will take some time to implement, even if they are simple ones. See [Regarding updates](#regarding-updates).
+There are a number of features that are still missing (e.g., user flairs), but the app is in an useable state.
 
 # In-app screenshots
 ![Screenshot_20250215-175212](https://github.com/user-attachments/assets/6260fdd1-58fe-4ec6-8351-d3698acf5ede)
@@ -36,10 +36,7 @@ Contributions are very much welcome. Here are some general guidelines:
 - Try to **avoid adding new dependencies** where feasible.
 - Ideally, code should be clean and performant. However, if you have to choose between the two, **favour performance**.
 - If refactoring, **make sure to open an issue** regarding it first.
-
-# Regarding updates
-In my country of residence, all male citizens are required to serve in the military for a period of around 2 years. As of writing, I am still on active duty, which means that I will often be away from my computer for long stretches of time. Thus, I seek your understanding if updates are slow.
-
+  
 # License
 ![](https://www.gnu.org/graphics/agplv3-155x51.png)
 
