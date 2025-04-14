@@ -31,6 +31,7 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -412,10 +413,11 @@ internal fun PostScreen(
                                                 }
                                             },
                                             onUserClick = onUserClick,
-                                            modifier = Modifier.onSizeChanged {
-                                                if (commentHeight < it.height || showExpandIcon)
-                                                    commentHeight = it.height
-                                            },
+                                            modifier = Modifier
+                                                .onSizeChanged {
+                                                    if (commentHeight < it.height || showExpandIcon)
+                                                        commentHeight = it.height
+                                                },
                                             isTopLevelComment = comment.parentCommentId == postUiState.post.id ||
                                                     comment.parentCommentId == Metadata.HAS_PARENTS,
                                             shape = RectangleShape,
@@ -425,6 +427,12 @@ internal fun PostScreen(
                                             )
                                         )
                                     }
+
+                                    Spacer(
+                                        Modifier
+                                            .height(12.dp)
+                                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                                    )
                                 }
                             } else {
                                 AnimatedVisibility(
@@ -490,9 +498,14 @@ private fun PostScreenPreview(
                 posts[3],
                 comments,
                 listOf(0, 1, 1, 2),
-                emptyMap(),
+                mapOf(
+                    comments[0].id to true,
+                    comments[1].id to true,
+                    comments[2].id to true,
+                    comments[3].id to true,
+                ),
                 false,
-                false
+                hasParentComments = true
             ),
             getPostLink = { "" },
             onSubredditClick = {},

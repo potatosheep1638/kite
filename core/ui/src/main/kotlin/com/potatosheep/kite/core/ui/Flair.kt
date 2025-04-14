@@ -50,12 +50,12 @@ fun Flair(
                                 if (index == 0)
                                     6.dp
                                 else
-                                    0.dp,
+                                    3.dp,
                                 end =
                                 if (index == flairComponents.size - 1)
                                     6.dp
                                 else
-                                    0.dp
+                                    3.dp
                             )
                             .size(20.dp),
                         model = component.value,
@@ -72,12 +72,12 @@ fun Flair(
                                 if (index == 0)
                                     6.dp
                                 else
-                                    0.dp,
+                                    3.dp,
                                 end =
                                 if (index == flairComponents.size - 1)
                                     6.dp
                                 else
-                                    0.dp
+                                    3.dp
                             ),
                         style = MaterialTheme.typography.labelSmall,
                         color = textColor

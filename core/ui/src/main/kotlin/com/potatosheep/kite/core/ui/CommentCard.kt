@@ -4,10 +4,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,7 +45,7 @@ import com.potatosheep.kite.core.markdown.MarkdownText
 import com.potatosheep.kite.core.model.Comment
 import com.potatosheep.kite.core.ui.param.CommentListPreviewParameterProvider
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun CommentCard(
     comment: Comment,
@@ -56,7 +57,7 @@ fun CommentCard(
     onUserClick: (String) -> Unit = {},
     expanded: Boolean = true,
     colors: CardColors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
     )
 ) {
     val indentColors = IndentColor.entries
@@ -79,11 +80,11 @@ fun CommentCard(
             modifier = Modifier
                 .padding(
                     start =
-                    if (isTopLevelComment) {
-                        0.dp
-                    } else {
-                        10.dp + (6.dp * indents)
-                    }
+                        if (isTopLevelComment) {
+                            0.dp
+                        } else {
+                            10.dp + (6.dp * indents)
+                        }
                 )
                 .drawBehind {
                     if (!isTopLevelComment) {
@@ -113,13 +114,13 @@ fun CommentCard(
                         .fillMaxWidth()
                 ) {
                     Column(Modifier.fillMaxWidth()) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        FlowRow(verticalArrangement = Arrangement.Center) {
                             if (comment.isPostAuthor) {
                                 Box(
                                     Modifier
-                                        .padding(vertical = 6.dp)
                                         .clip(RoundedCornerShape(12.dp))
                                         .background(MaterialTheme.colorScheme.primary)
+                                        .align(Alignment.CenterVertically)
                                         .clickable {
                                             onUserClick(comment.userName.substringAfter("u/"))
                                         }
@@ -138,7 +139,12 @@ fun CommentCard(
                                 Text(
                                     text = comment.userName,
                                     modifier = Modifier
-                                        .padding(vertical = 6.dp)
+                                        .padding(
+                                            top = 6.dp,
+                                            bottom = 6.dp,
+                                            end = 6.dp
+                                        )
+                                        .align(Alignment.CenterVertically)
                                         .clickable {
                                             onUserClick(comment.userName.substringAfter("u/"))
                                         },
@@ -147,10 +153,25 @@ fun CommentCard(
                                 )
                             }
 
+                            if (comment.flair.isNotEmpty()) {
+                                Flair(
+                                    flairComponents = comment.flair,
+                                    onClick = {},
+                                    modifier = Modifier.padding(
+                                        start = 6.dp,
+                                        top = 6.dp,
+                                        bottom = 6.dp,
+                                        end = 6.dp
+                                    ),
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                    textColor = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
+
                             Text(
-                                text = " • ${comment.timeAgo}",
-                                modifier = Modifier.padding(vertical = 6.dp),
-                                style = MaterialTheme.typography.labelMedium,
+                                text = comment.timeAgo,
+                                modifier = Modifier.align(Alignment.CenterVertically),
+                                style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
 
@@ -159,23 +180,6 @@ fun CommentCard(
                                     .fillMaxWidth()
                                     .weight(1f)
                             )
-
-                            if (!expanded) {
-                                Box(
-                                    modifier = Modifier
-                                        .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.secondary)
-                                ) {
-                                    Icon(
-                                        imageVector = KiteIcons.Expand,
-                                        contentDescription = "Show replies",
-                                        tint = MaterialTheme.colorScheme.onSecondary,
-                                        modifier = Modifier
-                                            .padding(4.dp)
-                                            .size(16.dp)
-                                    )
-                                }
-                            }
                         }
                     }
                 }
@@ -208,10 +212,10 @@ fun CommentCard(
                                 modifier = Modifier.padding(
                                     top = 4.dp,
                                     bottom =
-                                    if (comment.postTitle.isNullOrBlank())
-                                        0.dp
-                                    else
-                                        6.dp
+                                        if (comment.postTitle.isNullOrBlank())
+                                            0.dp
+                                        else
+                                            6.dp
 
                                 )
                             ) {
@@ -249,7 +253,7 @@ fun UserCommentCard(
     modifier: Modifier = Modifier,
     shape: Shape = RectangleShape,
     colors: CardColors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
     )
 ) {
     Card(
@@ -272,7 +276,7 @@ fun UserCommentCard(
                     .clickable { onSubredditClick(comment.subredditName) }
             ) {
                 Text(
-                    text = "${comment.subredditName.substringAfter("/")}",
+                    text = comment.subredditName.substringAfter("/"),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1
@@ -359,7 +363,7 @@ fun CommentCardPreview(
     comments: List<Comment>
 ) {
     KiteTheme {
-        Surface(color = LocalBackgroundColor.current) {
+        Surface {
             Column {
                 val indents = listOf(0, 1, 2)
 

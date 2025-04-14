@@ -50,7 +50,7 @@ internal class Parser(
                     upvoteCount = extractPostUpvoteCount(post),
                     postCommentCount = extractPostListingCommentCount(post),
                     flair = extractPostFlair(post, instanceUrl),
-                    flairId = extractPostFlairText(post),
+                    flairId = extractPostFlairId(post),
                     isNsfw = extractPostNsfw(post),
                     isSpoiler = extractPostSpoiler(post)
                 )
@@ -78,7 +78,7 @@ internal class Parser(
             upvoteCount = extractPostUpvoteCount(html),
             postCommentCount = extractPostCommentCount(html),
             flair = extractPostFlair(html, instanceUrl),
-            flairId = extractPostFlairText(html),
+            flairId = extractPostFlairId(html),
             isNsfw = extractPostNsfw(html),
             isSpoiler = extractPostSpoiler(html)
         )
@@ -133,6 +133,7 @@ internal class Parser(
                                 .first { it.hasClass("comment_author") }
                                 .text(),
                             isPostAuthor = node.select("a").first()!!.hasClass("op"),
+                            flair = extractCommentFlair(node, instanceUrl)
                         )
                     )
                 } else if (node.hasClass("deeper_replies")) {
@@ -149,6 +150,7 @@ internal class Parser(
                             upvoteCount = 0,
                             userName = "",
                             isPostAuthor = false,
+                            flair = extractCommentFlair(node, instanceUrl)
                         )
                     )
                 }
@@ -236,7 +238,8 @@ internal class Parser(
                                 .text(),
                             upvoteCount = extractCommentUpvoteCount(element),
                             userName = userName,
-                            isPostAuthor = false
+                            isPostAuthor = false,
+                            flair = emptyList()
                         )
                     )
                 }
@@ -254,7 +257,7 @@ internal class Parser(
                             upvoteCount = extractPostUpvoteCount(element),
                             postCommentCount = extractUserPostCommentCount(element),
                             flair = extractPostFlair(element, instanceUrl),
-                            flairId = extractPostFlairText(element),
+                            flairId = extractPostFlairId(element),
                             isNsfw = extractPostNsfw(element),
                             isSpoiler = extractPostSpoiler(element)
                         )
@@ -295,7 +298,7 @@ internal class Parser(
                         upvoteCount = extractPostUpvoteCount(post),
                         postCommentCount = extractPostListingCommentCount(post),
                         flair = extractPostFlair(post, instanceUrl),
-                        flairId = extractPostFlairText(post),
+                        flairId = extractPostFlairId(post),
                         isNsfw = extractPostNsfw(post),
                         isSpoiler = extractPostSpoiler(post)
                     )

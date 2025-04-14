@@ -11,4 +11,5 @@ data class Comment(
     val parentCommentId: String?,
     val postTitle: String?,
     val isPostAuthor: Boolean,
+    val flair: List<FlairComponent>
 )

@@ -1,7 +1,5 @@
 package com.potatosheep.kite.core.network.model
 
-import com.potatosheep.kite.core.model.FlairComponent
-import com.potatosheep.kite.core.model.FlairComponentType
 import com.potatosheep.kite.core.model.Post
 import kotlinx.datetime.Instant
 
@@ -22,11 +20,6 @@ data class NetworkPost (
     val isSpoiler: Boolean
 )
 
-data class NetworkFlairComponent(
-    val type: String,
-    val value: String
-)
-
 fun NetworkPost.toExternalModel() = Post(
     id = id,
     title = title,
@@ -42,13 +35,4 @@ fun NetworkPost.toExternalModel() = Post(
     flairId = flairId,
     isNsfw = isNsfw,
     isSpoiler = isSpoiler
-)
-
-private fun NetworkFlairComponent.toExternalModel() = FlairComponent(
-    value = this.value,
-    type = if (type == FlairComponentType.TEXT.value) {
-        FlairComponentType.TEXT
-    } else {
-        FlairComponentType.EMOJI
-    }
 )
