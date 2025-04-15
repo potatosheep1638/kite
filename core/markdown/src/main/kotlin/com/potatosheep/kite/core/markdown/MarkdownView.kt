@@ -3,6 +3,7 @@ package com.potatosheep.kite.core.markdown
 import android.util.TypedValue
 import android.view.View
 import android.widget.TextView
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
@@ -23,6 +24,7 @@ import com.potatosheep.kite.core.markdown.util.markdownRenderer
 fun MarkdownText(
     text: String,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
     onLongClick: () -> Unit = {},
     color: Color = Color.Unspecified,
     fontSize: TextUnit = TextUnit.Unspecified,
@@ -63,6 +65,13 @@ fun MarkdownText(
                     setLineSpacing(mergedStyle.lineHeight.value, 1f)
 
                     isLongClickable = true
+
+                    setOnClickListener {
+                        if (this.selectionStart == -1 && this.selectionEnd == -1) {
+                            onClick()
+                        }
+                    }
+
                     setOnLongClickListener {
                         onLongClick()
                         return@setOnLongClickListener true

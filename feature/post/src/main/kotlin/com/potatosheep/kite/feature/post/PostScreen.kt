@@ -54,10 +54,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -150,6 +152,7 @@ internal fun PostScreen(
 
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
 
     Scaffold(
         topBar = {
@@ -405,7 +408,7 @@ internal fun PostScreen(
                                         CommentCard(
                                             comment = comment,
                                             indents = postUiState.indents[index],
-                                            onLongClick = {
+                                            onClick = {
                                                 showExpandIcon = !showExpandIcon
 
                                                 coroutineScope.launch {
@@ -417,6 +420,13 @@ internal fun PostScreen(
                                                             collapse = showExpandIcon
                                                         )
                                                 }
+                                            },
+                                            onLongClick = {
+                                                clipboardManager.setText(
+                                                    AnnotatedString(
+                                                        comment.textContent ?: ""
+                                                    )
+                                                )
                                             },
                                             onUserClick = onUserClick,
                                             modifier = Modifier

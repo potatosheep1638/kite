@@ -52,6 +52,7 @@ fun CommentCard(
     modifier: Modifier = Modifier,
     isTopLevelComment: Boolean = false,
     indents: Int = 0,
+    onClick: () -> Unit = {},
     onLongClick: () -> Unit = {},
     onUserClick: (String) -> Unit = {},
     expanded: Boolean = true,
@@ -66,11 +67,7 @@ fun CommentCard(
         colors = colors,
         modifier = modifier
             .combinedClickable(
-                onClick = {
-                    if (!expanded) {
-                        onLongClick()
-                    }
-                },
+                onClick = onClick,
                 onLongClick = onLongClick,
                 onLongClickLabel = ""
             )
@@ -194,6 +191,7 @@ fun CommentCard(
                         MarkdownText(
                             text = comment.textContent,
                             modifier = Modifier.fillMaxWidth(),
+                            onClick = onClick,
                             onLongClick = onLongClick,
                             color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.bodyMedium
