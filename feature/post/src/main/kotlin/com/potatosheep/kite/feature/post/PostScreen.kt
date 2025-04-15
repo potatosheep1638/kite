@@ -72,6 +72,7 @@ import com.potatosheep.kite.core.designsystem.ErrorMsg
 import com.potatosheep.kite.core.designsystem.KiteTheme
 import com.potatosheep.kite.core.designsystem.LocalBackgroundColor
 import com.potatosheep.kite.core.designsystem.SmallTopAppBar
+import com.potatosheep.kite.core.markdown.util.toRedditMarkdown
 import com.potatosheep.kite.core.model.Comment
 import com.potatosheep.kite.core.model.MediaType
 import com.potatosheep.kite.core.model.Post
@@ -424,7 +425,7 @@ internal fun PostScreen(
                                             onLongClick = {
                                                 clipboardManager.setText(
                                                     AnnotatedString(
-                                                        comment.textContent ?: ""
+                                                        comment.textContent.toRedditMarkdown()
                                                     )
                                                 )
                                             },
