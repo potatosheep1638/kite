@@ -10,6 +10,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -79,6 +80,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -187,6 +189,12 @@ internal fun SearchScreen(
 ) {
     val isLoading = searchUiState is SearchUiState.Loading
     val context = LocalContext.current
+
+    val contentContainerColour =
+        if (isSystemInDarkTheme())
+            MaterialTheme.colorScheme.surfaceContainerHigh
+        else
+            MaterialTheme.colorScheme.surfaceContainerLowest
 
     val sheetState = rememberModalBottomSheetState()
     val focusRequester = remember { FocusRequester() }
@@ -488,7 +496,10 @@ internal fun SearchScreen(
                                             ),
                                             showText = false,
                                             isBookmarked = isBookmarked,
-                                            blurNsfw = blurNsfw
+                                            blurNsfw = blurNsfw,
+                                            colors = CardDefaults.cardColors(
+                                                containerColor = contentContainerColour
+                                            )
                                         )
                                     }
                                 }
@@ -876,7 +887,7 @@ private fun calculateIndicatorOffset(
     return currentTabPosition.left
 }
 
-@Preview
+@PreviewLightDark
 @Composable
 private fun SearchScreenPreview(
     @PreviewParameter(PostListPreviewParameterProvider::class)

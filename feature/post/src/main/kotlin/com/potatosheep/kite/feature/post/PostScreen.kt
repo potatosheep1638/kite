@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,7 +58,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -139,7 +140,11 @@ internal fun PostScreen(
     modifier: Modifier = Modifier,
 ) {
     val isLoading = postUiState is PostUiState.Loading
-    val backgroundColor = LocalBackgroundColor.current
+    val contentContainerColour =
+        if (isSystemInDarkTheme())
+            MaterialTheme.colorScheme.surfaceContainerHigh
+        else
+            MaterialTheme.colorScheme.surfaceContainerLowest
 
     val listState = rememberLazyListState()
 
@@ -155,7 +160,7 @@ internal fun PostScreen(
                 title = stringResource(com.potatosheep.kite.core.common.R.string.post),
                 scrollBehavior = scrollBehavior,
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = backgroundColor
+                    containerColor = contentContainerColour
                 ),
             )
         },
@@ -259,86 +264,88 @@ internal fun PostScreen(
                                     isBookmarked = isBookmarked,
                                     shape = RectangleShape,
                                     colors = CardDefaults.cardColors(
-                                        containerColor = backgroundColor
+                                        containerColor = contentContainerColour
                                     )
                                 )
                             }
                         }
 
                         item {
-                            Row(
-                                modifier = Modifier
-                                    .padding(
-                                        start = 16.dp,
-                                        end = 16.dp
-                                    )
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                AnimatedVisibility(
-                                    visible = !postUiState.isFullDiscussion,
-                                    enter = scaleIn(),
-                                    exit = scaleOut()
+                            Box(Modifier.background(contentContainerColour)) {
+                                Row(
+                                    modifier = Modifier
+                                        .padding(
+                                            start = 16.dp,
+                                            end = 16.dp
+                                        )
+                                        .fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center
                                 ) {
-                                    AssistChip(
-                                        onClick = {
-                                            onMoreRepliesClick(
-                                                postUiState.post.subredditName,
-                                                postUiState.post.id,
-                                                null,
-                                                when (postUiState.post.mediaLinks[0].mediaType) {
-                                                    MediaType.VIDEO_THUMBNAIL -> {
-                                                        postUiState.post.mediaLinks[0].link
-                                                    }
+                                    AnimatedVisibility(
+                                        visible = !postUiState.isFullDiscussion,
+                                        enter = scaleIn(),
+                                        exit = scaleOut()
+                                    ) {
+                                        AssistChip(
+                                            onClick = {
+                                                onMoreRepliesClick(
+                                                    postUiState.post.subredditName,
+                                                    postUiState.post.id,
+                                                    null,
+                                                    when (postUiState.post.mediaLinks[0].mediaType) {
+                                                        MediaType.VIDEO_THUMBNAIL -> {
+                                                            postUiState.post.mediaLinks[0].link
+                                                        }
 
-                                                    else -> null
-                                                },
-                                                false,
-                                                false
-                                            )
-                                        },
-                                        label = {
-                                            Text(
-                                                text = stringResource(commonStrings.post_view_all_comments),
-                                                color = MaterialTheme.colorScheme.onSurface,
-                                                style = MaterialTheme.typography.labelLarge
-                                            )
-                                        },
-                                        modifier = Modifier.padding(end = 12.dp)
-                                    )
-                                }
+                                                        else -> null
+                                                    },
+                                                    false,
+                                                    false
+                                                )
+                                            },
+                                            label = {
+                                                Text(
+                                                    text = stringResource(commonStrings.post_view_all_comments),
+                                                    color = MaterialTheme.colorScheme.onSurface,
+                                                    style = MaterialTheme.typography.labelLarge
+                                                )
+                                            },
+                                            modifier = Modifier.padding(end = 12.dp)
+                                        )
+                                    }
 
-                                AnimatedVisibility(
-                                    visible = postUiState.hasParentComments,
-                                    enter = scaleIn(),
-                                    exit = scaleOut()
-                                ) {
-                                    AssistChip(
-                                        onClick = {
-                                            onMoreRepliesClick(
-                                                postUiState.post.subredditName,
-                                                postUiState.post.id,
-                                                postUiState.comments[0].id,
-                                                when (postUiState.post.mediaLinks[0].mediaType) {
-                                                    MediaType.VIDEO_THUMBNAIL -> {
-                                                        postUiState.post.mediaLinks[0].link
-                                                    }
+                                    AnimatedVisibility(
+                                        visible = postUiState.hasParentComments,
+                                        enter = scaleIn(),
+                                        exit = scaleOut()
+                                    ) {
+                                        AssistChip(
+                                            onClick = {
+                                                onMoreRepliesClick(
+                                                    postUiState.post.subredditName,
+                                                    postUiState.post.id,
+                                                    postUiState.comments[0].id,
+                                                    when (postUiState.post.mediaLinks[0].mediaType) {
+                                                        MediaType.VIDEO_THUMBNAIL -> {
+                                                            postUiState.post.mediaLinks[0].link
+                                                        }
 
-                                                    else -> null
-                                                },
-                                                false,
-                                                true
-                                            )
-                                        },
-                                        label = {
-                                            Text(
-                                                text = stringResource(commonStrings.post_view_parent_comment),
-                                                color = MaterialTheme.colorScheme.onSurface,
-                                                style = MaterialTheme.typography.labelLarge
-                                            )
-                                        },
-                                        modifier = Modifier.padding(end = 12.dp)
-                                    )
+                                                        else -> null
+                                                    },
+                                                    false,
+                                                    true
+                                                )
+                                            },
+                                            label = {
+                                                Text(
+                                                    text = stringResource(commonStrings.post_view_parent_comment),
+                                                    color = MaterialTheme.colorScheme.onSurface,
+                                                    style = MaterialTheme.typography.labelLarge
+                                                )
+                                            },
+                                            modifier = Modifier.padding(end = 12.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -413,6 +420,12 @@ internal fun PostScreen(
                                             },
                                             onUserClick = onUserClick,
                                             modifier = Modifier
+                                                .padding(
+                                                    top = if (postUiState.indents[index] == 0)
+                                                        12.dp
+                                                    else
+                                                        0.dp
+                                                )
                                                 .onSizeChanged {
                                                     if (commentHeight < it.height || showExpandIcon)
                                                         commentHeight = it.height
@@ -422,7 +435,7 @@ internal fun PostScreen(
                                             shape = RectangleShape,
                                             expanded = !showExpandIcon,
                                             colors = CardDefaults.cardColors(
-                                                containerColor = backgroundColor
+                                                containerColor = contentContainerColour
                                             )
                                         )
                                     }
@@ -455,7 +468,7 @@ internal fun PostScreen(
                                         },
                                         shape = RectangleShape,
                                         colors = CardDefaults.cardColors(
-                                            containerColor = backgroundColor
+                                            containerColor = contentContainerColour
                                         )
                                     )
                                 }
@@ -469,7 +482,7 @@ internal fun PostScreen(
                 Box(
                     Modifier
                         .fillMaxSize()
-                        .background(backgroundColor)
+                        .background(contentContainerColour)
                 ) {
                     CircularProgressIndicator(
                         modifier = Modifier
@@ -483,7 +496,7 @@ internal fun PostScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
+@PreviewLightDark
 @Composable
 private fun PostScreenPreview(
     @PreviewParameter(PostsAndCommentsPreviewParameterProvider::class) postAndComments: PostsAndComments

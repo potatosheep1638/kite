@@ -30,7 +30,7 @@ fun KiteTheme(
             else -> lightColorScheme()
         }
     ) {
-        val backgroundColor = MaterialTheme.colorScheme.surface
+        val backgroundColor = MaterialTheme.colorScheme.surfaceContainer
 
         CompositionLocalProvider(
             LocalBackgroundColor provides backgroundColor
