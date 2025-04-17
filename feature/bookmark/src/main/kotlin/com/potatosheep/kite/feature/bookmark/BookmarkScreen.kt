@@ -250,6 +250,7 @@ fun BookmarkScreen(
                                             }
                                         }
                                     },
+                                    onLongClick = {},
                                     onSubredditClick = onSubredditClick,
                                     onUserClick = onUserClick,
                                     onFlairClick = { _, _, _, _ -> },

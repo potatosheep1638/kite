@@ -470,6 +470,7 @@ internal fun SearchScreen(
                                         PostCard(
                                             post = post,
                                             onClick = onPostClickFun,
+                                            onLongClick = {},
                                             onSubredditClick = onSubredditClick,
                                             onUserClick = onUserClick,
                                             onFlairClick = onFlairClickFun,

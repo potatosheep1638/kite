@@ -449,6 +449,7 @@ fun SubredditPostContent(
                                 PostCard(
                                     post = post,
                                     onClick = onClickFunction,
+                                    onLongClick = {},
                                     onSubredditClick = {},
                                     onUserClick = onUserClick,
                                     onFlairClick = onSearchClick,

@@ -1,6 +1,5 @@
 package com.potatosheep.kite.core.ui.post
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
@@ -17,6 +16,7 @@ import com.potatosheep.kite.core.model.Post
 fun PostCard(
     post: Post,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
     onSubredditClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
     onFlairClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
@@ -38,6 +38,7 @@ fun PostCard(
         PostDefaultCard(
             post = post,
             onClick = onClick,
+            onLongClick = onLongClick,
             onSubredditClick = onSubredditClick,
             onUserClick = onUserClick,
             onFlairClick = onFlairClick,
@@ -55,6 +56,7 @@ fun PostCard(
                 ImageCard(
                     post = post,
                     onClick = onClick,
+                    onLongClick = onLongClick,
                     onImageClick = onImageClick,
                     onSubredditClick = onSubredditClick,
                     onUserClick = onUserClick,
@@ -74,14 +76,15 @@ fun PostCard(
                 GalleryCard(
                     post = post,
                     onClick = onClick,
+                    onLongClick = onLongClick,
                     onSubredditClick = onSubredditClick,
                     onUserClick = onUserClick,
                     onImageClick =
-                    if (galleryRedirect) {
-                        null
-                    } else {
-                        onImageClick
-                    },
+                        if (galleryRedirect) {
+                            null
+                        } else {
+                            onImageClick
+                        },
                     onFlairClick = onFlairClick,
                     onShareClick = onShareClick,
                     onBookmarkClick = onBookmarkClick,
@@ -98,6 +101,7 @@ fun PostCard(
                 ArticleCard(
                     post = post,
                     onClick = onClick,
+                    onLongClick = onLongClick,
                     onSubredditClick = onSubredditClick,
                     onUserClick = onUserClick,
                     onFlairClick = onFlairClick,
@@ -114,6 +118,7 @@ fun PostCard(
                 VideoCard(
                     post = post,
                     onClick = onClick,
+                    onLongClick = onLongClick,
                     onVideoClick = onVideoClick,
                     onSubredditClick = onSubredditClick,
                     onUserClick = onUserClick,
@@ -132,6 +137,7 @@ fun PostCard(
                 PostDefaultCard(
                     post = post,
                     onClick = onClick,
+                    onLongClick = onLongClick,
                     onSubredditClick = onSubredditClick,
                     onUserClick = onUserClick,
                     onFlairClick = onFlairClick,

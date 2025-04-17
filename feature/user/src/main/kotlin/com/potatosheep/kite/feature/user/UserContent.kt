@@ -318,6 +318,7 @@ internal fun UserContent(
                                         PostCard(
                                             post = item,
                                             onClick = onClickFunction,
+                                            onLongClick = {},
                                             onSubredditClick = onSubredditClick,
                                             onUserClick = {},
                                             onFlairClick = onFlairClick,

@@ -191,6 +191,7 @@ internal fun PostScreen(
                             loadPost()
                         },
                         modifier = Modifier
+                            .background(contentContainerColour)
                             .fillMaxSize()
                             .padding(6.dp)
                     )
@@ -243,6 +244,7 @@ internal fun PostScreen(
                                 PostCard(
                                     post = post,
                                     onClick = {},
+                                    onLongClick = {},
                                     onSubredditClick = onSubredditClick,
                                     onUserClick = onUserClick,
                                     onFlairClick = onFlairClick,

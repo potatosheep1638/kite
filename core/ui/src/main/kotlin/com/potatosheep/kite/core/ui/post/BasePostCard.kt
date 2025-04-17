@@ -1,12 +1,13 @@
 package com.potatosheep.kite.core.ui.post
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,10 +45,12 @@ import com.potatosheep.kite.core.model.Post
 import com.potatosheep.kite.core.ui.Flair
 import com.potatosheep.kite.core.ui.param.PostListPreviewParameterProvider
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun BasePostCard(
     post: Post,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
     onSubredditClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
     onFlairClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
@@ -67,8 +70,11 @@ internal fun BasePostCard(
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
-        onClick = onClick,
-        modifier = modifier,
+        modifier = modifier
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            ),
         shape = shape,
         colors = colors
     ) {
@@ -337,6 +343,7 @@ private fun BasePostCardPreview(
             BasePostCard(
                 post = posts[0],
                 onClick = {},
+                onLongClick = {},
                 onSubredditClick = {},
                 onUserClick = {},
                 onFlairClick = { _, _, _, _ -> },

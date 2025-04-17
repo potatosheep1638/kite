@@ -398,6 +398,7 @@ internal fun HomeFeedScreen(
                             PostCard(
                                 post = post,
                                 onClick = onClickFunction,
+                                onLongClick = {},
                                 onSubredditClick = onSubredditClick,
                                 onUserClick = onUserClick,
                                 onFlairClick = onSearchClick,

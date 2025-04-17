@@ -30,6 +30,7 @@ import com.potatosheep.kite.core.ui.param.PostListPreviewParameterProvider
 fun ImageCard(
     post: Post,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
     onImageClick: (List<String>, List<String?>) -> Unit,
     onSubredditClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
@@ -48,11 +49,12 @@ fun ImageCard(
         else
             MaterialTheme.colorScheme.surface
     ),
-    previewMode: Boolean = false
+    previewMode: Boolean = false // TODO: Add this
 ) {
     BasePostCard(
         post = post,
         onClick = onClick,
+        onLongClick = onLongClick,
         onSubredditClick = onSubredditClick,
         onUserClick = onUserClick,
         onFlairClick = onFlairClick,
@@ -117,6 +119,7 @@ private fun ImageCardPreview(
             ImageCard(
                 post = posts[1],
                 onClick = {},
+                onLongClick = {},
                 onImageClick = { _, _ -> },
                 onSubredditClick = {},
                 onUserClick = {},
