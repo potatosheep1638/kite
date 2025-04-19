@@ -56,9 +56,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -116,6 +118,8 @@ fun SubredditPostContent(
 ) {
     val lazyListState = rememberLazyListState()
     val context = LocalContext.current
+
+    val clipboardManager = LocalClipboardManager.current
 
     val contentContainerColour =
         if (isSystemInDarkTheme())
@@ -449,7 +453,13 @@ fun SubredditPostContent(
                                 PostCard(
                                     post = post,
                                     onClick = onClickFunction,
-                                    onLongClick = {},
+                                    onLongClick = {
+                                        clipboardManager.setText(
+                                            AnnotatedString(
+                                                post.title
+                                            )
+                                        )
+                                    },
                                     onSubredditClick = {},
                                     onUserClick = onUserClick,
                                     onFlairClick = onSearchClick,

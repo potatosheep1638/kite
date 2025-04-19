@@ -43,8 +43,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
@@ -161,6 +163,8 @@ internal fun HomeFeedScreen(
     val isLoading = postListUiState is PostListUiState.Loading
     val listState = rememberLazyListState()
     val context = LocalContext.current
+
+    val clipboardManager = LocalClipboardManager.current
 
     val shouldLoadMorePosts by remember {
         derivedStateOf {
@@ -398,7 +402,13 @@ internal fun HomeFeedScreen(
                             PostCard(
                                 post = post,
                                 onClick = onClickFunction,
-                                onLongClick = {},
+                                onLongClick = {
+                                    clipboardManager.setText(
+                                        AnnotatedString(
+                                            post.title
+                                        )
+                                    )
+                                },
                                 onSubredditClick = onSubredditClick,
                                 onUserClick = onUserClick,
                                 onFlairClick = onSearchClick,

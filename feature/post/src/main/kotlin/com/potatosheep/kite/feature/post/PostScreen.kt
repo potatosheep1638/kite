@@ -244,7 +244,16 @@ internal fun PostScreen(
                                 PostCard(
                                     post = post,
                                     onClick = {},
-                                    onLongClick = {},
+                                    onLongClick = {
+                                        clipboardManager.setText(
+                                            AnnotatedString(
+                                                if (post.textContent.isEmpty())
+                                                    post.title
+                                                else
+                                                    post.textContent.toRedditMarkdown()
+                                            )
+                                        )
+                                    },
                                     onSubredditClick = onSubredditClick,
                                     onUserClick = onUserClick,
                                     onFlairClick = onFlairClick,

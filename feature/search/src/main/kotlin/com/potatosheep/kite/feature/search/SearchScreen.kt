@@ -72,11 +72,13 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -189,6 +191,8 @@ internal fun SearchScreen(
 ) {
     val isLoading = searchUiState is SearchUiState.Loading
     val context = LocalContext.current
+
+    val clipboardManager = LocalClipboardManager.current
 
     val contentContainerColour =
         if (isSystemInDarkTheme())
@@ -470,7 +474,13 @@ internal fun SearchScreen(
                                         PostCard(
                                             post = post,
                                             onClick = onPostClickFun,
-                                            onLongClick = {},
+                                            onLongClick = {
+                                                clipboardManager.setText(
+                                                    AnnotatedString(
+                                                        post.title
+                                                    )
+                                                )
+                                            },
                                             onSubredditClick = onSubredditClick,
                                             onUserClick = onUserClick,
                                             onFlairClick = onFlairClickFun,

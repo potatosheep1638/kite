@@ -41,9 +41,11 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -126,6 +128,8 @@ fun BookmarkScreen(
     val listState = rememberLazyListState()
 
     val context = LocalContext.current
+
+    val clipboardManager = LocalClipboardManager.current
 
     val focusRequester = remember { FocusRequester() }
     var isSearchBarFocused by remember { mutableStateOf(false) }
@@ -250,7 +254,13 @@ fun BookmarkScreen(
                                             }
                                         }
                                     },
-                                    onLongClick = {},
+                                    onLongClick = {
+                                        clipboardManager.setText(
+                                            AnnotatedString(
+                                                post.title
+                                            )
+                                        )
+                                    },
                                     onSubredditClick = onSubredditClick,
                                     onUserClick = onUserClick,
                                     onFlairClick = { _, _, _, _ -> },
