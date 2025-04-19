@@ -11,17 +11,17 @@ android {
     defaultConfig {
         compileSdk = 35
         applicationId = "com.potatosheep.kite"
-        versionCode = 3
-        versionName = "0.0.3-beta"
+        versionCode = 4
+        versionName = "0.1.0-beta"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         debug {
-            isDebuggable = true
-            //isMinifyEnabled = true
-            //isShrinkResources = true
+            //isDebuggable = true
+            isMinifyEnabled = true
+            isShrinkResources = true
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
