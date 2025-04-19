@@ -57,7 +57,6 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.potatosheep.kite.core.common.R.string as commonStrings
-import com.potatosheep.kite.core.designsystem.KiteFonts
 import com.potatosheep.kite.core.designsystem.KiteIcons
 import com.potatosheep.kite.core.designsystem.KiteTheme
 import com.potatosheep.kite.core.designsystem.LocalBackgroundColor
@@ -81,6 +80,7 @@ fun SettingsRoute(
         onBackClick = onBackClick,
         setInstance = viewModel::setInstance,
         setBlurNsfw = viewModel::setBlurNsfw,
+        setBlurSpoiler = viewModel::setBlurSpoiler,
         setUseCustomInstance = viewModel::setUseCustomInstance,
         setCustomInstance = viewModel::setCustomInstance,
         exportSavedPosts = viewModel::exportBookmarks,
@@ -100,6 +100,7 @@ internal fun SettingsScreen(
     onBackClick: () -> Unit,
     setInstance: (String) -> Unit,
     setBlurNsfw: (Boolean) -> Unit,
+    setBlurSpoiler: (Boolean) -> Unit,
     setUseCustomInstance: (Boolean) -> Unit,
     setCustomInstance: (String) -> Unit,
     exportSavedPosts: (Uri, Context) -> Unit,
@@ -219,6 +220,14 @@ internal fun SettingsScreen(
                         selected = settingsUiState.userConfig.blurNsfw
                     ) {
                         setBlurNsfw(!settingsUiState.userConfig.blurNsfw)
+                    }
+
+                    SwitchRow(
+                        text = stringResource(commonStrings.settings_blur_spoiler),
+                        description = stringResource(commonStrings.settings_blur_spoiler_desc),
+                        selected = settingsUiState.userConfig.blurSpoiler
+                    ) {
+                        setBlurSpoiler(!settingsUiState.userConfig.blurSpoiler)
                     }
 
                     Spacer(Modifier.padding(vertical = 6.dp))
@@ -500,7 +509,8 @@ private fun SettingsScreenPreview() {
         showNsfw = true,
         blurNsfw = true,
         shouldUseCustomInstance = false,
-        customInstance = ""
+        customInstance = "",
+        blurSpoiler = true
     )
 
     val instances = listOf(
@@ -520,6 +530,7 @@ private fun SettingsScreenPreview() {
                 setBlurNsfw = {},
                 setUseCustomInstance = {},
                 setCustomInstance = {},
+                setBlurSpoiler = {},
                 exportSavedPosts = { _, _ -> },
                 importSavedPosts = { _, _ -> },
                 writeFileIntent = { Intent() },

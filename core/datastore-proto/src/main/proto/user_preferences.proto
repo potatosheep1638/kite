@@ -10,4 +10,5 @@ message UserPreferences {
   bool blur_nsfw = 4;
   bool should_use_custom_instance = 5;
   string custom_instance = 6;
+  bool blur_spoiler = 7;
 }

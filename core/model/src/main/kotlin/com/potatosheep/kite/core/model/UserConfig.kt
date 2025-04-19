@@ -28,5 +28,6 @@ data class UserConfig(
     // val resolveThumbnail: Boolean
 
     val shouldUseCustomInstance: Boolean,
-    val customInstance: String
+    val customInstance: String,
+    val blurSpoiler: Boolean
 )
