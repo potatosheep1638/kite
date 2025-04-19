@@ -19,7 +19,7 @@ A simple Redlib front-end for Android.
 > [!TIP]
 > Remember to allow Kite to open reddit links in the **Open by default** settings page.
 
-There are a number of features that are still missing (e.g., user flairs), but the app is in an useable state.
+There are a number of features that are still missing ~~(e.g., user flairs)~~, but the app is in an useable state.
 
 # In-app screenshots
 ![Screenshot_20250215-175212](https://github.com/user-attachments/assets/6260fdd1-58fe-4ec6-8351-d3698acf5ede)
