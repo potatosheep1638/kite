@@ -49,12 +49,14 @@ fun SubredditRoute(
     val subredditUiState by viewModel.subredditUiState.collectAsStateWithLifecycle()
     val postUiState by viewModel.postUiState.collectAsStateWithLifecycle()
     val shouldBlurNsfw by viewModel.blurNsfw.collectAsStateWithLifecycle()
+    val shouldBlurSpoiler by viewModel.blurSpoiler.collectAsStateWithLifecycle()
     val isSubredditFollowed by viewModel.isSubredditFollowed.collectAsStateWithLifecycle()
 
     SubredditScreen(
         subredditUiState = subredditUiState,
         postUiState = postUiState,
         shouldBlurNsfw = shouldBlurNsfw,
+        shouldBlurSpoiler = shouldBlurSpoiler,
         isSubredditFollowed = isSubredditFollowed,
         onBackClick = onBackClick,
         onPostClick = onPostClick,
@@ -80,6 +82,7 @@ internal fun SubredditScreen(
     subredditUiState: SubredditUiState,
     postUiState: PostUiState,
     shouldBlurNsfw: Boolean,
+    shouldBlurSpoiler: Boolean,
     isSubredditFollowed: Boolean,
     onBackClick: () -> Unit,
     onPostClick: (String, String, String?, String?) -> Unit,
@@ -125,6 +128,7 @@ internal fun SubredditScreen(
                             postUiState = postUiState,
                             subreddit = subredditUiState.subreddit,
                             shouldBlurNsfw = shouldBlurNsfw,
+                            shouldBlurSpoiler = shouldBlurSpoiler,
                             isSubredditFollowed = isSubredditFollowed,
                             onBackClick = onBackClick,
                             onPostClick = onPostClick,

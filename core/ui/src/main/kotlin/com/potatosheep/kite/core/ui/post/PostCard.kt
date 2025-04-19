@@ -26,7 +26,7 @@ fun PostCard(
     onBookmarkClick: () -> Unit,
     modifier: Modifier = Modifier,
     showText: Boolean = false,
-    blurNsfw: Boolean = true,
+    blurImage: Boolean = true,
     isBookmarked: Boolean = false,
     galleryRedirect: Boolean = true,
     shape: Shape = RoundedCornerShape(12.dp),
@@ -65,7 +65,7 @@ fun PostCard(
                     onBookmarkClick = onBookmarkClick,
                     modifier = modifier,
                     showText = showText,
-                    blurImage = blurNsfw && post.isNsfw,
+                    blurImage = blurImage,
                     isBookmarked = isBookmarked,
                     shape = shape,
                     colors = colors
@@ -90,7 +90,7 @@ fun PostCard(
                     onBookmarkClick = onBookmarkClick,
                     modifier = modifier,
                     showText = showText,
-                    blurThumbnail = blurNsfw && post.isNsfw,
+                    blurThumbnail = blurImage,
                     isBookmarked = isBookmarked,
                     shape = shape,
                     colors = colors
@@ -126,7 +126,7 @@ fun PostCard(
                     onShareClick = onShareClick,
                     onBookmarkClick = onBookmarkClick,
                     modifier = modifier,
-                    blurThumbnail = blurNsfw && post.isNsfw,
+                    blurThumbnail = blurImage,
                     isBookmarked = isBookmarked,
                     shape = shape,
                     colors = colors

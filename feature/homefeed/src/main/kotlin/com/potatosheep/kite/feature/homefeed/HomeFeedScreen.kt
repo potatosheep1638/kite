@@ -91,6 +91,7 @@ fun HomeFeedRoute(
 ) {
     val homeFeedUiState by viewModel.uiState.collectAsStateWithLifecycle()
     val blurNsfw by viewModel.blurNsfw.collectAsStateWithLifecycle()
+    val blurSpoiler by viewModel.blurSpoiler.collectAsStateWithLifecycle()
     val instance by viewModel.instanceUrl.collectAsStateWithLifecycle()
     val followedSubreddits by viewModel.followedSubreddits.collectAsStateWithLifecycle()
 
@@ -124,7 +125,8 @@ fun HomeFeedRoute(
         removePostBookmark = viewModel::removePostBookmark,
         navBar = navBar,
         modifier = modifier,
-        shouldBlurNsfw = blurNsfw
+        shouldBlurNsfw = blurNsfw,
+        shouldBlurSpoiler = blurSpoiler
     )
 }
 
@@ -157,6 +159,7 @@ internal fun HomeFeedScreen(
     navBar: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     shouldBlurNsfw: Boolean = false,
+    shouldBlurSpoiler: Boolean = false,
     sortSheetState: SheetState = rememberModalBottomSheetState(),
     feedSheetState: SheetState = rememberModalBottomSheetState()
 ) {
@@ -429,7 +432,8 @@ internal fun HomeFeedScreen(
                                     vertical = 6.dp
                                 ),
                                 showText = false,
-                                blurNsfw = shouldBlurNsfw,
+                                blurImage = (shouldBlurNsfw && post.isNsfw) ||
+                                            (shouldBlurSpoiler && post.isSpoiler),
                                 isBookmarked = isBookmarked,
                                 colors = CardDefaults.cardColors(
                                     containerColor =

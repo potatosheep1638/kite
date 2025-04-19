@@ -89,6 +89,7 @@ internal fun UserContent(
     user: User,
     userFeedUiState: UserFeedUiState,
     shouldBlurNsfw: Boolean,
+    shouldBlurSpoiler: Boolean,
     loadSortedPostsAndComments: (sortOption: SortOption.User) -> Unit,
     loadMorePostsAndComments: (sortOption: SortOption.User) -> Unit,
     getPostLink: (Post) -> String,
@@ -349,7 +350,8 @@ internal fun UserContent(
                                                 vertical = 6.dp
                                             ),
                                             showText = false,
-                                            blurNsfw = shouldBlurNsfw,
+                                            blurImage = (shouldBlurNsfw && item.isNsfw) ||
+                                                    (shouldBlurSpoiler && item.isSpoiler),
                                             isBookmarked = isBookmarked,
                                             colors = CardDefaults.cardColors(
                                                 containerColor = contentContainerColour
@@ -455,6 +457,7 @@ private fun UserPreview(
                 user = user,
                 userFeedUiState = UserFeedUiState.Success(postsAndComments),
                 shouldBlurNsfw = false,
+                shouldBlurSpoiler = false,
                 loadSortedPostsAndComments = {},
                 loadMorePostsAndComments = {},
                 getPostLink = { "" },

@@ -95,6 +95,7 @@ fun SubredditPostContent(
     postUiState: PostUiState,
     subreddit: Subreddit,
     shouldBlurNsfw: Boolean,
+    shouldBlurSpoiler: Boolean,
     isSubredditFollowed: Boolean,
     onBackClick: () -> Unit,
     onPostClick: (String, String, String?, String?) -> Unit,
@@ -481,7 +482,8 @@ fun SubredditPostContent(
                                     ),
                                     showText = false,
                                     isBookmarked = isBookmarked,
-                                    blurNsfw = shouldBlurNsfw,
+                                    blurImage = (shouldBlurNsfw && post.isNsfw) ||
+                                            (shouldBlurSpoiler && post.isSpoiler),
                                     colors = CardDefaults.cardColors(
                                         containerColor = contentContainerColour
                                     )
@@ -600,6 +602,7 @@ private fun SubredditScreenPreview(
                 postUiState = PostUiState.Success(posts, SortOption.Post.HOT),
                 subreddit = subreddit,
                 shouldBlurNsfw = false,
+                shouldBlurSpoiler = false,
                 isSubredditFollowed = false,
                 onBackClick = {},
                 onPostClick = { _, _, _, _ -> },

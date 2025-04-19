@@ -130,6 +130,7 @@ fun SearchRoute(
     val subredditListingUiState by viewModel.subredditListingUiState.collectAsStateWithLifecycle()
 
     val blurNsfw by viewModel.blurNsfw.collectAsStateWithLifecycle()
+    val blurSpoiler by viewModel.blurSpoiler.collectAsStateWithLifecycle()
 
     SearchScreen(
         searchUiState = searchUiState,
@@ -139,6 +140,7 @@ fun SearchRoute(
         subredditScope = subredditScope,
         query = query,
         blurNsfw = blurNsfw,
+        blurSpoiler = blurSpoiler,
         onBackClick = onBackClick,
         onPostClick = onPostClick,
         onSubredditClick = onSubredditClick,
@@ -170,6 +172,7 @@ internal fun SearchScreen(
     subredditScope: String?,
     query: String,
     blurNsfw: Boolean,
+    blurSpoiler: Boolean,
     onBackClick: () -> Unit,
     onPostClick: (String, String, String?, String?, Boolean) -> Unit,
     onSubredditClick: (String) -> Unit,
@@ -507,7 +510,8 @@ internal fun SearchScreen(
                                             ),
                                             showText = false,
                                             isBookmarked = isBookmarked,
-                                            blurNsfw = blurNsfw,
+                                            blurImage = (blurNsfw && post.isNsfw) ||
+                                                    (blurSpoiler && post.isSpoiler),
                                             colors = CardDefaults.cardColors(
                                                 containerColor = contentContainerColour
                                             )
@@ -936,6 +940,7 @@ private fun SearchScreenPreview(
                 subredditScope = "r/testsub",
                 query = "",
                 blurNsfw = false,
+                blurSpoiler = false,
                 onBackClick = {},
                 onPostClick = { _, _, _, _, _ -> },
                 onSubredditClick = {},

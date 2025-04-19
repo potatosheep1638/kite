@@ -78,6 +78,7 @@ fun BookmarkRoute(
 ) {
     val postListUiState by viewModel.uiState.collectAsStateWithLifecycle()
     val shouldBlurNsfw by viewModel.blurNsfw.collectAsStateWithLifecycle()
+    val shouldBlurSpoiler by viewModel.blurSpoiler.collectAsStateWithLifecycle()
     val query by viewModel.query.collectAsStateWithLifecycle()
 
     BookmarkScreen(
@@ -93,6 +94,7 @@ fun BookmarkRoute(
         removeBookmarkedPost = viewModel::removeBookmarkedPost,
         searchSavedPosts = viewModel::searchSavedPosts,
         shouldBlurNsfw = shouldBlurNsfw,
+        shouldBlurSpoiler = shouldBlurSpoiler,
         modifier = modifier
     )
 }
@@ -112,6 +114,7 @@ fun BookmarkScreen(
     removeBookmarkedPost: (Post) -> Unit,
     searchSavedPosts: (String) -> Unit,
     shouldBlurNsfw: Boolean,
+    shouldBlurSpoiler: Boolean,
     modifier: Modifier = Modifier
 ) {
     val isLoading = postListUiState is PostListUiState.Loading
@@ -297,7 +300,8 @@ fun BookmarkScreen(
                                         vertical = 6.dp
                                     ),
                                     showText = false,
-                                    blurNsfw = shouldBlurNsfw,
+                                    blurImage = (shouldBlurNsfw && post.isNsfw) ||
+                                            (shouldBlurSpoiler && post.isSpoiler),
                                     galleryRedirect = true,
                                     isBookmarked = true,
                                     colors = CardDefaults.cardColors(
@@ -334,7 +338,8 @@ fun BookmarkScreenPreview(
             getPostLink = { "" },
             removeBookmarkedPost = {},
             searchSavedPosts = {},
-            shouldBlurNsfw = false,
+            shouldBlurNsfw = true,
+            shouldBlurSpoiler = true,
             modifier = Modifier
         )
     }

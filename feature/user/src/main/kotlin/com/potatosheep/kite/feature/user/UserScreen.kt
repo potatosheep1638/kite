@@ -48,11 +48,13 @@ fun UserRoute(
     val userUiState by viewModel.userUiState.collectAsStateWithLifecycle()
     val postUiState by viewModel.userFeedUiState.collectAsStateWithLifecycle()
     val shouldBlurNsfw by viewModel.blurNsfw.collectAsStateWithLifecycle()
+    val shouldBlurSpoiler by viewModel.blurSpoiler.collectAsStateWithLifecycle()
 
     UserScreen(
         userUiState = userUiState,
         userFeedUiState = postUiState,
         shouldBlurNsfw = shouldBlurNsfw,
+        shouldBlurSpoiler = shouldBlurSpoiler,
         loadSortedPostsAndComments = viewModel::loadSortedPostsAndComments,
         loadMorePostsAndComments = viewModel::loadMorePostsAndComments,
         getPostLink = viewModel::getPostLink,
@@ -76,6 +78,7 @@ internal fun UserScreen(
     userUiState: UserUiState,
     userFeedUiState: UserFeedUiState,
     shouldBlurNsfw: Boolean,
+    shouldBlurSpoiler: Boolean,
     loadSortedPostsAndComments: (sortOption: SortOption.User) -> Unit,
     loadMorePostsAndComments: (sortOption: SortOption.User) -> Unit,
     getPostLink: (Post) -> String,
@@ -107,6 +110,7 @@ internal fun UserScreen(
                             user = userUiState.user,
                             userFeedUiState = userFeedUiState,
                             shouldBlurNsfw = shouldBlurNsfw,
+                            shouldBlurSpoiler = shouldBlurSpoiler,
                             loadSortedPostsAndComments = loadSortedPostsAndComments,
                             loadMorePostsAndComments = loadMorePostsAndComments,
                             getPostLink = getPostLink,

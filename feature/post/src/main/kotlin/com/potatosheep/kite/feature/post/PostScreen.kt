@@ -274,7 +274,7 @@ internal fun PostScreen(
                                             postHeight = it.height
                                     },
                                     showText = true,
-                                    blurNsfw = false,
+                                    blurImage = false,
                                     galleryRedirect = false,
                                     isBookmarked = isBookmarked,
                                     shape = RectangleShape,

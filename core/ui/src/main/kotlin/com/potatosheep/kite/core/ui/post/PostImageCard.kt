@@ -49,7 +49,7 @@ fun ImageCard(
         else
             MaterialTheme.colorScheme.surface
     ),
-    previewMode: Boolean = false // TODO: Add this
+    previewMode: Boolean = false // TODO: Implement this
 ) {
     BasePostCard(
         post = post,
