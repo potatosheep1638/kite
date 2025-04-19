@@ -99,7 +99,7 @@ class KitePreferencesDataSource @Inject constructor(
         try {
             userPreferences.updateData {
                 it.copy {
-                    this.showNsfw = shouldBlur
+                    this.blurSpoiler = shouldBlur
                 }
             }
         } catch (e: IOException) {
