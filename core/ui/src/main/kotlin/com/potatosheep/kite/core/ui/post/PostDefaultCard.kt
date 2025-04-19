@@ -24,6 +24,7 @@ import com.potatosheep.kite.core.ui.param.PostListPreviewParameterProvider
 fun PostDefaultCard(
     post: Post,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
     onSubredditClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
     onFlairClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
@@ -50,6 +51,7 @@ fun PostDefaultCard(
         onShareClick = onShareClick,
         onBookmarkClick = onBookmarkClick,
         modifier = modifier,
+        onLongClick = onLongClick,
         isBookmarked = isBookmarked,
         shape = shape,
         colors = colors
@@ -80,6 +82,7 @@ private fun PostDefaultCardPreview(
             PostDefaultCard(
                 post = posts[0],
                 onClick = {},
+                onLongClick = {},
                 onSubredditClick = {},
                 onUserClick = {},
                 onFlairClick = { _, _, _, _ -> },

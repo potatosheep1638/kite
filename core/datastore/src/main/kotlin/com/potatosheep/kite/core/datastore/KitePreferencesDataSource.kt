@@ -18,7 +18,8 @@ class KitePreferencesDataSource @Inject constructor(
                 showNsfw = it.showNsfw,
                 blurNsfw = it.blurNsfw,
                 shouldUseCustomInstance = it.shouldUseCustomInstance,
-                customInstance = it.customInstance
+                customInstance = it.customInstance,
+                blurSpoiler = it.blurSpoiler
             )
         }
 
@@ -87,6 +88,18 @@ class KitePreferencesDataSource @Inject constructor(
             userPreferences.updateData {
                 it.copy {
                     this.customInstance = instance
+                }
+            }
+        } catch (e: IOException) {
+            Log.e("KitePreferences", "Failed to update user preferences", e)
+        }
+    }
+
+    suspend fun setBlurSpoiler(shouldBlur: Boolean) {
+        try {
+            userPreferences.updateData {
+                it.copy {
+                    this.blurSpoiler = shouldBlur
                 }
             }
         } catch (e: IOException) {

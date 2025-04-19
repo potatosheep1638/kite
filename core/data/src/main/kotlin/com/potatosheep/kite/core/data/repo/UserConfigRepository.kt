@@ -14,6 +14,7 @@ interface UserConfigRepository {
     suspend fun setOnboarding(shouldOnboard: Boolean)
     suspend fun setUseCustomInstance(shouldUse: Boolean)
     suspend fun setCustomInstance(instanceUrl: String)
+    suspend fun setBlurSpoiler(shouldBlur: Boolean)
     suspend fun getInstances(): List<String>
 }
 
@@ -37,8 +38,8 @@ internal class DefaultUserConfigRepository @Inject constructor(
         kitePreferencesDataSource.setBlurNsfw(shouldBlur)
     }
 
-    override suspend fun setOnboarding(show: Boolean) {
-        kitePreferencesDataSource.setOnboarding(show)
+    override suspend fun setOnboarding(shouldOnboard: Boolean) {
+        kitePreferencesDataSource.setOnboarding(shouldOnboard)
     }
 
     override suspend fun setUseCustomInstance(shouldUse: Boolean) {
@@ -47,6 +48,10 @@ internal class DefaultUserConfigRepository @Inject constructor(
 
     override suspend fun setCustomInstance(instanceUrl: String) {
         kitePreferencesDataSource.setCustomInstance(instanceUrl)
+    }
+
+    override suspend fun setBlurSpoiler(shouldBlur: Boolean) {
+        kitePreferencesDataSource.setBlurSpoiler(shouldBlur)
     }
 
     override suspend fun getInstances(): List<String> =

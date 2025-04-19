@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.potatosheep.kite.core.data.repo.PostRepository
 import com.potatosheep.kite.core.data.repo.UserConfigRepository
 import com.potatosheep.kite.core.model.UserConfig
@@ -61,6 +60,12 @@ class SettingsViewModel @Inject constructor(
     fun setCustomInstance(instanceUrl: String) {
         viewModelScope.launch {
             userConfigRepository.setCustomInstance(instanceUrl)
+        }
+    }
+
+    fun setBlurSpoiler(shouldBlur: Boolean) {
+        viewModelScope.launch {
+            userConfigRepository.setBlurSpoiler(shouldBlur)
         }
     }
 

@@ -23,6 +23,7 @@ import com.potatosheep.kite.core.markdown.util.markdownRenderer
 fun MarkdownText(
     text: String,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
     onLongClick: () -> Unit = {},
     color: Color = Color.Unspecified,
     fontSize: TextUnit = TextUnit.Unspecified,
@@ -63,6 +64,13 @@ fun MarkdownText(
                     setLineSpacing(mergedStyle.lineHeight.value, 1f)
 
                     isLongClickable = true
+
+                    setOnClickListener {
+                        if (this.selectionStart == -1 && this.selectionEnd == -1) {
+                            onClick()
+                        }
+                    }
+
                     setOnLongClickListener {
                         onLongClick()
                         return@setOnLongClickListener true

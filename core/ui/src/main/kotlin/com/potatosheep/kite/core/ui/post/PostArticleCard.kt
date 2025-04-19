@@ -41,6 +41,7 @@ import com.potatosheep.kite.core.ui.param.PostListPreviewParameterProvider
 fun ArticleCard(
     post: Post,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
     onSubredditClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
     onFlairClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
@@ -62,6 +63,7 @@ fun ArticleCard(
     BasePostCard(
         post = post,
         onClick = onClick,
+        onLongClick = onLongClick,
         onSubredditClick = onSubredditClick,
         onUserClick = onUserClick,
         onFlairClick = onFlairClick,
@@ -182,6 +184,7 @@ private fun GalleryCardPreview(
             ArticleCard(
                 post = posts[4],
                 onClick = {},
+                onLongClick = {},
                 onSubredditClick = {},
                 onUserClick = {},
                 onFlairClick = { _, _, _, _ -> },

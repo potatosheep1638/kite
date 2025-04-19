@@ -26,8 +26,8 @@ import kotlin.time.Duration.Companion.seconds
 @HiltViewModel
 class UserViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    userConfigRepository: UserConfigRepository,
     private val userRepository: UserRepository,
-    private val userConfigRepository: UserConfigRepository,
     private val postRepository: PostRepository
 ) : ViewModel() {
 
@@ -41,6 +41,14 @@ class UserViewModel @Inject constructor(
 
     val blurNsfw = userConfigRepository.userConfig
         .map { it.blurNsfw }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+            initialValue = true
+        )
+
+    val blurSpoiler = userConfigRepository.userConfig
+        .map { it.blurSpoiler }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),

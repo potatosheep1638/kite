@@ -5,6 +5,7 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
@@ -27,6 +27,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -55,11 +56,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -92,6 +95,7 @@ fun SubredditPostContent(
     postUiState: PostUiState,
     subreddit: Subreddit,
     shouldBlurNsfw: Boolean,
+    shouldBlurSpoiler: Boolean,
     isSubredditFollowed: Boolean,
     onBackClick: () -> Unit,
     onPostClick: (String, String, String?, String?) -> Unit,
@@ -115,6 +119,14 @@ fun SubredditPostContent(
 ) {
     val lazyListState = rememberLazyListState()
     val context = LocalContext.current
+
+    val clipboardManager = LocalClipboardManager.current
+
+    val contentContainerColour =
+        if (isSystemInDarkTheme())
+            MaterialTheme.colorScheme.surfaceContainerHigh
+        else
+            MaterialTheme.colorScheme.surfaceContainerLowest
 
     val isTitleVisible by remember {
         derivedStateOf {
@@ -365,10 +377,10 @@ fun SubredditPostContent(
                                     },
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor =
-                                        if (isSubredditFollowed)
-                                            LocalBackgroundColor.current
-                                        else
-                                            MaterialTheme.colorScheme.primary
+                                            if (isSubredditFollowed)
+                                                LocalBackgroundColor.current
+                                            else
+                                                MaterialTheme.colorScheme.primary
                                     )
                                 ) {
                                     Text(
@@ -377,10 +389,10 @@ fun SubredditPostContent(
                                         else
                                             stringResource(commonStrings.follow),
                                         color =
-                                        if (isSubredditFollowed)
-                                            MaterialTheme.colorScheme.error
-                                        else
-                                            MaterialTheme.colorScheme.onPrimary,
+                                            if (isSubredditFollowed)
+                                                MaterialTheme.colorScheme.error
+                                            else
+                                                MaterialTheme.colorScheme.onPrimary,
                                         style = MaterialTheme.typography.labelLarge
                                     )
                                 }
@@ -442,6 +454,13 @@ fun SubredditPostContent(
                                 PostCard(
                                     post = post,
                                     onClick = onClickFunction,
+                                    onLongClick = {
+                                        clipboardManager.setText(
+                                            AnnotatedString(
+                                                post.title
+                                            )
+                                        )
+                                    },
                                     onSubredditClick = {},
                                     onUserClick = onUserClick,
                                     onFlairClick = onSearchClick,
@@ -463,7 +482,11 @@ fun SubredditPostContent(
                                     ),
                                     showText = false,
                                     isBookmarked = isBookmarked,
-                                    blurNsfw = shouldBlurNsfw
+                                    blurImage = (shouldBlurNsfw && post.isNsfw) ||
+                                            (shouldBlurSpoiler && post.isSpoiler),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = contentContainerColour
+                                    )
                                 )
                             }
                         }
@@ -558,7 +581,7 @@ fun SubredditPostContent(
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
-@Preview
+@PreviewLightDark
 @Composable
 private fun SubredditScreenPreview(
     @PreviewParameter(PostListPreviewParameterProvider::class)
@@ -579,6 +602,7 @@ private fun SubredditScreenPreview(
                 postUiState = PostUiState.Success(posts, SortOption.Post.HOT),
                 subreddit = subreddit,
                 shouldBlurNsfw = false,
+                shouldBlurSpoiler = false,
                 isSubredditFollowed = false,
                 onBackClick = {},
                 onPostClick = { _, _, _, _ -> },

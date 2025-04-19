@@ -1,5 +1,6 @@
 package com.potatosheep.kite.feature.homefeed
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -41,9 +43,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -87,6 +91,7 @@ fun HomeFeedRoute(
 ) {
     val homeFeedUiState by viewModel.uiState.collectAsStateWithLifecycle()
     val blurNsfw by viewModel.blurNsfw.collectAsStateWithLifecycle()
+    val blurSpoiler by viewModel.blurSpoiler.collectAsStateWithLifecycle()
     val instance by viewModel.instanceUrl.collectAsStateWithLifecycle()
     val followedSubreddits by viewModel.followedSubreddits.collectAsStateWithLifecycle()
 
@@ -120,7 +125,8 @@ fun HomeFeedRoute(
         removePostBookmark = viewModel::removePostBookmark,
         navBar = navBar,
         modifier = modifier,
-        shouldBlurNsfw = blurNsfw
+        shouldBlurNsfw = blurNsfw,
+        shouldBlurSpoiler = blurSpoiler
     )
 }
 
@@ -153,12 +159,15 @@ internal fun HomeFeedScreen(
     navBar: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     shouldBlurNsfw: Boolean = false,
+    shouldBlurSpoiler: Boolean = false,
     sortSheetState: SheetState = rememberModalBottomSheetState(),
     feedSheetState: SheetState = rememberModalBottomSheetState()
 ) {
     val isLoading = postListUiState is PostListUiState.Loading
     val listState = rememberLazyListState()
     val context = LocalContext.current
+
+    val clipboardManager = LocalClipboardManager.current
 
     val shouldLoadMorePosts by remember {
         derivedStateOf {
@@ -396,6 +405,13 @@ internal fun HomeFeedScreen(
                             PostCard(
                                 post = post,
                                 onClick = onClickFunction,
+                                onLongClick = {
+                                    clipboardManager.setText(
+                                        AnnotatedString(
+                                            post.title
+                                        )
+                                    )
+                                },
                                 onSubredditClick = onSubredditClick,
                                 onUserClick = onUserClick,
                                 onFlairClick = onSearchClick,
@@ -416,8 +432,16 @@ internal fun HomeFeedScreen(
                                     vertical = 6.dp
                                 ),
                                 showText = false,
-                                blurNsfw = shouldBlurNsfw,
-                                isBookmarked = isBookmarked
+                                blurImage = (shouldBlurNsfw && post.isNsfw) ||
+                                            (shouldBlurSpoiler && post.isSpoiler),
+                                isBookmarked = isBookmarked,
+                                colors = CardDefaults.cardColors(
+                                    containerColor =
+                                        if (isSystemInDarkTheme())
+                                            MaterialTheme.colorScheme.surfaceContainerHigh
+                                        else
+                                            MaterialTheme.colorScheme.surfaceContainerLowest
+                                )
                             )
                         }
                     }
@@ -707,7 +731,7 @@ private fun PostSorter(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(heightDp = 2000)
+@PreviewLightDark
 @Composable
 fun HomeFeedScreenPreview(
     @PreviewParameter(PostListPreviewParameterProvider::class)

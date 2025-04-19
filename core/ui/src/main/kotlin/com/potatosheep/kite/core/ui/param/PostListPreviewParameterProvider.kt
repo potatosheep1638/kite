@@ -1,6 +1,8 @@
 package com.potatosheep.kite.core.ui.param
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import com.potatosheep.kite.core.model.FlairComponent
+import com.potatosheep.kite.core.model.FlairComponentType
 import com.potatosheep.kite.core.model.MediaLink
 import com.potatosheep.kite.core.model.MediaType
 import com.potatosheep.kite.core.model.Post
@@ -24,7 +26,7 @@ object PostListPreviewParameterData {
             timePosted = Clock.System.now(),
             upvoteCount = 10,
             commentCount = 10,
-            flair = emptyList(),
+            flair = listOf(FlairComponent("Test flair",  FlairComponentType.TEXT)),
             flairId = "",
             isNsfw = false,
             isSpoiler = false,

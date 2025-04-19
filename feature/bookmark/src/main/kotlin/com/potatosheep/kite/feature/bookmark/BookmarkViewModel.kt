@@ -35,6 +35,14 @@ class BookmarkViewModel @Inject constructor(
             initialValue = true
         )
 
+    val blurSpoiler = userConfigRepository.userConfig
+        .map { it.blurSpoiler }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+            initialValue = true
+        )
+
     private val instanceUrl = userConfigRepository.userConfig
         .map {
             if (it.shouldUseCustomInstance)

@@ -511,7 +511,8 @@ private fun OnboardingScreenPreview() {
         showNsfw = true,
         blurNsfw = true,
         shouldUseCustomInstance = false,
-        customInstance = ""
+        customInstance = "",
+        blurSpoiler = true
     )
 
     KiteTheme {

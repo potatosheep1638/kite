@@ -12,7 +12,8 @@ data class NetworkComment (
     val timeAgo: String,
     val parentCommentId: String? = null,
     val postTitle: String? = null,
-    val isPostAuthor: Boolean
+    val isPostAuthor: Boolean,
+    val flair: List<NetworkFlairComponent>
 )
 
 fun NetworkComment.toExternalModel() = Comment(
@@ -25,5 +26,6 @@ fun NetworkComment.toExternalModel() = Comment(
     timeAgo = timeAgo,
     parentCommentId = parentCommentId,
     postTitle = postTitle,
-    isPostAuthor = isPostAuthor
+    isPostAuthor = isPostAuthor,
+    flair = flair.map { it.toExternalModel() }
 )

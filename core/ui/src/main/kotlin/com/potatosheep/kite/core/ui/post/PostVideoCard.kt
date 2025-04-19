@@ -41,6 +41,7 @@ import com.potatosheep.kite.core.ui.param.PostListPreviewParameterProvider
 fun VideoCard(
     post: Post,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
     onVideoClick: (String) -> Unit,
     onSubredditClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
@@ -64,6 +65,7 @@ fun VideoCard(
     BasePostCard(
         post = post,
         onClick = onClick,
+        onLongClick = onLongClick,
         onSubredditClick = onSubredditClick,
         onUserClick = onUserClick,
         onFlairClick = onFlairClick,
@@ -155,6 +157,7 @@ private fun VideoCardPreview(
             VideoCard(
                 post = posts[1],
                 onClick = {},
+                onLongClick = {},
                 onVideoClick = {},
                 onSubredditClick = {},
                 onUserClick = {},

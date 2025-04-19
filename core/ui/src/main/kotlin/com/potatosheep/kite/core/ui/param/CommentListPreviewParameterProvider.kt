@@ -2,6 +2,8 @@ package com.potatosheep.kite.core.ui.param
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.potatosheep.kite.core.model.Comment
+import com.potatosheep.kite.core.model.FlairComponent
+import com.potatosheep.kite.core.model.FlairComponentType
 import com.potatosheep.kite.core.ui.param.CommentListPreviewParameterData.comments
 
 class CommentListPreviewParameterProvider : PreviewParameterProvider<List<Comment>> {
@@ -24,9 +26,12 @@ object CommentListPreviewParameterData {
                     "<p>you've showered (i.e., you're clean) why do you still wash your towel?</p>",
             upvoteCount = 18,
             timeAgo = "2h ago",
-            parentCommentId = null,
+            parentCommentId = "873avc1",
             postTitle = null,
-            isPostAuthor = true
+            isPostAuthor = true,
+            flair = listOf(
+                FlairComponent("Test", FlairComponentType.TEXT)
+            )
         ),
         Comment(
             id = "testId456",
@@ -39,7 +44,8 @@ object CommentListPreviewParameterData {
             timeAgo = "2h ago",
             parentCommentId = "testId123",
             postTitle = null,
-            isPostAuthor = false
+            isPostAuthor = false,
+            flair = emptyList()
         ),
         Comment(
             id = "testId789",
@@ -52,10 +58,11 @@ object CommentListPreviewParameterData {
             timeAgo = "Jun 12, 2024",
             parentCommentId = "testId456",
             postTitle = null,
-            isPostAuthor = false
+            isPostAuthor = false,
+            flair = emptyList()
         ),
         Comment(
-            id = "testId789",
+            id = "testId012",
             postId = "postId123",
             userName = "",
             subredditName = "/r/testsub",
@@ -64,7 +71,8 @@ object CommentListPreviewParameterData {
             timeAgo = "2h ago",
             parentCommentId = "testId123",
             postTitle = "Lemons, lemons, lemons, lemons, and more lemons",
-            isPostAuthor = false
+            isPostAuthor = false,
+            flair = emptyList()
         )
     )
 }

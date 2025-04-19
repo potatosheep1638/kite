@@ -22,9 +22,9 @@ import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class HomeFeedViewModel @Inject constructor(
+    subredditRepository: SubredditRepository,
     private val savedStateHandle: SavedStateHandle,
     private val postRepository: PostRepository,
-    private val subredditRepository: SubredditRepository,
     private val userConfigRepository: UserConfigRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<PostListUiState>(PostListUiState.Loading)
@@ -34,16 +34,16 @@ class HomeFeedViewModel @Inject constructor(
     val currentSortOption = savedStateHandle.getStateFlow(SORT, SortOption.Post.HOT)
     val currentSortTimeframe = savedStateHandle.getStateFlow(TIME, SortOption.Timeframe.DAY)
 
-    private val shouldShowOnboarding = userConfigRepository.userConfig
-        .map { !it.shouldHideOnboarding }
+    val blurNsfw = userConfigRepository.userConfig
+        .map { it.blurNsfw }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-            initialValue = null
+            initialValue = true
         )
 
-    val blurNsfw = userConfigRepository.userConfig
-        .map { it.blurNsfw }
+    val blurSpoiler = userConfigRepository.userConfig
+        .map { it.blurSpoiler }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),

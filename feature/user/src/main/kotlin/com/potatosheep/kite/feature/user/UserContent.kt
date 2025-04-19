@@ -5,6 +5,7 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -24,6 +25,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -49,9 +51,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -85,6 +89,7 @@ internal fun UserContent(
     user: User,
     userFeedUiState: UserFeedUiState,
     shouldBlurNsfw: Boolean,
+    shouldBlurSpoiler: Boolean,
     loadSortedPostsAndComments: (sortOption: SortOption.User) -> Unit,
     loadMorePostsAndComments: (sortOption: SortOption.User) -> Unit,
     getPostLink: (Post) -> String,
@@ -108,6 +113,14 @@ internal fun UserContent(
 
     val listState = rememberLazyListState()
     val context = LocalContext.current
+
+    val clipboardManager = LocalClipboardManager.current
+
+    val contentContainerColour =
+        if (isSystemInDarkTheme())
+            MaterialTheme.colorScheme.surfaceContainerHigh
+        else
+            MaterialTheme.colorScheme.surfaceContainerLowest
 
     val isTitleVisible by remember {
         derivedStateOf {
@@ -310,6 +323,13 @@ internal fun UserContent(
                                         PostCard(
                                             post = item,
                                             onClick = onClickFunction,
+                                            onLongClick = {
+                                                clipboardManager.setText(
+                                                    AnnotatedString(
+                                                        item.title
+                                                    )
+                                                )
+                                            },
                                             onSubredditClick = onSubredditClick,
                                             onUserClick = {},
                                             onFlairClick = onFlairClick,
@@ -330,8 +350,12 @@ internal fun UserContent(
                                                 vertical = 6.dp
                                             ),
                                             showText = false,
-                                            blurNsfw = shouldBlurNsfw,
-                                            isBookmarked = isBookmarked
+                                            blurImage = (shouldBlurNsfw && item.isNsfw) ||
+                                                    (shouldBlurSpoiler && item.isSpoiler),
+                                            isBookmarked = isBookmarked,
+                                            colors = CardDefaults.cardColors(
+                                                containerColor = contentContainerColour
+                                            )
                                         )
                                     }
 
@@ -351,6 +375,9 @@ internal fun UserContent(
                                             modifier = Modifier.padding(
                                                 horizontal = 12.dp,
                                                 vertical = 6.dp,
+                                            ),
+                                            colors = CardDefaults.cardColors(
+                                                containerColor = contentContainerColour
                                             )
                                         )
                                     }
@@ -430,6 +457,7 @@ private fun UserPreview(
                 user = user,
                 userFeedUiState = UserFeedUiState.Success(postsAndComments),
                 shouldBlurNsfw = false,
+                shouldBlurSpoiler = false,
                 loadSortedPostsAndComments = {},
                 loadMorePostsAndComments = {},
                 getPostLink = { "" },

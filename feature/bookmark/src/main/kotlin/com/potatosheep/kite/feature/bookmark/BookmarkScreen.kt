@@ -1,8 +1,7 @@
 package com.potatosheep.kite.feature.bookmark
 
-import android.util.Log
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -15,7 +14,9 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SnackbarDuration
@@ -28,7 +29,6 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,10 +41,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -59,7 +61,6 @@ import com.potatosheep.kite.core.designsystem.LocalBackgroundColor
 import com.potatosheep.kite.core.designsystem.NoResultsMsg
 import com.potatosheep.kite.core.model.MediaType
 import com.potatosheep.kite.core.model.Post
-import com.potatosheep.kite.core.model.Subreddit
 import com.potatosheep.kite.core.ui.param.PostListPreviewParameterProvider
 import com.potatosheep.kite.core.ui.post.PostCard
 import kotlinx.coroutines.launch
@@ -77,6 +78,7 @@ fun BookmarkRoute(
 ) {
     val postListUiState by viewModel.uiState.collectAsStateWithLifecycle()
     val shouldBlurNsfw by viewModel.blurNsfw.collectAsStateWithLifecycle()
+    val shouldBlurSpoiler by viewModel.blurSpoiler.collectAsStateWithLifecycle()
     val query by viewModel.query.collectAsStateWithLifecycle()
 
     BookmarkScreen(
@@ -92,6 +94,7 @@ fun BookmarkRoute(
         removeBookmarkedPost = viewModel::removeBookmarkedPost,
         searchSavedPosts = viewModel::searchSavedPosts,
         shouldBlurNsfw = shouldBlurNsfw,
+        shouldBlurSpoiler = shouldBlurSpoiler,
         modifier = modifier
     )
 }
@@ -111,9 +114,16 @@ fun BookmarkScreen(
     removeBookmarkedPost: (Post) -> Unit,
     searchSavedPosts: (String) -> Unit,
     shouldBlurNsfw: Boolean,
+    shouldBlurSpoiler: Boolean,
     modifier: Modifier = Modifier
 ) {
     val isLoading = postListUiState is PostListUiState.Loading
+
+    val contentContainerColour =
+        if (isSystemInDarkTheme())
+            MaterialTheme.colorScheme.surfaceContainerHigh
+        else
+            MaterialTheme.colorScheme.surfaceContainerLowest
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val coroutineScope = rememberCoroutineScope()
@@ -121,6 +131,8 @@ fun BookmarkScreen(
     val listState = rememberLazyListState()
 
     val context = LocalContext.current
+
+    val clipboardManager = LocalClipboardManager.current
 
     val focusRequester = remember { FocusRequester() }
     var isSearchBarFocused by remember { mutableStateOf(false) }
@@ -197,10 +209,10 @@ fun BookmarkScreen(
                         NoResultsMsg(
                             title = "Nothing found",
                             subtitle =
-                            if (query.isEmpty())
-                                "You have not saved any posts"
-                            else
-                                "Try reformulating your query",
+                                if (query.isEmpty())
+                                    "You have not saved any posts"
+                                else
+                                    "Try reformulating your query",
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -245,6 +257,13 @@ fun BookmarkScreen(
                                             }
                                         }
                                     },
+                                    onLongClick = {
+                                        clipboardManager.setText(
+                                            AnnotatedString(
+                                                post.title
+                                            )
+                                        )
+                                    },
                                     onSubredditClick = onSubredditClick,
                                     onUserClick = onUserClick,
                                     onFlairClick = { _, _, _, _ -> },
@@ -281,9 +300,13 @@ fun BookmarkScreen(
                                         vertical = 6.dp
                                     ),
                                     showText = false,
-                                    blurNsfw = shouldBlurNsfw,
+                                    blurImage = (shouldBlurNsfw && post.isNsfw) ||
+                                            (shouldBlurSpoiler && post.isSpoiler),
                                     galleryRedirect = true,
-                                    isBookmarked = true
+                                    isBookmarked = true,
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = contentContainerColour
+                                    )
                                 )
                             }
                         }
@@ -296,7 +319,7 @@ fun BookmarkScreen(
     }
 }
 
-@Preview
+@PreviewLightDark
 @Composable
 fun BookmarkScreenPreview(
     @PreviewParameter(PostListPreviewParameterProvider::class)
@@ -315,7 +338,8 @@ fun BookmarkScreenPreview(
             getPostLink = { "" },
             removeBookmarkedPost = {},
             searchSavedPosts = {},
-            shouldBlurNsfw = false,
+            shouldBlurNsfw = true,
+            shouldBlurSpoiler = true,
             modifier = Modifier
         )
     }
