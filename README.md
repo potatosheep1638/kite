@@ -31,11 +31,9 @@ There are a number of features that are still missing ~~(e.g., user flairs)~~, b
 # Contributing
 Contributions are very much welcome. Here are some general guidelines:
 
-- For bugs or new features that **already have an issue**: assign this issue to yourself.
-- For bugs or new features that **do not have an existing issue**: open an issue or discussion regarding it.
-- Try to **avoid adding new dependencies** where feasible.
-- Ideally, code should be clean and performant. However, if you have to choose between the two, **favour performance**.
-- If refactoring, **make sure to open an issue** regarding it first.
+- For bugs or new features that already have an issue: assign this issue to yourself.
+- For bugs, refactors, or new features that do not have an existing issue: open an issue or discussion regarding it.
+- Try to avoid adding new dependencies where feasible.
   
 # License
 ![](https://www.gnu.org/graphics/agplv3-155x51.png)
