@@ -44,7 +44,7 @@ internal fun extractPostFlairId(element: Element): String {
 
 /**
  * Returns a comment flair as a [NetworkFlairComponent] object. Do note that if there are multiple
- * elements with the '.post_flair' class, only the first element will be used.
+ * elements with the '.author_flair' class, only the first element will be used.
  */
 internal fun extractCommentFlair(element: Element, instanceUrl: String): List<NetworkFlairComponent> {
     val flairComponent = mutableListOf<NetworkFlairComponent>()
