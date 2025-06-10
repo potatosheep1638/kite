@@ -48,23 +48,26 @@ internal fun extractPostFlairId(element: Element): String {
  */
 internal fun extractCommentFlair(element: Element, instanceUrl: String): List<NetworkFlairComponent> {
     val flairComponent = mutableListOf<NetworkFlairComponent>()
+    val commentData = element.select("summary.comment_data").first()
 
-    element.select("small.author_flair").first()?.forEachNode { node ->
-        if (node is Element) {
-            if (node.hasClass(FlairComponentType.EMOJI.value)) {
-                flairComponent.add(
-                    NetworkFlairComponent(
-                        type = FlairComponentType.EMOJI.value,
-                        value = "${instanceUrl}${node.attr("style").split("'")[1]}"
+    if (commentData != null) {
+        commentData.select("small.author_flair").first()?.forEachNode { node ->
+            if (node is Element) {
+                if (node.hasClass(FlairComponentType.EMOJI.value)) {
+                    flairComponent.add(
+                        NetworkFlairComponent(
+                            type = FlairComponentType.EMOJI.value,
+                            value = "${instanceUrl}${node.attr("style").split("'")[1]}"
+                        )
                     )
-                )
-            } else if (node.`is`("span")) {
-                flairComponent.add(
-                    NetworkFlairComponent(
-                        type = FlairComponentType.TEXT.value,
-                        value = node.text()
+                } else if (node.`is`("span")) {
+                    flairComponent.add(
+                        NetworkFlairComponent(
+                            type = FlairComponentType.TEXT.value,
+                            value = node.text()
+                        )
                     )
-                )
+                }
             }
         }
     }
