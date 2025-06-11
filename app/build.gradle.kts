@@ -49,7 +49,7 @@ dependencies {
     implementation(projects.core.common)
     implementation(projects.core.markdown)
 
-    implementation(projects.feature.homefeed)
+    implementation(projects.feature.feed)
     implementation(projects.feature.library)
     implementation(projects.feature.post)
     implementation(projects.feature.image)
