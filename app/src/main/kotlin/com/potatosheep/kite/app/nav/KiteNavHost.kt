@@ -23,7 +23,7 @@ import com.potatosheep.kite.feature.bookmark.nav.navigateToBookmark
 import com.potatosheep.kite.feature.homefeed.nav.feedScreen
 import com.potatosheep.kite.feature.image.nav.imageScreen
 import com.potatosheep.kite.feature.image.nav.navigateToImage
-import com.potatosheep.kite.feature.library.nav.libraryScreen
+import com.potatosheep.kite.feature.library.nav.homeScreen
 import com.potatosheep.kite.feature.onboarding.nav.onboardingScreen
 import com.potatosheep.kite.feature.post.nav.navigateToPost
 import com.potatosheep.kite.feature.post.nav.postScreen
@@ -76,7 +76,7 @@ fun KiteNavHost(
             modifier = modifier
         )
 
-        libraryScreen(
+        homeScreen(
             onSettingsClick = navController::navigateToSettings,
             onSearchClick = navController::navigateToSearch,
             onSubredditClick = navController::navigateToSubreddit,

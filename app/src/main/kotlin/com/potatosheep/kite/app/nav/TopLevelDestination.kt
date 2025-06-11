@@ -14,9 +14,9 @@ enum class TopLevelDestination(
         selectedIcon = KiteIcons.HomeSelected,
         label = "Feed"
     ),
-    LIBRARY(
+    HOME(
         icon = KiteIcons.Library,
         selectedIcon = KiteIcons.LibrarySelected,
-        label = "Library"
+        label = "Home"
     )
 }

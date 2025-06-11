@@ -50,7 +50,7 @@ dependencies {
     implementation(projects.core.markdown)
 
     implementation(projects.feature.feed)
-    implementation(projects.feature.library)
+    implementation(projects.feature.home)
     implementation(projects.feature.post)
     implementation(projects.feature.image)
     implementation(projects.feature.subreddit)
