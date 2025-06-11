@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.homefeed
+package com.potatosheep.kite.feature.feed
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box

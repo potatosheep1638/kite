@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.potatosheep.kite.app.nav.KiteNavHost
 import com.potatosheep.kite.core.designsystem.LocalBackgroundColor
-import com.potatosheep.kite.feature.homefeed.nav.FeedRoute
+import com.potatosheep.kite.feature.feed.nav.FeedRoute
 import com.potatosheep.kite.feature.onboarding.nav.OnboardingRoute
 
 @Composable

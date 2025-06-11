@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.homefeed
+package com.potatosheep.kite.feature.feed
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

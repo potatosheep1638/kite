@@ -15,7 +15,7 @@ import com.potatosheep.kite.app.nav.TopLevelDestination
 import com.potatosheep.kite.app.nav.TopLevelDestination.FEED
 import com.potatosheep.kite.app.nav.TopLevelDestination.HOME
 import com.potatosheep.kite.core.data.repo.UserConfigRepository
-import com.potatosheep.kite.feature.homefeed.nav.navigateToFeed
+import com.potatosheep.kite.feature.feed.nav.navigateToFeed
 import com.potatosheep.kite.feature.library.nav.navigateToHome
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted

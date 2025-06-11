@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.homefeed.nav
+package com.potatosheep.kite.feature.feed.nav
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -13,7 +13,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.potatosheep.kite.core.common.enums.SortOption
-import com.potatosheep.kite.feature.homefeed.FeedRoute
+import com.potatosheep.kite.feature.feed.FeedRoute
 import kotlinx.serialization.Serializable
 
 @Serializable
