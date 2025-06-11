@@ -12,10 +12,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.potatosheep.kite.app.nav.TopLevelDestination
-import com.potatosheep.kite.app.nav.TopLevelDestination.HOME
+import com.potatosheep.kite.app.nav.TopLevelDestination.FEED
 import com.potatosheep.kite.app.nav.TopLevelDestination.LIBRARY
 import com.potatosheep.kite.core.data.repo.UserConfigRepository
-import com.potatosheep.kite.feature.homefeed.nav.navigateToHome
+import com.potatosheep.kite.feature.homefeed.nav.navigateToFeed
 import com.potatosheep.kite.feature.library.nav.navigateToLibrary
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
@@ -73,7 +73,7 @@ class KiteAppState(
             }
 
             when (topLevelDestination) {
-                HOME -> navController.navigateToHome(topLevelNavOptions)
+                FEED -> navController.navigateToFeed(topLevelNavOptions)
                 LIBRARY -> navController.navigateToLibrary(topLevelNavOptions)
             }
         }

@@ -20,7 +20,7 @@ import com.potatosheep.kite.feature.about.nav.aboutScreen
 import com.potatosheep.kite.feature.about.nav.navigateToAbout
 import com.potatosheep.kite.feature.bookmark.nav.bookmarkScreen
 import com.potatosheep.kite.feature.bookmark.nav.navigateToBookmark
-import com.potatosheep.kite.feature.homefeed.nav.homeScreen
+import com.potatosheep.kite.feature.homefeed.nav.feedScreen
 import com.potatosheep.kite.feature.image.nav.imageScreen
 import com.potatosheep.kite.feature.image.nav.navigateToImage
 import com.potatosheep.kite.feature.library.nav.libraryScreen
@@ -55,10 +55,10 @@ fun KiteNavHost(
     ) {
         onboardingScreen(
             onBackClick = { navController.popBackStack() },
-            onNextClick = { appState.navigateToTopLevelDestination(TopLevelDestination.HOME) }
+            onNextClick = { appState.navigateToTopLevelDestination(TopLevelDestination.FEED) }
         )
 
-        homeScreen(
+        feedScreen(
             onPostClick = navController::navigateToPost,
             onSubredditClick = navController::navigateToSubreddit,
             onUserClick = navController::navigateToUser,
