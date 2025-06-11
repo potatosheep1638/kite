@@ -201,7 +201,6 @@ private fun NavigationBar(
                 label = {
                     Text(
                         text = destination.label,
-                        fontFamily = KiteFonts.InterMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.labelLarge
                     )
