@@ -10,13 +10,13 @@ enum class TopLevelDestination(
     val label: String
 ) {
     FEED(
-        icon = KiteIcons.Home,
-        selectedIcon = KiteIcons.HomeSelected,
+        icon = KiteIcons.Feed,
+        selectedIcon = KiteIcons.FeedSelected,
         label = "Feed"
     ),
     HOME(
-        icon = KiteIcons.Library,
-        selectedIcon = KiteIcons.LibrarySelected,
+        icon = KiteIcons.Home,
+        selectedIcon = KiteIcons.HomeSelected,
         label = "Home"
     )
 }
