@@ -76,7 +76,7 @@ import com.potatosheep.kite.core.common.R.string as commonStrings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeFeedRoute(
+fun FeedRoute(
     onPostClick: (String, String, String?, String?) -> Unit,
     onSubredditClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
@@ -87,7 +87,7 @@ fun HomeFeedRoute(
     onAboutClick: () -> Unit,
     navBar: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: HomeFeedViewModel = hiltViewModel()
+    viewModel: FeedViewModel = hiltViewModel()
 ) {
     val homeFeedUiState by viewModel.uiState.collectAsStateWithLifecycle()
     val blurNsfw by viewModel.blurNsfw.collectAsStateWithLifecycle()
@@ -99,7 +99,7 @@ fun HomeFeedRoute(
     val currentSortOption by viewModel.currentSortOption.collectAsStateWithLifecycle()
     val currentSortTimeframe by viewModel.currentSortTimeframe.collectAsStateWithLifecycle()
 
-    HomeFeedScreen(
+    FeedScreen(
         postListUiState = homeFeedUiState,
         instanceUrl = instance,
         currentFeed = currentFeed,
@@ -132,7 +132,7 @@ fun HomeFeedRoute(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun HomeFeedScreen(
+internal fun FeedScreen(
     postListUiState: PostListUiState,
     instanceUrl: String,
     currentFeed: Feed,
@@ -739,7 +739,7 @@ fun HomeFeedScreenPreview(
 ) {
     KiteTheme {
         Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
-            HomeFeedScreen(
+            FeedScreen(
                 postListUiState = PostListUiState.Success(posts),
                 instanceUrl = "https://test.com",
                 currentFeed = Feed.POPULAR,

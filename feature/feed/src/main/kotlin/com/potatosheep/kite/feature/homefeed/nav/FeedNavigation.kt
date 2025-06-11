@@ -1,9 +1,7 @@
 package com.potatosheep.kite.feature.homefeed.nav
 
-import android.content.Intent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.expandIn
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -15,15 +13,15 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.potatosheep.kite.core.common.enums.SortOption
-import com.potatosheep.kite.feature.homefeed.HomeFeedRoute
+import com.potatosheep.kite.feature.homefeed.FeedRoute
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object HomeRoute
+data object FeedRoute
 
-fun NavController.navigateToHome(navOptions: NavOptions) = navigate(HomeRoute, navOptions)
+fun NavController.navigateToFeed(navOptions: NavOptions) = navigate(FeedRoute, navOptions)
 
-fun NavGraphBuilder.homeScreen(
+fun NavGraphBuilder.feedScreen(
     onPostClick: (String, String, String?, String?) -> Unit,
     onSubredditClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
@@ -35,13 +33,13 @@ fun NavGraphBuilder.homeScreen(
     navBar: @Composable () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    composable<HomeRoute>(
+    composable<FeedRoute>(
         enterTransition = { EnterTransition.None },
         exitTransition = { fadeOut() + scaleOut() },
         popEnterTransition = { fadeIn() + scaleIn() },
         popExitTransition = { ExitTransition.None }
     ) {
-        HomeFeedRoute(
+        FeedRoute(
             onPostClick = onPostClick,
             onSubredditClick = onSubredditClick,
             onUserClick = onUserClick,

@@ -21,7 +21,7 @@ import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
-class HomeFeedViewModel @Inject constructor(
+class FeedViewModel @Inject constructor(
     subredditRepository: SubredditRepository,
     private val savedStateHandle: SavedStateHandle,
     private val postRepository: PostRepository,
