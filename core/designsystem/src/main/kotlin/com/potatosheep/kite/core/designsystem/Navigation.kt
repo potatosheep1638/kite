@@ -61,11 +61,11 @@ fun KiteNavigationBar(
 @Preview
 @Composable
 private fun KiteNavigationSuitePreview() {
-    val items = listOf("Home", "Subscriptions", "Saved")
+    val items = listOf("Home", "Subscriptions", "Feed")
     val icons = listOf(
         KiteIcons.Home,
         KiteIcons.Subscription,
-        KiteIcons.Library
+        KiteIcons.Feed
     )
     val selectedIcons = listOf(
         Icons.Rounded.Home,
@@ -103,11 +103,11 @@ private fun KiteNavigationSuitePreview() {
 @Preview
 @Composable
 private fun KiteNavigationBarPreview() {
-    val items = listOf("Home", "Subscriptions", "Saved")
+    val items = listOf("Home", "Subscriptions", "Feed")
     val icons = listOf(
         KiteIcons.Home,
         KiteIcons.Subscription,
-        KiteIcons.Library
+        KiteIcons.Feed
     )
     val selectedIcons = listOf(
         Icons.Rounded.Home,
