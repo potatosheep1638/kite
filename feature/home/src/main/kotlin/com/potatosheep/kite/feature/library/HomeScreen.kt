@@ -65,7 +65,7 @@ import kotlinx.coroutines.launch
 import com.potatosheep.kite.core.common.R.string as commonStrings
 
 @Composable
-fun LibraryRoute(
+fun HomeRoute(
     onSettingsClick: () -> Unit,
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onSubredditClick: (String) -> Unit,
@@ -73,11 +73,11 @@ fun LibraryRoute(
     onAboutClick: () -> Unit,
     navBar: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: LibraryViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
     val subredditListUiState by viewModel.subredditListUiState.collectAsStateWithLifecycle()
 
-    LibraryScreen(
+    HomeScreen(
         subredditListUiState = subredditListUiState,
         onSettingsClick = onSettingsClick,
         onSearchClick = onSearchClick,
@@ -92,7 +92,7 @@ fun LibraryRoute(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LibraryScreen(
+fun HomeScreen(
     onSettingsClick: () -> Unit,
     subredditListUiState: SubredditListUiState,
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
@@ -352,7 +352,7 @@ fun LibraryScreenPreview() {
     )
 
     KiteTheme {
-        LibraryScreen(
+        HomeScreen(
             subredditListUiState = SubredditListUiState.Success(subreddits),
             onSettingsClick = {},
             onSearchClick = { _, _, _, _ -> },

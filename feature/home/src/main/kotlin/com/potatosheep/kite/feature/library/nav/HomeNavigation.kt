@@ -13,18 +13,18 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.potatosheep.kite.core.common.enums.SortOption
-import com.potatosheep.kite.feature.library.LibraryRoute
+import com.potatosheep.kite.feature.library.HomeRoute
 import kotlinx.serialization.Serializable
 
 const val LIBRARY_ROUTE = "LibraryRoute"
 
 @Serializable
-data object LibraryRoute
+data object HomeRoute
 
-fun NavController.navigateToLibrary(navOptions: NavOptions) =
-    navigate(LibraryRoute, navOptions)
+fun NavController.navigateToHome(navOptions: NavOptions) =
+    navigate(HomeRoute, navOptions)
 
-fun NavGraphBuilder.libraryScreen(
+fun NavGraphBuilder.homeScreen(
     onSettingsClick: () -> Unit,
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onSubredditClick: (String) -> Unit,
@@ -33,13 +33,13 @@ fun NavGraphBuilder.libraryScreen(
     navBar: @Composable () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    composable<LibraryRoute>(
+    composable<HomeRoute>(
         enterTransition = { EnterTransition.None },
         exitTransition = { fadeOut() + scaleOut() },
         popEnterTransition = { fadeIn() + scaleIn() },
         popExitTransition = { ExitTransition.None }
     ) {
-        LibraryRoute(
+        HomeRoute(
             onSettingsClick = onSettingsClick,
             onSearchClick = onSearchClick,
             onSubredditClick = onSubredditClick,
