@@ -3,6 +3,7 @@ package com.potatosheep.kite.feature.feed
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.potatosheep.kite.core.common.R
 import com.potatosheep.kite.core.common.enums.SortOption
 import com.potatosheep.kite.core.data.repo.PostRepository
@@ -14,6 +15,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -33,6 +36,9 @@ class FeedViewModel @Inject constructor(
     val currentFeed = savedStateHandle.getStateFlow(FEED, Feed.FOLLOWED)
     val currentSortOption = savedStateHandle.getStateFlow(SORT, SortOption.Post.HOT)
     val currentSortTimeframe = savedStateHandle.getStateFlow(TIME, SortOption.Timeframe.DAY)
+
+    private val _shouldRefresh = MutableStateFlow(false)
+    val shouldRefresh: StateFlow<Boolean> = _shouldRefresh
 
     val blurNsfw = userConfigRepository.userConfig
         .map { it.blurNsfw }
@@ -67,43 +73,16 @@ class FeedViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-            initialValue = emptyList()
+            initialValue = null
         )
 
     init {
         viewModelScope.launch {
-            instanceUrl.collectLatest { instance ->
-                if (instance.isNotEmpty()) {
-                    if (_uiState.value is PostListUiState.Error) {
-                        _uiState.value = PostListUiState.Loading
-                    }
-
-                    runCatching {
-                        userConfigRepository.getInstanceCookies(instanceUrl.value)
-                    }.onFailure {
-                        _uiState.value = PostListUiState.Error(it.message.toString())
-                    }
-
-
-                    if (currentFeed.value == Feed.FOLLOWED) {
-                        followedSubreddits.collectLatest { subreddits ->
-                            if (subreddits.isEmpty()) {
-                                savedStateHandle[FEED] = Feed.POPULAR
-                            }
-
-                            loadSortedPosts(
-                                sort = currentSortOption.value,
-                                timeframe = currentSortTimeframe.value,
-                                subredditScopes = subreddits.map { it.subredditName }
-                            )
-                        }
-                    } else {
-                        loadSortedPosts(
-                            sort = currentSortOption.value,
-                            timeframe = currentSortTimeframe.value,
-                            subredditScopes = listOf(currentFeed.value.uri)
-                        )
-                    }
+            instanceUrl.combine(followedSubreddits) { instance, subreddits ->
+                Pair(instance, subreddits)
+            }.collectLatest {
+                if (it.first.isNotEmpty() && it.second != null) {
+                    _shouldRefresh.value = true
                 }
             }
         }
@@ -126,10 +105,11 @@ class FeedViewModel @Inject constructor(
                         sort = sort.uri,
                         timeframe = timeframe.uri,
                         after = after,
-                        subredditName = if (subredditScopes.isEmpty())
-                            null
-                        else
-                            subredditScopes.joinToString(separator = "+")
+                        subredditName =
+                            if (subredditScopes.isEmpty() || subredditScopes[0] == FOLLOWED_SUBREDDITS)
+                                null
+                            else
+                                subredditScopes.joinToString(separator = "+")
                     )
                 }.onSuccess {
                     posts.addAll(it)
@@ -141,6 +121,7 @@ class FeedViewModel @Inject constructor(
         }
     }
 
+    @Synchronized
     fun loadSortedPosts(
         sort: SortOption.Post,
         timeframe: SortOption.Timeframe,
@@ -155,12 +136,35 @@ class FeedViewModel @Inject constructor(
                     sort = sort.uri,
                     timeframe = timeframe.uri,
                     subredditName =
-                    if (subredditScopes.isEmpty())
-                        null
-                    else
-                        subredditScopes.joinToString(separator = "+")
+                        if (subredditScopes.isEmpty() || subredditScopes[0] == FOLLOWED_SUBREDDITS)
+                            null
+                        else
+                            subredditScopes.joinToString(separator = "+")
                 )
             }.onSuccess {
+                _uiState.value = PostListUiState.Success(it)
+            }.onFailure {
+                _uiState.value = PostListUiState.Error(it.message.toString())
+            }
+        }
+    }
+
+    @Synchronized
+    fun loadFrontPage() {
+        viewModelScope.launch {
+            _uiState.value = PostListUiState.Loading
+
+            runCatching {
+                changeSort(SortOption.Post.HOT)
+                changeTimeframe(SortOption.Timeframe.DAY)
+
+                userConfigRepository.getInstanceCookies(
+                    instanceUrl = instanceUrl.value,
+                    sort = SortOption.Post.HOT.uri,
+                    subreddits = followedSubreddits.value!!.map { it.subredditName }
+                )
+            }.onSuccess {
+                _shouldRefresh.value = false
                 _uiState.value = PostListUiState.Success(it)
             }.onFailure {
                 _uiState.value = PostListUiState.Error(it.message.toString())
@@ -218,7 +222,7 @@ enum class Feed(
 ) {
     FOLLOWED(
         label = R.string.home_feed_followed,
-        uri = ""
+        uri = FOLLOWED_SUBREDDITS
     ),
     POPULAR(
         label = R.string.home_feed_popular,
@@ -246,3 +250,4 @@ sealed interface HomeUiState {
 const val FEED = "feed"
 const val SORT = "sort"
 const val TIME = "time"
+const val FOLLOWED_SUBREDDITS = "followedSubreddits"

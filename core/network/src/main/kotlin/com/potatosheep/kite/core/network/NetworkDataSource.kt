@@ -9,7 +9,19 @@ import com.potatosheep.kite.core.network.model.NetworkSubredditWiki
 import com.potatosheep.kite.core.network.model.NetworkUser
 
 interface NetworkDataSource {
-    suspend fun getPreferences(instanceUrl: String)
+    /**
+     * Redlib (as of Jun 12, 2025) redirects users to the front page after they use a restore link.
+     * Thus, to prevent having to make an additional, redundant request to retrieve posts (via
+     * [getPost]) whenever a settings change occurs, this method returns a [List] of [NetworkPost]
+     * objects.
+     *
+     * If Redlib ever gets an API, this method will likely be changed or even outright removed.
+     */
+    suspend fun getPreferences(
+        instanceUrl: String,
+        sort: String = SortOption.Post.HOT.uri,
+        subreddits: List<String> = emptyList(),
+    ): List<NetworkPost>
 
     suspend fun getPost(
         instanceUrl: String,

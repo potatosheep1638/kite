@@ -1,7 +1,5 @@
 package com.potatosheep.kite.core.network.client
 
-import android.util.Log
-import androidx.core.net.toUri
 import com.potatosheep.kite.core.common.Dispatcher
 import com.potatosheep.kite.core.common.KiteDispatchers
 import com.potatosheep.kite.core.network.NetworkDataSource
@@ -39,17 +37,30 @@ internal class ParserNetwork @Inject constructor(
     private val parser = parser.get()
     private val moshi = moshi.get()
 
-    override suspend fun getPreferences(instanceUrl: String) {
+    override suspend fun getPreferences(
+        instanceUrl: String,
+        sort: String,
+        subreddits: List<String>
+    ): List<NetworkPost> =
         withContext(defaultDispatcher) {
             val request = Request.Builder()
-                .url("${instanceUrl}/settings/update/?use_hls=on")
+                .url("${instanceUrl}/settings/restore/?use_hls=on" +
+                        "&subscriptions=${subreddits.joinToString("%2B")}" +
+                        "&front_page=default" +
+                        "&post_sort=$sort"
+                )
                 .build()
 
+            var html: Document
+
             withContext(ioDispatcher) {
-                client.newCall(request).execute()
+                client.newCall(request).execute().use { response ->
+                    html = response.parseHtml()
+                }
             }
+
+            return@withContext parser.parsePostList(html, instanceUrl)
         }
-    }
 
     override suspend fun getPost(
         instanceUrl: String,

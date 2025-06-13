@@ -90,6 +90,8 @@ fun FeedRoute(
     viewModel: FeedViewModel = hiltViewModel()
 ) {
     val homeFeedUiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val shouldRefresh by viewModel.shouldRefresh.collectAsStateWithLifecycle()
+
     val blurNsfw by viewModel.blurNsfw.collectAsStateWithLifecycle()
     val blurSpoiler by viewModel.blurSpoiler.collectAsStateWithLifecycle()
     val instance by viewModel.instanceUrl.collectAsStateWithLifecycle()
@@ -116,6 +118,7 @@ fun FeedRoute(
         onSettingsClick = onSettingsClick,
         onAboutClick = onAboutClick,
         loadSortedPosts = viewModel::loadSortedPosts,
+        loadFrontPage = viewModel::loadFrontPage,
         changeFeed = viewModel::changeFeed,
         changeSort = viewModel::changeSort,
         changeTimeframe = viewModel::changeTimeframe,
@@ -126,7 +129,8 @@ fun FeedRoute(
         navBar = navBar,
         modifier = modifier,
         shouldBlurNsfw = blurNsfw,
-        shouldBlurSpoiler = blurSpoiler
+        shouldBlurSpoiler = blurSpoiler,
+        shouldRefresh = shouldRefresh
     )
 }
 
@@ -138,7 +142,7 @@ internal fun FeedScreen(
     currentFeed: Feed,
     currentSortOption: SortOption.Post,
     currentSortTimeframe: SortOption.Timeframe,
-    followedSubreddits: List<Subreddit>,
+    followedSubreddits: List<Subreddit>?,
     loadPosts: (SortOption.Post, SortOption.Timeframe, List<String>) -> Unit,
     onPostClick: (String, String, String?, String?) -> Unit,
     onSubredditClick: (String) -> Unit,
@@ -149,6 +153,7 @@ internal fun FeedScreen(
     onSettingsClick: () -> Unit,
     onAboutClick: () -> Unit,
     loadSortedPosts: (SortOption.Post, SortOption.Timeframe, List<String>) -> Unit,
+    loadFrontPage: () -> Unit,
     changeFeed: (Feed) -> Unit,
     changeSort: (SortOption.Post) -> Unit,
     changeTimeframe: (SortOption.Timeframe) -> Unit,
@@ -160,6 +165,7 @@ internal fun FeedScreen(
     modifier: Modifier = Modifier,
     shouldBlurNsfw: Boolean = false,
     shouldBlurSpoiler: Boolean = false,
+    shouldRefresh: Boolean = false,
     sortSheetState: SheetState = rememberModalBottomSheetState(),
     feedSheetState: SheetState = rememberModalBottomSheetState()
 ) {
@@ -193,10 +199,7 @@ internal fun FeedScreen(
         loadPosts(
             currentSortOption,
             currentSortTimeframe,
-            if (currentFeed == Feed.FOLLOWED)
-                followedSubreddits.map { it.subredditName }
-            else
-                listOf(currentFeed.uri)
+            listOf(currentFeed.uri)
         )
     }
 
@@ -204,10 +207,10 @@ internal fun FeedScreen(
         topBar = {
             KiteTopAppBar(
                 title =
-                if (isTitleVisible)
-                    ""
-                else
-                    stringResource(commonStrings.home_top_app_bar_title),
+                    if (isTitleVisible)
+                        ""
+                    else
+                        stringResource(commonStrings.home_top_app_bar_title),
                 searchIcon = KiteIcons.Search,
                 searchIconContentDescription = stringResource(com.potatosheep.kite.core.common.R.string.content_desc_search),
                 optionsIcon = KiteIcons.MoreOptions,
@@ -241,28 +244,28 @@ internal fun FeedScreen(
                         KiteDropdownMenuItem(
                             text = option.label,
                             onClick =
-                            when (option) {
-                                MenuOption.SORT -> {
-                                    {
-                                        showSortSheet = true
-                                        isMenuExpanded = false
+                                when (option) {
+                                    MenuOption.SORT -> {
+                                        {
+                                            showSortSheet = true
+                                            isMenuExpanded = false
+                                        }
                                     }
-                                }
 
-                                MenuOption.SETTINGS -> {
-                                    {
-                                        onSettingsClick()
-                                        isMenuExpanded = false
+                                    MenuOption.SETTINGS -> {
+                                        {
+                                            onSettingsClick()
+                                            isMenuExpanded = false
+                                        }
                                     }
-                                }
 
-                                MenuOption.ABOUT -> {
-                                    {
-                                        onAboutClick()
-                                        isMenuExpanded = false
+                                    MenuOption.ABOUT -> {
+                                        {
+                                            onAboutClick()
+                                            isMenuExpanded = false
+                                        }
                                     }
                                 }
-                            }
                         )
                     }
                 }
@@ -283,6 +286,21 @@ internal fun FeedScreen(
                     )
                 )
         ) {
+            LaunchedEffect(followedSubreddits) {
+                shouldDisableFollowedFeed =
+                    followedSubreddits != null && followedSubreddits.isEmpty()
+
+                if (shouldDisableFollowedFeed) {
+                    changeFeed(Feed.POPULAR)
+                }
+            }
+
+            LaunchedEffect(shouldRefresh, currentFeed) {
+                if (shouldRefresh && currentFeed == Feed.FOLLOWED) {
+                    loadFrontPage()
+                }
+            }
+
             when (postListUiState) {
                 PostListUiState.Loading -> Unit
                 is PostListUiState.Error -> {
@@ -292,10 +310,7 @@ internal fun FeedScreen(
                             loadSortedPosts(
                                 currentSortOption,
                                 currentSortTimeframe,
-                                if (currentFeed == Feed.FOLLOWED)
-                                    followedSubreddits.map { it.subredditName }
-                                else
-                                    listOf(currentFeed.uri)
+                                listOf(currentFeed.uri)
                             )
                         },
                         modifier = Modifier
@@ -305,14 +320,6 @@ internal fun FeedScreen(
                 }
 
                 is PostListUiState.Success -> {
-                    LaunchedEffect(followedSubreddits) {
-                        shouldDisableFollowedFeed = followedSubreddits.isEmpty()
-
-                        if (shouldDisableFollowedFeed && currentFeed == Feed.FOLLOWED) {
-                            changeFeed(Feed.POPULAR)
-                        }
-                    }
-
                     LazyColumn(
                         state = listState,
                         modifier = modifier
@@ -433,7 +440,7 @@ internal fun FeedScreen(
                                 ),
                                 showText = false,
                                 blurImage = (shouldBlurNsfw && post.isNsfw) ||
-                                            (shouldBlurSpoiler && post.isSpoiler),
+                                        (shouldBlurSpoiler && post.isSpoiler),
                                 isBookmarked = isBookmarked,
                                 colors = CardDefaults.cardColors(
                                     containerColor =
@@ -468,10 +475,7 @@ internal fun FeedScreen(
                     loadSortedPosts(
                         sortOption,
                         timeframe,
-                        if (currentFeed == Feed.FOLLOWED)
-                            followedSubreddits.map { it.subredditName }
-                        else
-                            listOf(currentFeed.uri)
+                        listOf(currentFeed.uri)
                     )
                 },
                 currentSortOption = currentSortOption,
@@ -490,18 +494,11 @@ internal fun FeedScreen(
                         scrollBehavior.state.contentOffset = 0f
                     }
 
-                    if (feed == Feed.FOLLOWED)
-                        loadSortedPosts(
-                            currentSortOption,
-                            currentSortTimeframe,
-                            followedSubreddits.map { it.subredditName }
-                        )
-                    else
-                        loadSortedPosts(
-                            currentSortOption,
-                            currentSortTimeframe,
-                            listOf(feed.uri)
-                        )
+                    loadSortedPosts(
+                        currentSortOption,
+                        currentSortTimeframe,
+                        listOf(feed.uri)
+                    )
                 },
                 currentFeed = currentFeed,
                 shouldDisableFollowedFeed = shouldDisableFollowedFeed
@@ -756,6 +753,7 @@ fun HomeFeedScreenPreview(
                 onSettingsClick = {},
                 onAboutClick = {},
                 loadSortedPosts = { _, _, _ -> },
+                loadFrontPage = {},
                 changeFeed = {},
                 changeSort = {},
                 changeTimeframe = {},

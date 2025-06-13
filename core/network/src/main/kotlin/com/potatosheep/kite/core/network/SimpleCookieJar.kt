@@ -25,6 +25,15 @@ class SimpleCookieJar(cache: List<Cookie>) : CookieJar {
 
     @Synchronized
     override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+        val cookiesToRemove = mutableListOf<Cookie>()
+
+        cache.forEach { cookie ->
+            if (cookie.matches(url)) {
+                cookiesToRemove.add(cookie)
+            }
+        }
+
+        cache.removeAll(cookiesToRemove)
         cache.addAll(cookies)
     }
 }
