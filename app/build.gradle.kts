@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.markwon.core)
     implementation(libs.androidx.datastore.proto)
+    implementation(libs.androidx.core.splashscreen)
 
     testImplementation(libs.junit)
 
