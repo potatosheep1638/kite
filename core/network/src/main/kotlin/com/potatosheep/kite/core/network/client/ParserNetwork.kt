@@ -40,14 +40,16 @@ internal class ParserNetwork @Inject constructor(
     override suspend fun getPreferences(
         instanceUrl: String,
         sort: String,
-        subreddits: List<String>
+        subreddits: List<String>,
+        redirect: String
     ): List<NetworkPost> =
         withContext(defaultDispatcher) {
             val request = Request.Builder()
                 .url("${instanceUrl}/settings/restore/?use_hls=on" +
                         "&subscriptions=${subreddits.joinToString("%2B")}" +
                         "&front_page=default" +
-                        "&post_sort=$sort"
+                        "&post_sort=$sort" +
+                        "&redirect=$redirect"
                 )
                 .build()
 

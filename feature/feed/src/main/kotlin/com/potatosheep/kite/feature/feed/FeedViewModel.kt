@@ -155,11 +155,18 @@ class FeedViewModel @Inject constructor(
             _uiState.value = PostListUiState.Loading
 
             runCatching {
+                val redirect = if (currentFeed.value != Feed.FOLLOWED) {
+                    "r/${currentFeed.value.uri}"
+                } else {
+                    ""
+                }
+
                 changeSort(SortOption.Post.HOT)
                 changeTimeframe(SortOption.Timeframe.DAY)
 
                 userConfigRepository.getInstanceCookies(
                     instanceUrl = instanceUrl.value,
+                    redirect = redirect,
                     sort = SortOption.Post.HOT.uri,
                     subreddits = followedSubreddits.value!!.map { it.subredditName }
                 )

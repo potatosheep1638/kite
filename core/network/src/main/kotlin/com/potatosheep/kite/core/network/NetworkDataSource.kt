@@ -21,6 +21,7 @@ interface NetworkDataSource {
         instanceUrl: String,
         sort: String = SortOption.Post.HOT.uri,
         subreddits: List<String> = emptyList(),
+        redirect: String = ""
     ): List<NetworkPost>
 
     suspend fun getPost(

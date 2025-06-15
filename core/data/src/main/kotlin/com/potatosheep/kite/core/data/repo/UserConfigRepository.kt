@@ -22,7 +22,8 @@ interface UserConfigRepository {
     suspend fun getInstanceCookies(
         instanceUrl: String,
         sort: String = SortOption.Post.HOT.uri,
-        subreddits: List<String> = emptyList()
+        subreddits: List<String> = emptyList(),
+        redirect: String = ""
         ): List<Post>
     suspend fun setInstance(instanceUrl: String)
     suspend fun setNsfwBlur(shouldBlur: Boolean)
@@ -44,7 +45,8 @@ internal class DefaultUserConfigRepository @Inject constructor(
     override suspend fun getInstanceCookies(
         instanceUrl: String,
         sort: String,
-        subreddits: List<String>
+        subreddits: List<String>,
+        redirect: String
     ): List<Post> = networkDataSource.getPreferences(
         instanceUrl = instanceUrl,
         sort = sort,

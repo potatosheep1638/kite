@@ -295,8 +295,8 @@ internal fun FeedScreen(
                 }
             }
 
-            LaunchedEffect(shouldRefresh, currentFeed) {
-                if (shouldRefresh && currentFeed == Feed.FOLLOWED) {
+            LaunchedEffect(shouldRefresh) {
+                if (shouldRefresh) {
                     loadFrontPage()
                 }
             }
