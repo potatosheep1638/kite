@@ -2,12 +2,10 @@ package com.potatosheep.kite.app.ui
 
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.potatosheep.kite.app.nav.KiteNavHost
+import com.potatosheep.kite.app.nav.TopLevelRoute
 import com.potatosheep.kite.core.designsystem.LocalBackgroundColor
-import com.potatosheep.kite.feature.feed.nav.FeedRoute
 import com.potatosheep.kite.feature.onboarding.nav.OnboardingRoute
 
 @Composable
@@ -19,12 +17,10 @@ fun KiteApp(
         color = LocalBackgroundColor.current,
         modifier = modifier
     ) {
-        val shouldShowOnboarding by appState.shouldShowOnboarding.collectAsStateWithLifecycle()
-
-        val destination = if (shouldShowOnboarding) {
+        val destination: Any = if (appState.shouldShowOnboarding) {
             OnboardingRoute
         } else {
-            FeedRoute
+            TopLevelRoute
         }
 
         KiteNavHost(

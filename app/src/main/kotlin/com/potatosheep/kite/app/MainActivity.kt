@@ -22,25 +22,22 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.util.Consumer
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.potatosheep.kite.app.ui.KiteApp
 import com.potatosheep.kite.app.ui.rememberAppState
-import com.potatosheep.kite.core.data.repo.UserConfigRepository
 import com.potatosheep.kite.core.designsystem.KiteTheme
 import com.potatosheep.kite.feature.exception.ExceptionRoute
 import com.potatosheep.kite.feature.image.nav.navigateToImage
 import com.potatosheep.kite.feature.post.nav.navigateToPost
 import com.potatosheep.kite.feature.subreddit.nav.navigateToSubreddit
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    @Inject
-    lateinit var userConfigRepository: UserConfigRepository
 
     private val viewModel: MainActivityViewModel by viewModels()
 
@@ -52,11 +49,11 @@ class MainActivity : ComponentActivity() {
                 WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
         }
 
-        init(viewModel.isColdBoot.value)
+        init()
     }
 
     // App screen
-    private fun init(isColdBoot: Boolean) {
+    private fun init() {
         Thread.setDefaultUncaughtExceptionHandler { _, throwable ->
             setContent {
                 enableEdgeToEdge()
@@ -95,28 +92,31 @@ class MainActivity : ComponentActivity() {
                 onDispose {}
             }
 
-            val appState = rememberAppState(userConfigRepository)
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-            KiteTheme {
-                KiteApp(
-                    appState = appState,
+            if (!uiState.shouldKeepSplashScreen()) {
+                val appState = rememberAppState(
+                    shouldShowOnboarding = uiState.shouldShowOnboarding
                 )
-            }
 
-            if (isColdBoot) {
-                intentResolver(appState.navController, intent)
-                viewModel.setColdBootState(false)
-            }
+                KiteTheme {
+                    KiteApp(appState = appState)
+                }
 
-            // Allow intents to work when the app is running.
-            DisposableEffect(Unit) {
-                val listener = Consumer<Intent> { intent ->
+                if (uiState.isColdBoot) {
                     intentResolver(appState.navController, intent)
                 }
 
-                addOnNewIntentListener(listener)
+                // Allow intents to work when the app is running.
+                DisposableEffect(Unit) {
+                    val listener = Consumer<Intent> { intent ->
+                        intentResolver(appState.navController, intent)
+                    }
 
-                onDispose { removeOnNewIntentListener(listener) }
+                    addOnNewIntentListener(listener)
+
+                    onDispose { removeOnNewIntentListener(listener) }
+                }
             }
         }
     }

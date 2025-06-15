@@ -3,33 +3,24 @@ package com.potatosheep.kite.app.nav
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavDestination
-import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.navOptions
 import com.potatosheep.kite.app.ui.KiteAppState
-import com.potatosheep.kite.core.designsystem.KiteFonts
-import com.potatosheep.kite.core.designsystem.KiteNavigationBar
 import com.potatosheep.kite.feature.about.nav.aboutScreen
-import com.potatosheep.kite.feature.about.nav.navigateToAbout
 import com.potatosheep.kite.feature.bookmark.nav.bookmarkScreen
-import com.potatosheep.kite.feature.bookmark.nav.navigateToBookmark
-import com.potatosheep.kite.feature.feed.nav.feedScreen
+import com.potatosheep.kite.feature.feed.nav.FeedRoute
 import com.potatosheep.kite.feature.image.nav.imageScreen
 import com.potatosheep.kite.feature.image.nav.navigateToImage
-import com.potatosheep.kite.feature.library.nav.homeScreen
 import com.potatosheep.kite.feature.onboarding.nav.onboardingScreen
 import com.potatosheep.kite.feature.post.nav.navigateToPost
 import com.potatosheep.kite.feature.post.nav.postScreen
 import com.potatosheep.kite.feature.search.nav.navigateToSearch
 import com.potatosheep.kite.feature.search.nav.searchScreen
-import com.potatosheep.kite.feature.settings.nav.navigateToSettings
 import com.potatosheep.kite.feature.settings.nav.settingsScreen
 import com.potatosheep.kite.feature.subreddit.nav.navigateToSubreddit
 import com.potatosheep.kite.feature.subreddit.nav.subredditScreen
@@ -55,41 +46,24 @@ fun KiteNavHost(
     ) {
         onboardingScreen(
             onBackClick = { navController.popBackStack() },
-            onNextClick = { appState.navigateToTopLevelDestination(TopLevelDestination.FEED) }
+            onNextClick = { navController.navigate(
+                route = TopLevelRoute,
+                navOptions = navOptions {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        inclusive = true
+                        saveState = true
+                    }
+                }
+            )}
         )
 
-        feedScreen(
-            onPostClick = navController::navigateToPost,
-            onSubredditClick = navController::navigateToSubreddit,
-            onUserClick = navController::navigateToUser,
-            onImageClick = navController::navigateToImage,
-            onSearchClick = navController::navigateToSearch,
-            onVideoClick = navController::navigateToVideo,
-            onSettingsClick = navController::navigateToSettings,
-            onAboutClick = navController::navigateToAbout,
-            navBar = {
-                NavigationBar(
-                    appState = appState,
-                    modifier = modifier
-                )
-            },
-            modifier = modifier
-        )
-
-        homeScreen(
-            onSettingsClick = navController::navigateToSettings,
-            onSearchClick = navController::navigateToSearch,
-            onSubredditClick = navController::navigateToSubreddit,
-            onSavedClick = navController::navigateToBookmark,
-            onAboutClick = navController::navigateToAbout,
-            navBar = {
-                NavigationBar(
-                    appState = appState,
-                    modifier = modifier
-                )
-            },
-            modifier = modifier
-        )
+        composable<TopLevelRoute> {
+            TopLevelNavHost(
+                appState = appState,
+                startDestination = FeedRoute,
+                modifier = modifier
+            )
+        }
 
         postScreen(
             onSubredditClick = navController::navigateToSubreddit,
@@ -167,53 +141,6 @@ fun KiteNavHost(
         )
     }
 }
-
-@Composable
-private fun NavigationBar(
-    appState: KiteAppState,
-    modifier: Modifier = Modifier
-) {
-    KiteNavigationBar(
-        modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-    ) {
-        val currentDestination = appState.currentDestination
-
-        appState.topLevelDestinations.forEach { destination ->
-            val selected = currentDestination
-                .isTopLevelDestinationInHierarchy(destination)
-
-            NavigationBarItem(
-                selected = selected,
-                onClick = { appState.navigateToTopLevelDestination(destination) },
-                icon = {
-                    if (selected)
-                        Icon(
-                            imageVector = destination.selectedIcon,
-                            contentDescription = null
-                        )
-                    else
-                        Icon(
-                            imageVector = destination.icon,
-                            contentDescription = null
-                        )
-                },
-                label = {
-                    Text(
-                        text = destination.label,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                },
-            )
-        }
-    }
-}
-
-private fun NavDestination?.isTopLevelDestinationInHierarchy(destination: TopLevelDestination) =
-    this?.hierarchy?.any {
-        it.route?.contains(destination.name, true) ?: false
-    } ?: false
 
 private fun getVersion(context: Context): String {
     val packageManager = context.packageManager
