@@ -1,9 +1,9 @@
 package com.potatosheep.kite.feature.feed
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.potatosheep.kite.core.common.R
 import com.potatosheep.kite.core.common.enums.SortOption
 import com.potatosheep.kite.core.data.repo.PostRepository
@@ -11,13 +11,15 @@ import com.potatosheep.kite.core.data.repo.SubredditRepository
 import com.potatosheep.kite.core.data.repo.UserConfigRepository
 import com.potatosheep.kite.core.model.Post
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,8 +39,8 @@ class FeedViewModel @Inject constructor(
     val currentSortOption = savedStateHandle.getStateFlow(SORT, SortOption.Post.HOT)
     val currentSortTimeframe = savedStateHandle.getStateFlow(TIME, SortOption.Timeframe.DAY)
 
-    private val _shouldRefresh = MutableStateFlow(false)
-    val shouldRefresh: StateFlow<Boolean> = _shouldRefresh
+    private val _shouldRefresh = MutableStateFlow(RefreshScope.NO_REFRESH)
+    val shouldRefresh: StateFlow<RefreshScope> = _shouldRefresh
 
     val blurNsfw = userConfigRepository.userConfig
         .map { it.blurNsfw }
@@ -76,15 +78,23 @@ class FeedViewModel @Inject constructor(
             initialValue = null
         )
 
+    // TODO: Refactor this into HomeUiState
     init {
         viewModelScope.launch {
             instanceUrl.combine(followedSubreddits) { instance, subreddits ->
                 Pair(instance, subreddits)
-            }.collectLatest {
-                if (it.first.isNotEmpty() && it.second != null) {
-                    _shouldRefresh.value = true
-                }
             }
+                .runningHistory()
+                .filterNotNull()
+                .collectLatest { history ->
+                    if (history.current.first.isNotEmpty() && history.current.second != null) {
+                        if (history.current.first == history.previous?.first) {
+                            _shouldRefresh.value = RefreshScope.FOLLOWED_ONLY
+                        } else {
+                            _shouldRefresh.value = RefreshScope.GLOBAL
+                        }
+                    }
+                }
         }
     }
 
@@ -106,7 +116,7 @@ class FeedViewModel @Inject constructor(
                         timeframe = timeframe.uri,
                         after = after,
                         subredditName =
-                            if (subredditScopes.isEmpty() || subredditScopes[0] == FOLLOWED_SUBREDDITS)
+                            if (subredditScopes.isEmpty() || subredditScopes[0] == FOLLOWED_FEED)
                                 null
                             else
                                 subredditScopes.joinToString(separator = "+")
@@ -129,6 +139,7 @@ class FeedViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             _uiState.value = PostListUiState.Loading
+            Log.d("FeedViewModel", subredditScopes.joinToString(","))
 
             runCatching {
                 postRepository.getPosts(
@@ -136,7 +147,7 @@ class FeedViewModel @Inject constructor(
                     sort = sort.uri,
                     timeframe = timeframe.uri,
                     subredditName =
-                        if (subredditScopes.isEmpty() || subredditScopes[0] == FOLLOWED_SUBREDDITS)
+                        if (subredditScopes.isEmpty() || subredditScopes[0] == FOLLOWED_FEED)
                             null
                         else
                             subredditScopes.joinToString(separator = "+")
@@ -171,7 +182,7 @@ class FeedViewModel @Inject constructor(
                     subreddits = followedSubreddits.value!!.map { it.subredditName }
                 )
             }.onSuccess {
-                _shouldRefresh.value = false
+                _shouldRefresh.value = RefreshScope.NO_REFRESH
                 _uiState.value = PostListUiState.Success(it)
             }.onFailure {
                 _uiState.value = PostListUiState.Error(it.message.toString())
@@ -229,7 +240,7 @@ enum class Feed(
 ) {
     FOLLOWED(
         label = R.string.home_feed_followed,
-        uri = FOLLOWED_SUBREDDITS
+        uri = FOLLOWED_FEED
     ),
     POPULAR(
         label = R.string.home_feed_popular,
@@ -239,6 +250,12 @@ enum class Feed(
         label = R.string.home_feed_all,
         uri = "all"
     )
+}
+
+enum class RefreshScope {
+    FOLLOWED_ONLY,
+    GLOBAL,
+    NO_REFRESH
 }
 
 // TODO: Implement this
@@ -254,7 +271,17 @@ sealed interface HomeUiState {
     ) : HomeUiState
 }
 
+// Maybe move this to :common?
+private data class History<T>(val previous: T?, val current: T)
+
+private fun <T> Flow<T>.runningHistory(): Flow<History<T>?> =
+    runningFold(
+        initial = null as (History<T>?),
+        operation = { accumulator, value -> History(accumulator?.current, value) }
+    )
+
 const val FEED = "feed"
 const val SORT = "sort"
 const val TIME = "time"
-const val FOLLOWED_SUBREDDITS = "followedSubreddits"
+
+const val FOLLOWED_FEED = "followedFeed"

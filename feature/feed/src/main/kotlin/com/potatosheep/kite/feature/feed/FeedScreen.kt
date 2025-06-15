@@ -165,7 +165,7 @@ internal fun FeedScreen(
     modifier: Modifier = Modifier,
     shouldBlurNsfw: Boolean = false,
     shouldBlurSpoiler: Boolean = false,
-    shouldRefresh: Boolean = false,
+    shouldRefresh: RefreshScope = RefreshScope.NO_REFRESH,
     sortSheetState: SheetState = rememberModalBottomSheetState(),
     feedSheetState: SheetState = rememberModalBottomSheetState()
 ) {
@@ -295,9 +295,17 @@ internal fun FeedScreen(
                 }
             }
 
-            LaunchedEffect(shouldRefresh) {
-                if (shouldRefresh) {
-                    loadFrontPage()
+            LaunchedEffect(shouldRefresh, currentFeed) {
+                when (shouldRefresh) {
+                    RefreshScope.FOLLOWED_ONLY -> {
+                        if (currentFeed == Feed.FOLLOWED) {
+                            loadFrontPage()
+                        }
+                    }
+                    RefreshScope.GLOBAL -> {
+                        loadFrontPage()
+                    }
+                    RefreshScope.NO_REFRESH -> Unit
                 }
             }
 
