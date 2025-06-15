@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.util.Consumer
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -54,6 +55,8 @@ class MainActivity : ComponentActivity() {
 
     // App screen
     private fun init() {
+        val splashScreen = installSplashScreen()
+
         Thread.setDefaultUncaughtExceptionHandler { _, throwable ->
             setContent {
                 enableEdgeToEdge()
@@ -77,6 +80,10 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+
+        splashScreen.setKeepOnScreenCondition {
+            viewModel.uiState.value.shouldKeepSplashScreen()
         }
 
         setContent {
