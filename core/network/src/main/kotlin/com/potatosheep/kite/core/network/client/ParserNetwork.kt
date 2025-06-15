@@ -46,6 +46,7 @@ internal class ParserNetwork @Inject constructor(
         withContext(defaultDispatcher) {
             val request = Request.Builder()
                 .url("${instanceUrl}/settings/restore/?use_hls=on" +
+                        "&show_nsfw=on" +
                         "&subscriptions=${subreddits.joinToString("%2B")}" +
                         "&front_page=default" +
                         "&post_sort=$sort" +
