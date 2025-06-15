@@ -29,13 +29,10 @@ sealed interface MainActivityUiState {
     data object Loading : MainActivityUiState
 
     data class Success(val shouldHideOnboarding: Boolean) : MainActivityUiState {
-        override val isColdBoot: Boolean get() = false
         override val shouldShowOnboarding: Boolean get() = !shouldHideOnboarding
     }
 
     fun shouldKeepSplashScreen() = this is Loading
 
     val shouldShowOnboarding: Boolean get() = false
-
-    val isColdBoot: Boolean get() = true
 }
