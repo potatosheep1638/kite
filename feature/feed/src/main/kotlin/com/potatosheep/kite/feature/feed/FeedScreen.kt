@@ -85,7 +85,6 @@ fun FeedRoute(
     onVideoClick: (String) -> Unit,
     onSettingsClick: () -> Unit,
     onAboutClick: () -> Unit,
-    navBar: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: FeedViewModel = hiltViewModel()
 ) {
@@ -126,7 +125,6 @@ fun FeedRoute(
         checkPostBookmarked = viewModel::checkIfPostExists,
         bookmarkPost = viewModel::bookmarkPost,
         removePostBookmark = viewModel::removePostBookmark,
-        navBar = navBar,
         modifier = modifier,
         shouldBlurNsfw = blurNsfw,
         shouldBlurSpoiler = blurSpoiler,
@@ -161,7 +159,6 @@ internal fun FeedScreen(
     bookmarkPost: (Post) -> Unit,
     removePostBookmark: (Post) -> Unit,
     getPostLink: (Post) -> String,
-    navBar: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     shouldBlurNsfw: Boolean = false,
     shouldBlurSpoiler: Boolean = false,
@@ -271,7 +268,6 @@ internal fun FeedScreen(
                 }
             }
         },
-        bottomBar = navBar,
         containerColor = LocalBackgroundColor.current,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
@@ -770,7 +766,6 @@ fun HomeFeedScreenPreview(
                 bookmarkPost = {},
                 removePostBookmark = {},
                 shouldBlurNsfw = false,
-                navBar = {}
             )
         }
     }

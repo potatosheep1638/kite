@@ -30,7 +30,6 @@ fun NavGraphBuilder.feedScreen(
     onVideoClick: (String) -> Unit,
     onSettingsClick: () -> Unit,
     onAboutClick: () -> Unit,
-    navBar: @Composable () -> Unit,
     modifier: Modifier = Modifier
 ) {
     composable<FeedRoute>(
@@ -48,7 +47,6 @@ fun NavGraphBuilder.feedScreen(
             onVideoClick = onVideoClick,
             onSettingsClick = onSettingsClick,
             onAboutClick = onAboutClick,
-            navBar = navBar,
             modifier = modifier
         )
     }

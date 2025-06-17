@@ -30,7 +30,6 @@ fun NavGraphBuilder.homeScreen(
     onSubredditClick: (String) -> Unit,
     onSavedClick: () -> Unit,
     onAboutClick: () -> Unit,
-    navBar: @Composable () -> Unit,
     modifier: Modifier = Modifier
 ) {
     composable<HomeRoute>(
@@ -45,7 +44,6 @@ fun NavGraphBuilder.homeScreen(
             onSubredditClick = onSubredditClick,
             onSavedClick = onSavedClick,
             onAboutClick = onAboutClick,
-            navBar = navBar,
             modifier = modifier
         )
     }

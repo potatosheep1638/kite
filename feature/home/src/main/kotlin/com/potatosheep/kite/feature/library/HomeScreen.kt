@@ -71,7 +71,6 @@ fun HomeRoute(
     onSubredditClick: (String) -> Unit,
     onSavedClick: () -> Unit,
     onAboutClick: () -> Unit,
-    navBar: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -85,7 +84,6 @@ fun HomeRoute(
         onSavedClick = onSavedClick,
         onAboutClick = onAboutClick,
         removeSubreddit = viewModel::removeSubreddit,
-        navBar = navBar,
         modifier = modifier
     )
 }
@@ -100,7 +98,6 @@ fun HomeScreen(
     onSavedClick: () -> Unit,
     onAboutClick: () -> Unit,
     removeSubreddit: (Subreddit) -> Unit,
-    navBar: @Composable () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
@@ -185,7 +182,6 @@ fun HomeScreen(
                 }
             }
         },
-        bottomBar = navBar,
         snackbarHost = { SnackbarHost(hostState = snackbarState) },
         containerColor = LocalBackgroundColor.current,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -360,7 +356,6 @@ fun LibraryScreenPreview() {
             onSavedClick = {},
             onAboutClick = {},
             removeSubreddit = {},
-            navBar = {},
             modifier = Modifier
         )
     }
