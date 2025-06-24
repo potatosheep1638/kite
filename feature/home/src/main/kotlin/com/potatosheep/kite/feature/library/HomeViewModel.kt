@@ -15,7 +15,7 @@ import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
-class LibraryViewModel @Inject constructor(
+class HomeViewModel @Inject constructor(
     userConfigRepository: UserConfigRepository,
     private val subredditRepository: SubredditRepository
 ) : ViewModel() {

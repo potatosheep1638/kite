@@ -11,17 +11,17 @@ android {
     defaultConfig {
         compileSdk = 35
         applicationId = "com.potatosheep.kite"
-        versionCode = 4
-        versionName = "0.1.0-beta"
+        versionCode = 5
+        versionName = "0.2.0-beta"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         debug {
-            //isDebuggable = true
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isDebuggable = true
+            // isMinifyEnabled = true
+            // isShrinkResources = true
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -49,8 +49,8 @@ dependencies {
     implementation(projects.core.common)
     implementation(projects.core.markdown)
 
-    implementation(projects.feature.homefeed)
-    implementation(projects.feature.library)
+    implementation(projects.feature.feed)
+    implementation(projects.feature.home)
     implementation(projects.feature.post)
     implementation(projects.feature.image)
     implementation(projects.feature.subreddit)
@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.markwon.core)
     implementation(libs.androidx.datastore.proto)
+    implementation(libs.androidx.core.splashscreen)
 
     testImplementation(libs.junit)
 

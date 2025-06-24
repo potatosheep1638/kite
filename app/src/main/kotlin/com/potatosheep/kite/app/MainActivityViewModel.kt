@@ -1,18 +1,38 @@
 package com.potatosheep.kite.app
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.potatosheep.kite.app.MainActivityUiState.Success
+import com.potatosheep.kite.app.MainActivityUiState.Loading
+import com.potatosheep.kite.core.data.repo.UserConfigRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class MainActivityViewModel @Inject constructor() : ViewModel() {
+class MainActivityViewModel @Inject constructor(
+    userConfigRepository: UserConfigRepository
+) : ViewModel() {
+    val uiState: StateFlow<MainActivityUiState> = userConfigRepository.userConfig
+        .map { Success(it.shouldHideOnboarding) }
+        .stateIn(
+            scope = viewModelScope,
+            initialValue = Loading,
+            started = SharingStarted.WhileSubscribed(5_000)
+        )
+}
 
-    private val _isColdBoot = MutableStateFlow(true)
-    val isColdBoot: StateFlow<Boolean> = _isColdBoot
+sealed interface MainActivityUiState {
+    data object Loading : MainActivityUiState
 
-    fun setColdBootState(isColdBoot: Boolean) {
-        _isColdBoot.value = isColdBoot
+    data class Success(val shouldHideOnboarding: Boolean) : MainActivityUiState {
+        override val shouldShowOnboarding: Boolean get() = !shouldHideOnboarding
     }
+
+    fun shouldKeepSplashScreen() = this is Loading
+
+    val shouldShowOnboarding: Boolean get() = false
 }

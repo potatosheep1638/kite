@@ -1,57 +1,46 @@
-package com.potatosheep.kite.feature.homefeed.nav
+package com.potatosheep.kite.feature.feed.nav
 
-import android.content.Intent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.expandIn
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.potatosheep.kite.core.common.enums.SortOption
-import com.potatosheep.kite.feature.homefeed.HomeFeedRoute
+import com.potatosheep.kite.feature.feed.FeedRoute
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object HomeRoute
+data object FeedRoute
 
-fun NavController.navigateToHome(navOptions: NavOptions) = navigate(HomeRoute, navOptions)
+fun NavController.navigateToFeed(navOptions: NavOptions) = navigate(FeedRoute, navOptions)
 
-fun NavGraphBuilder.homeScreen(
+fun NavGraphBuilder.feedScreen(
     onPostClick: (String, String, String?, String?) -> Unit,
     onSubredditClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
     onImageClick: (List<String>, List<String?>) -> Unit,
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onVideoClick: (String) -> Unit,
-    onSettingsClick: () -> Unit,
-    onAboutClick: () -> Unit,
-    navBar: @Composable () -> Unit,
+    onFeedChange: (String?) -> Unit,
+    isTitleVisible: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    composable<HomeRoute>(
+    composable<FeedRoute>(
         enterTransition = { EnterTransition.None },
-        exitTransition = { fadeOut() + scaleOut() },
-        popEnterTransition = { fadeIn() + scaleIn() },
-        popExitTransition = { ExitTransition.None }
+        exitTransition = { ExitTransition.None }
     ) {
-        HomeFeedRoute(
+        FeedRoute(
             onPostClick = onPostClick,
             onSubredditClick = onSubredditClick,
             onUserClick = onUserClick,
             onImageClick = onImageClick,
             onSearchClick = onSearchClick,
             onVideoClick = onVideoClick,
-            onSettingsClick = onSettingsClick,
-            onAboutClick = onAboutClick,
-            navBar = navBar,
-            modifier = modifier
+            onFeedChange = onFeedChange,
+            isTitleVisible = isTitleVisible,
+            modifier = modifier,
         )
     }
 }

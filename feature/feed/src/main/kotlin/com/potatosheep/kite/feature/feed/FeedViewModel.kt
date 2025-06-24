@@ -1,5 +1,6 @@
-package com.potatosheep.kite.feature.homefeed
+package com.potatosheep.kite.feature.feed
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,18 +11,22 @@ import com.potatosheep.kite.core.data.repo.SubredditRepository
 import com.potatosheep.kite.core.data.repo.UserConfigRepository
 import com.potatosheep.kite.core.model.Post
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
-class HomeFeedViewModel @Inject constructor(
+class FeedViewModel @Inject constructor(
     subredditRepository: SubredditRepository,
     private val savedStateHandle: SavedStateHandle,
     private val postRepository: PostRepository,
@@ -33,6 +38,9 @@ class HomeFeedViewModel @Inject constructor(
     val currentFeed = savedStateHandle.getStateFlow(FEED, Feed.FOLLOWED)
     val currentSortOption = savedStateHandle.getStateFlow(SORT, SortOption.Post.HOT)
     val currentSortTimeframe = savedStateHandle.getStateFlow(TIME, SortOption.Timeframe.DAY)
+
+    private val _shouldRefresh = MutableStateFlow(RefreshScope.NO_REFRESH)
+    val shouldRefresh: StateFlow<RefreshScope> = _shouldRefresh
 
     val blurNsfw = userConfigRepository.userConfig
         .map { it.blurNsfw }
@@ -67,45 +75,26 @@ class HomeFeedViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-            initialValue = emptyList()
+            initialValue = null
         )
 
+    // TODO: Refactor this into HomeUiState
     init {
         viewModelScope.launch {
-            instanceUrl.collectLatest { instance ->
-                if (instance.isNotEmpty()) {
-                    if (_uiState.value is PostListUiState.Error) {
-                        _uiState.value = PostListUiState.Loading
-                    }
-
-                    runCatching {
-                        userConfigRepository.getInstanceCookies(instanceUrl.value)
-                    }.onFailure {
-                        _uiState.value = PostListUiState.Error(it.message.toString())
-                    }
-
-
-                    if (currentFeed.value == Feed.FOLLOWED) {
-                        followedSubreddits.collectLatest { subreddits ->
-                            if (subreddits.isEmpty()) {
-                                savedStateHandle[FEED] = Feed.POPULAR
-                            }
-
-                            loadSortedPosts(
-                                sort = currentSortOption.value,
-                                timeframe = currentSortTimeframe.value,
-                                subredditScopes = subreddits.map { it.subredditName }
-                            )
+            instanceUrl.combine(followedSubreddits) { instance, subreddits ->
+                Pair(instance, subreddits)
+            }
+                .runningHistory()
+                .filterNotNull()
+                .collectLatest { history ->
+                    if (history.current.first.isNotEmpty() && history.current.second != null) {
+                        if (history.current.first == history.previous?.first) {
+                            _shouldRefresh.value = RefreshScope.FOLLOWED_ONLY
+                        } else {
+                            _shouldRefresh.value = RefreshScope.GLOBAL
                         }
-                    } else {
-                        loadSortedPosts(
-                            sort = currentSortOption.value,
-                            timeframe = currentSortTimeframe.value,
-                            subredditScopes = listOf(currentFeed.value.uri)
-                        )
                     }
                 }
-            }
         }
     }
 
@@ -126,10 +115,11 @@ class HomeFeedViewModel @Inject constructor(
                         sort = sort.uri,
                         timeframe = timeframe.uri,
                         after = after,
-                        subredditName = if (subredditScopes.isEmpty())
-                            null
-                        else
-                            subredditScopes.joinToString(separator = "+")
+                        subredditName =
+                            if (subredditScopes.isEmpty() || subredditScopes[0] == FOLLOWED_FEED)
+                                null
+                            else
+                                subredditScopes.joinToString(separator = "+")
                     )
                 }.onSuccess {
                     posts.addAll(it)
@@ -141,6 +131,7 @@ class HomeFeedViewModel @Inject constructor(
         }
     }
 
+    @Synchronized
     fun loadSortedPosts(
         sort: SortOption.Post,
         timeframe: SortOption.Timeframe,
@@ -148,6 +139,7 @@ class HomeFeedViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             _uiState.value = PostListUiState.Loading
+            Log.d("FeedViewModel", subredditScopes.joinToString(","))
 
             runCatching {
                 postRepository.getPosts(
@@ -155,12 +147,42 @@ class HomeFeedViewModel @Inject constructor(
                     sort = sort.uri,
                     timeframe = timeframe.uri,
                     subredditName =
-                    if (subredditScopes.isEmpty())
-                        null
-                    else
-                        subredditScopes.joinToString(separator = "+")
+                        if (subredditScopes.isEmpty() || subredditScopes[0] == FOLLOWED_FEED)
+                            null
+                        else
+                            subredditScopes.joinToString(separator = "+")
                 )
             }.onSuccess {
+                _uiState.value = PostListUiState.Success(it)
+            }.onFailure {
+                _uiState.value = PostListUiState.Error(it.message.toString())
+            }
+        }
+    }
+
+    @Synchronized
+    fun loadFrontPage() {
+        viewModelScope.launch {
+            _uiState.value = PostListUiState.Loading
+
+            runCatching {
+                val redirect = if (currentFeed.value != Feed.FOLLOWED) {
+                    "r/${currentFeed.value.uri}"
+                } else {
+                    ""
+                }
+
+                changeSort(SortOption.Post.HOT)
+                changeTimeframe(SortOption.Timeframe.DAY)
+
+                userConfigRepository.getInstanceCookies(
+                    instanceUrl = instanceUrl.value,
+                    redirect = redirect,
+                    sort = SortOption.Post.HOT.uri,
+                    subreddits = followedSubreddits.value!!.map { it.subredditName }
+                )
+            }.onSuccess {
+                _shouldRefresh.value = RefreshScope.NO_REFRESH
                 _uiState.value = PostListUiState.Success(it)
             }.onFailure {
                 _uiState.value = PostListUiState.Error(it.message.toString())
@@ -218,7 +240,7 @@ enum class Feed(
 ) {
     FOLLOWED(
         label = R.string.home_feed_followed,
-        uri = ""
+        uri = FOLLOWED_FEED
     ),
     POPULAR(
         label = R.string.home_feed_popular,
@@ -228,6 +250,12 @@ enum class Feed(
         label = R.string.home_feed_all,
         uri = "all"
     )
+}
+
+enum class RefreshScope {
+    FOLLOWED_ONLY,
+    GLOBAL,
+    NO_REFRESH
 }
 
 // TODO: Implement this
@@ -243,6 +271,17 @@ sealed interface HomeUiState {
     ) : HomeUiState
 }
 
+// Maybe move this to :common?
+private data class History<T>(val previous: T?, val current: T)
+
+private fun <T> Flow<T>.runningHistory(): Flow<History<T>?> =
+    runningFold(
+        initial = null as (History<T>?),
+        operation = { accumulator, value -> History(accumulator?.current, value) }
+    )
+
 const val FEED = "feed"
 const val SORT = "sort"
 const val TIME = "time"
+
+const val FOLLOWED_FEED = "followedFeed"

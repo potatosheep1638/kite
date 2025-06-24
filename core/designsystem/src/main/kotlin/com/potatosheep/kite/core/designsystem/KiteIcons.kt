@@ -2,12 +2,8 @@ package com.potatosheep.kite.core.designsystem
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ExitToApp
-import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.automirrored.rounded.ExitToApp
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.rounded.List
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
@@ -17,11 +13,7 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Clear
-import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.KeyboardArrowDown
-import androidx.compose.material.icons.rounded.KeyboardArrowUp
-import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -35,6 +27,8 @@ import com.potatosheep.kite.core.designsystem.vectors.ChatBubble
 import com.potatosheep.kite.core.designsystem.vectors.FileDownload
 import com.potatosheep.kite.core.designsystem.vectors.Link
 import com.potatosheep.kite.core.designsystem.vectors.OutlineBook
+import com.potatosheep.kite.core.designsystem.vectors.OutlineFeed
+import com.potatosheep.kite.core.designsystem.vectors.RoundFeed
 import com.potatosheep.kite.core.designsystem.vectors.Sort
 import com.potatosheep.kite.core.designsystem.vectors.UnfoldMore
 
@@ -44,8 +38,8 @@ object KiteIcons {
     val HomeSelected = Icons.Rounded.Home
     val Subscription = Icons.Outlined.Notifications
     val SubscriptionSelected = Icons.Rounded.Notifications
-    val Library = Icons.Outlined.Bookmark
-    val LibrarySelected = Icons.Rounded.Bookmark
+    val Feed = Icons.Outlined.OutlineFeed
+    val FeedSelected = Icons.Rounded.RoundFeed
 
     // Post cards
     val Image = R.drawable.image

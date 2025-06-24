@@ -9,14 +9,14 @@ enum class TopLevelDestination(
     val selectedIcon: ImageVector,
     val label: String
 ) {
+    FEED(
+        icon = KiteIcons.Feed,
+        selectedIcon = KiteIcons.FeedSelected,
+        label = "Feed"
+    ),
     HOME(
         icon = KiteIcons.Home,
         selectedIcon = KiteIcons.HomeSelected,
         label = "Home"
-    ),
-    LIBRARY(
-        icon = KiteIcons.Library,
-        selectedIcon = KiteIcons.LibrarySelected,
-        label = "Library"
     )
 }

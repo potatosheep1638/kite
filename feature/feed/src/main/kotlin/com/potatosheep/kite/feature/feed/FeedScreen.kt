@@ -1,21 +1,13 @@
-package com.potatosheep.kite.feature.homefeed
+package com.potatosheep.kite.feature.feed
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -25,13 +17,10 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -42,7 +31,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -53,19 +41,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.potatosheep.kite.core.common.enums.MenuOption
 import com.potatosheep.kite.core.common.enums.SortOption
-import com.potatosheep.kite.core.common.util.alignToRightOfParent
+import com.potatosheep.kite.core.common.util.LocalTopAppBarActionState
 import com.potatosheep.kite.core.common.util.onShare
 import com.potatosheep.kite.core.designsystem.ErrorMsg
 import com.potatosheep.kite.core.designsystem.KiteBottomSheet
-import com.potatosheep.kite.core.designsystem.KiteDropdownMenu
-import com.potatosheep.kite.core.designsystem.KiteDropdownMenuItem
 import com.potatosheep.kite.core.designsystem.KiteIcons
 import com.potatosheep.kite.core.designsystem.KiteLoadingIndicator
 import com.potatosheep.kite.core.designsystem.KiteTheme
-import com.potatosheep.kite.core.designsystem.KiteTopAppBar
-import com.potatosheep.kite.core.designsystem.LocalBackgroundColor
 import com.potatosheep.kite.core.model.MediaType
 import com.potatosheep.kite.core.model.Post
 import com.potatosheep.kite.core.model.Subreddit
@@ -76,20 +59,21 @@ import com.potatosheep.kite.core.common.R.string as commonStrings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeFeedRoute(
+fun FeedRoute(
     onPostClick: (String, String, String?, String?) -> Unit,
     onSubredditClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
     onImageClick: (List<String>, List<String?>) -> Unit,
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onVideoClick: (String) -> Unit,
-    onSettingsClick: () -> Unit,
-    onAboutClick: () -> Unit,
-    navBar: @Composable () -> Unit,
+    onFeedChange: (String?) -> Unit,
+    isTitleVisible: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: HomeFeedViewModel = hiltViewModel()
+    viewModel: FeedViewModel = hiltViewModel()
 ) {
     val homeFeedUiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val shouldRefresh by viewModel.shouldRefresh.collectAsStateWithLifecycle()
+
     val blurNsfw by viewModel.blurNsfw.collectAsStateWithLifecycle()
     val blurSpoiler by viewModel.blurSpoiler.collectAsStateWithLifecycle()
     val instance by viewModel.instanceUrl.collectAsStateWithLifecycle()
@@ -99,7 +83,7 @@ fun HomeFeedRoute(
     val currentSortOption by viewModel.currentSortOption.collectAsStateWithLifecycle()
     val currentSortTimeframe by viewModel.currentSortTimeframe.collectAsStateWithLifecycle()
 
-    HomeFeedScreen(
+    FeedScreen(
         postListUiState = homeFeedUiState,
         instanceUrl = instance,
         currentFeed = currentFeed,
@@ -113,9 +97,10 @@ fun HomeFeedRoute(
         onUserClick = onUserClick,
         onSearchClick = onSearchClick,
         onVideoClick = onVideoClick,
-        onSettingsClick = onSettingsClick,
-        onAboutClick = onAboutClick,
+        onFeedChange = onFeedChange,
+        isTitleVisible = isTitleVisible,
         loadSortedPosts = viewModel::loadSortedPosts,
+        loadFrontPage = viewModel::loadFrontPage,
         changeFeed = viewModel::changeFeed,
         changeSort = viewModel::changeSort,
         changeTimeframe = viewModel::changeTimeframe,
@@ -123,22 +108,22 @@ fun HomeFeedRoute(
         checkPostBookmarked = viewModel::checkIfPostExists,
         bookmarkPost = viewModel::bookmarkPost,
         removePostBookmark = viewModel::removePostBookmark,
-        navBar = navBar,
         modifier = modifier,
         shouldBlurNsfw = blurNsfw,
-        shouldBlurSpoiler = blurSpoiler
+        shouldBlurSpoiler = blurSpoiler,
+        shouldRefresh = shouldRefresh,
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun HomeFeedScreen(
+internal fun FeedScreen(
     postListUiState: PostListUiState,
     instanceUrl: String,
     currentFeed: Feed,
     currentSortOption: SortOption.Post,
     currentSortTimeframe: SortOption.Timeframe,
-    followedSubreddits: List<Subreddit>,
+    followedSubreddits: List<Subreddit>?,
     loadPosts: (SortOption.Post, SortOption.Timeframe, List<String>) -> Unit,
     onPostClick: (String, String, String?, String?) -> Unit,
     onSubredditClick: (String) -> Unit,
@@ -146,9 +131,10 @@ internal fun HomeFeedScreen(
     onUserClick: (String) -> Unit,
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onVideoClick: (String) -> Unit,
-    onSettingsClick: () -> Unit,
-    onAboutClick: () -> Unit,
+    onFeedChange: (String?) -> Unit,
+    isTitleVisible: (Boolean) -> Unit,
     loadSortedPosts: (SortOption.Post, SortOption.Timeframe, List<String>) -> Unit,
+    loadFrontPage: () -> Unit,
     changeFeed: (Feed) -> Unit,
     changeSort: (SortOption.Post) -> Unit,
     changeTimeframe: (SortOption.Timeframe) -> Unit,
@@ -156,10 +142,10 @@ internal fun HomeFeedScreen(
     bookmarkPost: (Post) -> Unit,
     removePostBookmark: (Post) -> Unit,
     getPostLink: (Post) -> String,
-    navBar: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     shouldBlurNsfw: Boolean = false,
     shouldBlurSpoiler: Boolean = false,
+    shouldRefresh: RefreshScope = RefreshScope.NO_REFRESH,
     sortSheetState: SheetState = rememberModalBottomSheetState(),
     feedSheetState: SheetState = rememberModalBottomSheetState()
 ) {
@@ -175,17 +161,13 @@ internal fun HomeFeedScreen(
         }
     }
 
-    val isTitleVisible by remember {
+    val isTitleInView by remember {
         derivedStateOf {
             listState.firstVisibleItemIndex == 0
         }
     }
 
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-    var isMenuExpanded by remember { mutableStateOf(false) }
-
-    var showSortSheet by remember { mutableStateOf(false) }
-
+    val topAppBarActionState = LocalTopAppBarActionState.current
     var showFeedSheet by remember { mutableStateOf(false) }
     var shouldDisableFollowedFeed by rememberSaveable { mutableStateOf(false) }
 
@@ -193,321 +175,244 @@ internal fun HomeFeedScreen(
         loadPosts(
             currentSortOption,
             currentSortTimeframe,
-            if (currentFeed == Feed.FOLLOWED)
-                followedSubreddits.map { it.subredditName }
-            else
-                listOf(currentFeed.uri)
+            listOf(currentFeed.uri)
         )
     }
 
-    Scaffold(
-        topBar = {
-            KiteTopAppBar(
-                title =
-                if (isTitleVisible)
-                    ""
-                else
-                    stringResource(commonStrings.home_top_app_bar_title),
-                searchIcon = KiteIcons.Search,
-                searchIconContentDescription = stringResource(com.potatosheep.kite.core.common.R.string.content_desc_search),
-                optionsIcon = KiteIcons.MoreOptions,
-                optionsContentDescription = stringResource(com.potatosheep.kite.core.common.R.string.content_desc_more_options),
-                onSearchClick = {
-                    onSearchClick(
-                        SortOption.Search.RELEVANCE,
-                        SortOption.Timeframe.ALL,
-                        if (currentFeed == Feed.FOLLOWED)
-                            null
-                        else
-                            currentFeed.uri,
-                        ""
-                    )
-                },
-                onOptionsClick = { isMenuExpanded = true },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = LocalBackgroundColor.current
-                ),
-                scrollBehavior = scrollBehavior
-            )
+    isTitleVisible(isTitleInView)
 
-            Box(Modifier.alignToRightOfParent()) {
-                val menuOptions = MenuOption.entries
+    LaunchedEffect(followedSubreddits) {
+        shouldDisableFollowedFeed =
+            followedSubreddits != null && followedSubreddits.isEmpty()
 
-                KiteDropdownMenu(
-                    expanded = isMenuExpanded,
-                    onDismissRequest = { isMenuExpanded = false },
-                ) {
-                    menuOptions.forEach { option ->
-                        KiteDropdownMenuItem(
-                            text = option.label,
-                            onClick =
-                            when (option) {
-                                MenuOption.SORT -> {
-                                    {
-                                        showSortSheet = true
-                                        isMenuExpanded = false
-                                    }
-                                }
-
-                                MenuOption.SETTINGS -> {
-                                    {
-                                        onSettingsClick()
-                                        isMenuExpanded = false
-                                    }
-                                }
-
-                                MenuOption.ABOUT -> {
-                                    {
-                                        onAboutClick()
-                                        isMenuExpanded = false
-                                    }
-                                }
-                            }
-                        )
-                    }
-                }
-            }
-        },
-        bottomBar = navBar,
-        containerColor = LocalBackgroundColor.current,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
-    ) { padding ->
-        Column(
-            Modifier
-                .padding(padding)
-                .consumeWindowInsets(padding)
-                .windowInsetsPadding(
-                    WindowInsets.safeDrawing.only(
-                        WindowInsetsSides.Horizontal
-                    )
-                )
-        ) {
-            when (postListUiState) {
-                PostListUiState.Loading -> Unit
-                is PostListUiState.Error -> {
-                    ErrorMsg(
-                        msg = postListUiState.msg,
-                        onRetry = {
-                            loadSortedPosts(
-                                currentSortOption,
-                                currentSortTimeframe,
-                                if (currentFeed == Feed.FOLLOWED)
-                                    followedSubreddits.map { it.subredditName }
-                                else
-                                    listOf(currentFeed.uri)
-                            )
-                        },
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(6.dp)
-                    )
-                }
-
-                is PostListUiState.Success -> {
-                    LaunchedEffect(followedSubreddits) {
-                        shouldDisableFollowedFeed = followedSubreddits.isEmpty()
-
-                        if (shouldDisableFollowedFeed && currentFeed == Feed.FOLLOWED) {
-                            changeFeed(Feed.POPULAR)
-                        }
-                    }
-
-                    LazyColumn(
-                        state = listState,
-                        modifier = modifier
-                    ) {
-                        item {
-                            Text(
-                                text = stringResource(commonStrings.home_headline),
-                                modifier = Modifier
-                                    .padding(
-                                        start = 12.dp,
-                                        top = 48.dp,
-                                        end = 12.dp
-                                    ),
-                                style = MaterialTheme.typography.headlineLarge,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-
-                        item {
-                            Text(
-                                text = instanceUrl,
-                                modifier = Modifier.padding(
-                                    start = 12.dp,
-                                    end = 12.dp,
-                                    bottom = 12.dp
-                                ),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-
-                        item {
-                            Row(
-                                Modifier.padding(
-                                    top = 12.dp,
-                                    start = 12.dp,
-                                    end = 12.dp,
-                                    bottom = 6.dp
-                                )
-                            ) {
-                                FeedSelector(
-                                    onClick = { showFeedSheet = true },
-                                    currentFeed = currentFeed
-                                )
-
-                                PostSorter(
-                                    onClick = { showSortSheet = true },
-                                    currentSortOption = currentSortOption,
-                                    currentSortTimeframe = currentSortTimeframe
-                                )
-                            }
-                        }
-
-                        itemsIndexed(
-                            items = postListUiState.posts,
-                            /**
-                             * Index is appended to the key in case Redlib returns the same post twice,
-                             * which results in an [IllegalArgumentException] exception being thrown.
-                             */
-                            key = { index, post -> "${index}/${post.subredditName}/${post.id}" }
-                        ) { _, post ->
-                            val onClickFunction = {
-                                onPostClick(
-                                    post.subredditName,
-                                    post.id,
-                                    null,
-                                    when {
-                                        post.mediaLinks.isEmpty() -> null
-
-                                        post.mediaLinks[0].mediaType == MediaType.GALLERY_THUMBNAIL ||
-                                                post.mediaLinks[0].mediaType == MediaType.ARTICLE_THUMBNAIL ||
-                                                post.mediaLinks[0].mediaType == MediaType.VIDEO_THUMBNAIL -> {
-
-                                            post.mediaLinks[0].link
-                                        }
-
-                                        else -> null
-                                    }
-                                )
-                            }
-
-                            var isBookmarked by remember { mutableStateOf(false) }
-                            var isChecking by remember { mutableStateOf(true) }
-
-                            LaunchedEffect(Unit) {
-                                isBookmarked = checkPostBookmarked(post)
-                                isChecking = false
-                            }
-
-                            PostCard(
-                                post = post,
-                                onClick = onClickFunction,
-                                onLongClick = {
-                                    clipboardManager.setText(
-                                        AnnotatedString(
-                                            post.title
-                                        )
-                                    )
-                                },
-                                onSubredditClick = onSubredditClick,
-                                onUserClick = onUserClick,
-                                onFlairClick = onSearchClick,
-                                onImageClick = onImageClick,
-                                onVideoClick = onVideoClick,
-                                onShareClick = { onShare(getPostLink(post), context) },
-                                onBookmarkClick = {
-                                    if (isBookmarked && !isChecking) {
-                                        removePostBookmark(post)
-                                    } else if (!isChecking) {
-                                        bookmarkPost(post)
-                                    }
-
-                                    isBookmarked = !isBookmarked
-                                },
-                                modifier = Modifier.padding(
-                                    horizontal = 12.dp,
-                                    vertical = 6.dp
-                                ),
-                                showText = false,
-                                blurImage = (shouldBlurNsfw && post.isNsfw) ||
-                                            (shouldBlurSpoiler && post.isSpoiler),
-                                isBookmarked = isBookmarked,
-                                colors = CardDefaults.cardColors(
-                                    containerColor =
-                                        if (isSystemInDarkTheme())
-                                            MaterialTheme.colorScheme.surfaceContainerHigh
-                                        else
-                                            MaterialTheme.colorScheme.surfaceContainerLowest
-                                )
-                            )
-                        }
-                    }
-                }
-            }
-
-            if (isLoading) KiteLoadingIndicator(Modifier.fillMaxSize())
-
-            val coroutineScope = rememberCoroutineScope()
-
-            SortSheet(
-                showBottomSheet = showSortSheet,
-                sheetState = sortSheetState,
-                onDismissRequest = { showSortSheet = false },
-                onFilterClick = { sortOption, timeframe ->
-                    changeSort(sortOption)
-                    changeTimeframe(timeframe)
-
-                    coroutineScope.launch {
-                        listState.requestScrollToItem(0)
-                        scrollBehavior.state.contentOffset = 0f
-                    }
-
-                    loadSortedPosts(
-                        sortOption,
-                        timeframe,
-                        if (currentFeed == Feed.FOLLOWED)
-                            followedSubreddits.map { it.subredditName }
-                        else
-                            listOf(currentFeed.uri)
-                    )
-                },
-                currentSortOption = currentSortOption,
-                currentSortTimeframe = currentSortTimeframe
-            )
-
-            FeedSheet(
-                showBottomSheet = showFeedSheet,
-                sheetState = feedSheetState,
-                onDismissRequest = { showFeedSheet = false },
-                onFeedClick = { feed ->
-                    changeFeed(feed)
-
-                    coroutineScope.launch {
-                        listState.requestScrollToItem(0)
-                        scrollBehavior.state.contentOffset = 0f
-                    }
-
-                    if (feed == Feed.FOLLOWED)
-                        loadSortedPosts(
-                            currentSortOption,
-                            currentSortTimeframe,
-                            followedSubreddits.map { it.subredditName }
-                        )
-                    else
-                        loadSortedPosts(
-                            currentSortOption,
-                            currentSortTimeframe,
-                            listOf(feed.uri)
-                        )
-                },
-                currentFeed = currentFeed,
-                shouldDisableFollowedFeed = shouldDisableFollowedFeed
-            )
+        if (shouldDisableFollowedFeed) {
+            changeFeed(Feed.POPULAR)
         }
     }
+
+    LaunchedEffect(shouldRefresh, currentFeed) {
+        when (shouldRefresh) {
+            RefreshScope.FOLLOWED_ONLY -> {
+                if (currentFeed == Feed.FOLLOWED) {
+                    loadFrontPage()
+                }
+            }
+
+            RefreshScope.GLOBAL -> {
+                loadFrontPage()
+            }
+
+            RefreshScope.NO_REFRESH -> Unit
+        }
+    }
+
+    when (postListUiState) {
+        PostListUiState.Loading -> Unit
+        is PostListUiState.Error -> {
+            ErrorMsg(
+                msg = postListUiState.msg,
+                onRetry = {
+                    loadSortedPosts(
+                        currentSortOption,
+                        currentSortTimeframe,
+                        listOf(currentFeed.uri)
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(6.dp)
+            )
+        }
+
+        is PostListUiState.Success -> {
+            LazyColumn(
+                state = listState,
+                modifier = modifier
+            ) {
+                item {
+                    Text(
+                        text = stringResource(commonStrings.home_headline),
+                        modifier = Modifier
+                            .padding(
+                                start = 12.dp,
+                                top = 48.dp,
+                                end = 12.dp
+                            ),
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+                item {
+                    Text(
+                        text = instanceUrl,
+                        modifier = Modifier.padding(
+                            start = 12.dp,
+                            end = 12.dp,
+                            bottom = 12.dp
+                        ),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                item {
+                    Row(
+                        Modifier.padding(
+                            top = 12.dp,
+                            start = 12.dp,
+                            end = 12.dp,
+                            bottom = 6.dp
+                        )
+                    ) {
+                        FeedSelector(
+                            onClick = { showFeedSheet = true },
+                            currentFeed = currentFeed
+                        )
+
+                        PostSorter(
+                            onClick = { topAppBarActionState.showSort = true },
+                            currentSortOption = currentSortOption,
+                            currentSortTimeframe = currentSortTimeframe
+                        )
+                    }
+                }
+
+                itemsIndexed(
+                    items = postListUiState.posts,
+                    /**
+                     * Index is appended to the key in case Redlib returns the same post twice,
+                     * which results in an [IllegalArgumentException] exception being thrown.
+                     */
+                    key = { index, post -> "${index}/${post.subredditName}/${post.id}" }
+                ) { _, post ->
+                    val onClickFunction = {
+                        onPostClick(
+                            post.subredditName,
+                            post.id,
+                            null,
+                            when {
+                                post.mediaLinks.isEmpty() -> null
+
+                                post.mediaLinks[0].mediaType == MediaType.GALLERY_THUMBNAIL ||
+                                        post.mediaLinks[0].mediaType == MediaType.ARTICLE_THUMBNAIL ||
+                                        post.mediaLinks[0].mediaType == MediaType.VIDEO_THUMBNAIL -> {
+
+                                    post.mediaLinks[0].link
+                                }
+
+                                else -> null
+                            }
+                        )
+                    }
+
+                    var isBookmarked by remember { mutableStateOf(false) }
+                    var isChecking by remember { mutableStateOf(true) }
+
+                    LaunchedEffect(Unit) {
+                        isBookmarked = checkPostBookmarked(post)
+                        isChecking = false
+                    }
+
+                    PostCard(
+                        post = post,
+                        onClick = onClickFunction,
+                        onLongClick = {
+                            clipboardManager.setText(
+                                AnnotatedString(
+                                    post.title
+                                )
+                            )
+                        },
+                        onSubredditClick = onSubredditClick,
+                        onUserClick = onUserClick,
+                        onFlairClick = onSearchClick,
+                        onImageClick = onImageClick,
+                        onVideoClick = onVideoClick,
+                        onShareClick = { onShare(getPostLink(post), context) },
+                        onBookmarkClick = {
+                            if (isBookmarked && !isChecking) {
+                                removePostBookmark(post)
+                            } else if (!isChecking) {
+                                bookmarkPost(post)
+                            }
+
+                            isBookmarked = !isBookmarked
+                        },
+                        modifier = Modifier.padding(
+                            horizontal = 12.dp,
+                            vertical = 6.dp
+                        ),
+                        showText = false,
+                        blurImage = (shouldBlurNsfw && post.isNsfw) ||
+                                (shouldBlurSpoiler && post.isSpoiler),
+                        isBookmarked = isBookmarked,
+                        colors = CardDefaults.cardColors(
+                            containerColor =
+                                if (isSystemInDarkTheme())
+                                    MaterialTheme.colorScheme.surfaceContainerHigh
+                                else
+                                    MaterialTheme.colorScheme.surfaceContainerLowest
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    if (isLoading) KiteLoadingIndicator(Modifier.fillMaxSize())
+
+    val coroutineScope = rememberCoroutineScope()
+
+    SortSheet(
+        showBottomSheet = topAppBarActionState.showSort,
+        sheetState = sortSheetState,
+        onDismissRequest = { topAppBarActionState.showSort = false },
+        onFilterClick = { sortOption, timeframe ->
+            changeSort(sortOption)
+            changeTimeframe(timeframe)
+
+            coroutineScope.launch {
+                listState.requestScrollToItem(0)
+            }
+
+            loadSortedPosts(
+                sortOption,
+                timeframe,
+                listOf(currentFeed.uri)
+            )
+        },
+        currentSortOption = currentSortOption,
+        currentSortTimeframe = currentSortTimeframe
+    )
+
+    FeedSheet(
+        showBottomSheet = showFeedSheet,
+        sheetState = feedSheetState,
+        onDismissRequest = { showFeedSheet = false },
+        onFeedClick = { feed ->
+            changeFeed(feed)
+
+            onFeedChange(
+                if (currentFeed == Feed.FOLLOWED)
+                    null
+                else
+                    currentFeed.uri
+            )
+
+            coroutineScope.launch {
+                listState.requestScrollToItem(0)
+            }
+
+            loadSortedPosts(
+                currentSortOption,
+                currentSortTimeframe,
+                listOf(feed.uri)
+            )
+        },
+        currentFeed = currentFeed,
+        shouldDisableFollowedFeed = shouldDisableFollowedFeed
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -739,7 +644,7 @@ fun HomeFeedScreenPreview(
 ) {
     KiteTheme {
         Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
-            HomeFeedScreen(
+            FeedScreen(
                 postListUiState = PostListUiState.Success(posts),
                 instanceUrl = "https://test.com",
                 currentFeed = Feed.POPULAR,
@@ -753,9 +658,10 @@ fun HomeFeedScreenPreview(
                 onUserClick = {},
                 onSearchClick = { _, _, _, _ -> },
                 onVideoClick = {},
-                onSettingsClick = {},
-                onAboutClick = {},
+                onFeedChange = {},
+                isTitleVisible = {},
                 loadSortedPosts = { _, _, _ -> },
+                loadFrontPage = {},
                 changeFeed = {},
                 changeSort = {},
                 changeTimeframe = {},
@@ -764,7 +670,6 @@ fun HomeFeedScreenPreview(
                 bookmarkPost = {},
                 removePostBookmark = {},
                 shouldBlurNsfw = false,
-                navBar = {}
             )
         }
     }

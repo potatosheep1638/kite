@@ -1,14 +1,15 @@
 package com.potatosheep.kite.app.ui
 
-import android.util.Log
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.potatosheep.kite.app.nav.KiteNavHost
+import com.potatosheep.kite.app.nav.TopLevelRoute
+import com.potatosheep.kite.core.common.util.LocalSnackbarHostState
 import com.potatosheep.kite.core.designsystem.LocalBackgroundColor
-import com.potatosheep.kite.feature.homefeed.nav.HomeRoute
 import com.potatosheep.kite.feature.onboarding.nav.OnboardingRoute
 
 @Composable
@@ -16,22 +17,26 @@ fun KiteApp(
     appState: KiteAppState,
     modifier: Modifier = Modifier,
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
     Surface(
         color = LocalBackgroundColor.current,
         modifier = modifier
     ) {
-        val shouldShowOnboarding by appState.shouldShowOnboarding.collectAsStateWithLifecycle()
-
-        val destination = if (shouldShowOnboarding) {
+        val destination: Any = if (appState.shouldShowOnboarding) {
             OnboardingRoute
         } else {
-            HomeRoute
+            TopLevelRoute
         }
 
-        KiteNavHost(
-            appState = appState,
-            startDestination = destination,
-            modifier = modifier,
-        )
+        CompositionLocalProvider(
+            LocalSnackbarHostState provides snackbarHostState
+        ) {
+            KiteNavHost(
+                appState = appState,
+                startDestination = destination,
+                modifier = modifier,
+            )
+        }
     }
 }
