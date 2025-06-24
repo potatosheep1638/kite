@@ -3,19 +3,17 @@ package com.potatosheep.kite.core.designsystem
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Notifications
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteColors
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScope
@@ -32,12 +30,14 @@ fun KiteNavigationSuiteScaffold(
     modifier: Modifier = Modifier,
     layoutType: NavigationSuiteType =
         NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo()),
+    navigationSuiteColors: NavigationSuiteColors = NavigationSuiteDefaults.colors(),
     containerColor: Color = Color.Transparent,
     content: @Composable () -> Unit
 ) {
     NavigationSuiteScaffold(
         navigationSuiteItems = navigationSuiteItems,
         layoutType = layoutType,
+        navigationSuiteColors = navigationSuiteColors,
         containerColor = containerColor,
         modifier = modifier
     ) {

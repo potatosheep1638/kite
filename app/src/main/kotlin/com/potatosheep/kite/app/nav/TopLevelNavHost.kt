@@ -17,6 +17,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -132,7 +133,9 @@ internal fun TopLevelNavHost(
                 )
             }
         },
-        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        navigationSuiteColors = NavigationSuiteDefaults.colors(
+            navigationBarContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        )
     ) {
         Scaffold(
             topBar = {
