@@ -2,11 +2,6 @@ package com.potatosheep.kite.feature.feed.nav
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -28,15 +23,13 @@ fun NavGraphBuilder.feedScreen(
     onImageClick: (List<String>, List<String?>) -> Unit,
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onVideoClick: (String) -> Unit,
-    onSettingsClick: () -> Unit,
-    onAboutClick: () -> Unit,
+    onFeedChange: (String?) -> Unit,
+    isTitleVisible: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     composable<FeedRoute>(
         enterTransition = { EnterTransition.None },
-        exitTransition = { fadeOut() + scaleOut() },
-        popEnterTransition = { fadeIn() + scaleIn() },
-        popExitTransition = { ExitTransition.None }
+        exitTransition = { ExitTransition.None }
     ) {
         FeedRoute(
             onPostClick = onPostClick,
@@ -45,9 +38,9 @@ fun NavGraphBuilder.feedScreen(
             onImageClick = onImageClick,
             onSearchClick = onSearchClick,
             onVideoClick = onVideoClick,
-            onSettingsClick = onSettingsClick,
-            onAboutClick = onAboutClick,
-            modifier = modifier
+            onFeedChange = onFeedChange,
+            isTitleVisible = isTitleVisible,
+            modifier = modifier,
         )
     }
 }
