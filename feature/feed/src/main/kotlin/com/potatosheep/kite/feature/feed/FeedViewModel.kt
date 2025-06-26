@@ -1,5 +1,6 @@
 package com.potatosheep.kite.feature.feed
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.potatosheep.kite.core.common.R
@@ -51,7 +52,8 @@ class FeedViewModel @Inject constructor(
             blurSpoiler = config.blurSpoiler,
             currentFeed = options.feed,
             sort = options.sort,
-            timeframe = options.timeframe
+            timeframe = options.timeframe,
+            listState = LazyListState(0, 0)
         )
     }.stateIn(
         scope = viewModelScope,
@@ -235,7 +237,8 @@ sealed interface FeedUiState {
         val blurSpoiler: Boolean,
         val currentFeed: Feed,
         val sort: SortOption.Post,
-        val timeframe: SortOption.Timeframe
+        val timeframe: SortOption.Timeframe,
+        val listState: LazyListState
     ) : FeedUiState
 }
 
