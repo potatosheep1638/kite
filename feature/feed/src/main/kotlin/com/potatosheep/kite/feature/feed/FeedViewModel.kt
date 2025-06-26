@@ -9,14 +9,12 @@ import com.potatosheep.kite.core.data.repo.SubredditRepository
 import com.potatosheep.kite.core.data.repo.UserConfigRepository
 import com.potatosheep.kite.core.model.Post
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -62,21 +60,35 @@ class FeedViewModel @Inject constructor(
         initialValue = FeedUiState.Loading
     ).apply {
         viewModelScope.launch {
-            this@apply.runningHistory()
-                .filterNotNull()
-                .collectLatest { history ->
-                    if (history.current is FeedUiState.Success) {
-                        if (history.previous is FeedUiState.Success) {
-                            if (history.current.instanceUrl == history.previous.instanceUrl) {
+            var previousState: FeedUiState = FeedUiState.Loading
+
+            this@apply.collectLatest { state ->
+                if (state is FeedUiState.Success) {
+                    if (previousState is FeedUiState.Success) {
+                        val previousStateSuccess = (previousState as FeedUiState.Success)
+
+                        val containsPreviousSubscriptions =
+                            state.followedSubreddits.containsAll(previousStateSuccess.followedSubreddits) &&
+                                    state.followedSubreddits.size == previousStateSuccess.followedSubreddits.size
+
+                        when {
+                            containsPreviousSubscriptions -> Unit
+
+                            state.instanceUrl == previousStateSuccess.instanceUrl &&
+                                    !containsPreviousSubscriptions -> {
                                 _shouldRefresh.value = RefreshScope.FOLLOWED_ONLY
-                            } else {
+                            }
+
+                            else -> {
                                 _shouldRefresh.value = RefreshScope.GLOBAL
                             }
-                        } else {
-                            _shouldRefresh.value = RefreshScope.GLOBAL
                         }
+                    } else {
+                        previousState = state
+                        _shouldRefresh.value = RefreshScope.GLOBAL
                     }
                 }
+            }
         }
     }
 
@@ -257,14 +269,5 @@ enum class RefreshScope {
     GLOBAL,
     NO_REFRESH
 }
-
-// Maybe move this to :common?
-private data class History<T>(val previous: T?, val current: T)
-
-private fun <T> Flow<T>.runningHistory(): Flow<History<T>?> =
-    runningFold(
-        initial = null as (History<T>?),
-        operation = { accumulator, value -> History(accumulator?.current, value) }
-    )
 
 const val FOLLOWED_FEED = "followedFeed"
