@@ -51,7 +51,6 @@ import com.potatosheep.kite.core.designsystem.KiteLoadingIndicator
 import com.potatosheep.kite.core.designsystem.KiteTheme
 import com.potatosheep.kite.core.model.MediaType
 import com.potatosheep.kite.core.model.Post
-import com.potatosheep.kite.core.model.Subreddit
 import com.potatosheep.kite.core.ui.param.PostListPreviewParameterProvider
 import com.potatosheep.kite.core.ui.post.PostCard
 import kotlinx.coroutines.launch
@@ -71,26 +70,13 @@ fun FeedRoute(
     modifier: Modifier = Modifier,
     viewModel: FeedViewModel = hiltViewModel()
 ) {
-    val homeFeedUiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val feedUiState by viewModel.feedUiState.collectAsStateWithLifecycle()
+    val postListUiState by viewModel.postListUiState.collectAsStateWithLifecycle()
     val shouldRefresh by viewModel.shouldRefresh.collectAsStateWithLifecycle()
 
-    val blurNsfw by viewModel.blurNsfw.collectAsStateWithLifecycle()
-    val blurSpoiler by viewModel.blurSpoiler.collectAsStateWithLifecycle()
-    val instance by viewModel.instanceUrl.collectAsStateWithLifecycle()
-    val followedSubreddits by viewModel.followedSubreddits.collectAsStateWithLifecycle()
-
-    val currentFeed by viewModel.currentFeed.collectAsStateWithLifecycle()
-    val currentSortOption by viewModel.currentSortOption.collectAsStateWithLifecycle()
-    val currentSortTimeframe by viewModel.currentSortTimeframe.collectAsStateWithLifecycle()
-
     FeedScreen(
-        postListUiState = homeFeedUiState,
-        instanceUrl = instance,
-        currentFeed = currentFeed,
-        currentSortOption = currentSortOption,
-        currentSortTimeframe = currentSortTimeframe,
-        followedSubreddits = followedSubreddits,
-        loadPosts = viewModel::loadMorePosts,
+        feedUiState = feedUiState,
+        postListUiState = postListUiState,
         onPostClick = onPostClick,
         onSubredditClick = onSubredditClick,
         onImageClick = onImageClick,
@@ -101,16 +87,12 @@ fun FeedRoute(
         isTitleVisible = isTitleVisible,
         loadSortedPosts = viewModel::loadSortedPosts,
         loadFrontPage = viewModel::loadFrontPage,
-        changeFeed = viewModel::changeFeed,
-        changeSort = viewModel::changeSort,
-        changeTimeframe = viewModel::changeTimeframe,
+        updateFeedSettings = viewModel::updateUiState,
         getPostLink = viewModel::getPostLink,
         checkPostBookmarked = viewModel::checkIfPostExists,
         bookmarkPost = viewModel::bookmarkPost,
         removePostBookmark = viewModel::removePostBookmark,
         modifier = modifier,
-        shouldBlurNsfw = blurNsfw,
-        shouldBlurSpoiler = blurSpoiler,
         shouldRefresh = shouldRefresh,
     )
 }
@@ -118,13 +100,8 @@ fun FeedRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun FeedScreen(
+    feedUiState: FeedUiState,
     postListUiState: PostListUiState,
-    instanceUrl: String,
-    currentFeed: Feed,
-    currentSortOption: SortOption.Post,
-    currentSortTimeframe: SortOption.Timeframe,
-    followedSubreddits: List<Subreddit>?,
-    loadPosts: (SortOption.Post, SortOption.Timeframe, List<String>) -> Unit,
     onPostClick: (String, String, String?, String?) -> Unit,
     onSubredditClick: (String) -> Unit,
     onImageClick: (List<String>, List<String?>) -> Unit,
@@ -133,23 +110,18 @@ internal fun FeedScreen(
     onVideoClick: (String) -> Unit,
     onFeedChange: (String?) -> Unit,
     isTitleVisible: (Boolean) -> Unit,
-    loadSortedPosts: (SortOption.Post, SortOption.Timeframe, List<String>) -> Unit,
+    loadSortedPosts: (SortOption.Post, SortOption.Timeframe, List<String>, Boolean) -> Unit,
     loadFrontPage: () -> Unit,
-    changeFeed: (Feed) -> Unit,
-    changeSort: (SortOption.Post) -> Unit,
-    changeTimeframe: (SortOption.Timeframe) -> Unit,
+    updateFeedSettings: (Feed?, SortOption.Post?, SortOption.Timeframe?) -> Unit,
     checkPostBookmarked: suspend (Post) -> Boolean,
     bookmarkPost: (Post) -> Unit,
     removePostBookmark: (Post) -> Unit,
     getPostLink: (Post) -> String,
     modifier: Modifier = Modifier,
-    shouldBlurNsfw: Boolean = false,
-    shouldBlurSpoiler: Boolean = false,
     shouldRefresh: RefreshScope = RefreshScope.NO_REFRESH,
     sortSheetState: SheetState = rememberModalBottomSheetState(),
     feedSheetState: SheetState = rememberModalBottomSheetState()
 ) {
-    val isLoading = postListUiState is PostListUiState.Loading
     val listState = rememberLazyListState()
     val context = LocalContext.current
 
@@ -171,248 +143,253 @@ internal fun FeedScreen(
     var showFeedSheet by remember { mutableStateOf(false) }
     var shouldDisableFollowedFeed by rememberSaveable { mutableStateOf(false) }
 
-    if (shouldLoadMorePosts) {
-        loadPosts(
-            currentSortOption,
-            currentSortTimeframe,
-            listOf(currentFeed.uri)
-        )
-    }
-
     isTitleVisible(isTitleInView)
 
-    LaunchedEffect(followedSubreddits) {
-        shouldDisableFollowedFeed =
-            followedSubreddits != null && followedSubreddits.isEmpty()
+    when (feedUiState) {
+        FeedUiState.Loading -> Unit
+        is FeedUiState.Success -> {
+            if (shouldLoadMorePosts) {
+                loadSortedPosts(
+                    feedUiState.sort,
+                    feedUiState.timeframe,
+                    listOf(feedUiState.currentFeed.uri),
+                    true
+                )
+            }
 
-        if (shouldDisableFollowedFeed) {
-            changeFeed(Feed.POPULAR)
-        }
-    }
+            LaunchedEffect(feedUiState.followedSubreddits) {
+                shouldDisableFollowedFeed = feedUiState.followedSubreddits.isEmpty()
 
-    LaunchedEffect(shouldRefresh, currentFeed) {
-        when (shouldRefresh) {
-            RefreshScope.FOLLOWED_ONLY -> {
-                if (currentFeed == Feed.FOLLOWED) {
-                    loadFrontPage()
+                if (shouldDisableFollowedFeed) {
+                    updateFeedSettings(Feed.POPULAR, null, null)
                 }
             }
 
-            RefreshScope.GLOBAL -> {
-                loadFrontPage()
+            LaunchedEffect(shouldRefresh, feedUiState.currentFeed) {
+                when (shouldRefresh) {
+                    RefreshScope.FOLLOWED_ONLY -> {
+                        if (feedUiState.currentFeed == Feed.FOLLOWED) {
+                            loadFrontPage()
+                        }
+                    }
+
+                    RefreshScope.GLOBAL -> {
+                        loadFrontPage()
+                    }
+
+                    RefreshScope.NO_REFRESH -> Unit
+                }
             }
 
-            RefreshScope.NO_REFRESH -> Unit
-        }
-    }
-
-    when (postListUiState) {
-        PostListUiState.Loading -> Unit
-        is PostListUiState.Error -> {
-            ErrorMsg(
-                msg = postListUiState.msg,
-                onRetry = {
-                    loadSortedPosts(
-                        currentSortOption,
-                        currentSortTimeframe,
-                        listOf(currentFeed.uri)
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(6.dp)
-            )
-        }
-
-        is PostListUiState.Success -> {
-            LazyColumn(
-                state = listState,
-                modifier = modifier
-            ) {
-                item {
-                    Text(
-                        text = stringResource(commonStrings.home_headline),
-                        modifier = Modifier
-                            .padding(
-                                start = 12.dp,
-                                top = 48.dp,
-                                end = 12.dp
-                            ),
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-
-                item {
-                    Text(
-                        text = instanceUrl,
-                        modifier = Modifier.padding(
-                            start = 12.dp,
-                            end = 12.dp,
-                            bottom = 12.dp
-                        ),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                item {
-                    Row(
-                        Modifier.padding(
-                            top = 12.dp,
-                            start = 12.dp,
-                            end = 12.dp,
-                            bottom = 6.dp
-                        )
-                    ) {
-                        FeedSelector(
-                            onClick = { showFeedSheet = true },
-                            currentFeed = currentFeed
-                        )
-
-                        PostSorter(
-                            onClick = { topAppBarActionState.showSort = true },
-                            currentSortOption = currentSortOption,
-                            currentSortTimeframe = currentSortTimeframe
-                        )
-                    }
-                }
-
-                itemsIndexed(
-                    items = postListUiState.posts,
-                    /**
-                     * Index is appended to the key in case Redlib returns the same post twice,
-                     * which results in an [IllegalArgumentException] exception being thrown.
-                     */
-                    key = { index, post -> "${index}/${post.subredditName}/${post.id}" }
-                ) { _, post ->
-                    val onClickFunction = {
-                        onPostClick(
-                            post.subredditName,
-                            post.id,
-                            null,
-                            when {
-                                post.mediaLinks.isEmpty() -> null
-
-                                post.mediaLinks[0].mediaType == MediaType.GALLERY_THUMBNAIL ||
-                                        post.mediaLinks[0].mediaType == MediaType.ARTICLE_THUMBNAIL ||
-                                        post.mediaLinks[0].mediaType == MediaType.VIDEO_THUMBNAIL -> {
-
-                                    post.mediaLinks[0].link
-                                }
-
-                                else -> null
-                            }
-                        )
-                    }
-
-                    var isBookmarked by remember { mutableStateOf(false) }
-                    var isChecking by remember { mutableStateOf(true) }
-
-                    LaunchedEffect(Unit) {
-                        isBookmarked = checkPostBookmarked(post)
-                        isChecking = false
-                    }
-
-                    PostCard(
-                        post = post,
-                        onClick = onClickFunction,
-                        onLongClick = {
-                            clipboardManager.setText(
-                                AnnotatedString(
-                                    post.title
-                                )
+            when (postListUiState) {
+                PostListUiState.Loading -> { KiteLoadingIndicator(Modifier.fillMaxSize()) }
+                is PostListUiState.Error -> {
+                    ErrorMsg(
+                        msg = postListUiState.msg,
+                        onRetry = {
+                            loadSortedPosts(
+                                feedUiState.sort,
+                                feedUiState.timeframe,
+                                listOf(feedUiState.currentFeed.uri),
+                                false
                             )
                         },
-                        onSubredditClick = onSubredditClick,
-                        onUserClick = onUserClick,
-                        onFlairClick = onSearchClick,
-                        onImageClick = onImageClick,
-                        onVideoClick = onVideoClick,
-                        onShareClick = { onShare(getPostLink(post), context) },
-                        onBookmarkClick = {
-                            if (isBookmarked && !isChecking) {
-                                removePostBookmark(post)
-                            } else if (!isChecking) {
-                                bookmarkPost(post)
-                            }
-
-                            isBookmarked = !isBookmarked
-                        },
-                        modifier = Modifier.padding(
-                            horizontal = 12.dp,
-                            vertical = 6.dp
-                        ),
-                        showText = false,
-                        blurImage = (shouldBlurNsfw && post.isNsfw) ||
-                                (shouldBlurSpoiler && post.isSpoiler),
-                        isBookmarked = isBookmarked,
-                        colors = CardDefaults.cardColors(
-                            containerColor =
-                                if (isSystemInDarkTheme())
-                                    MaterialTheme.colorScheme.surfaceContainerHigh
-                                else
-                                    MaterialTheme.colorScheme.surfaceContainerLowest
-                        )
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(6.dp)
                     )
                 }
+
+                is PostListUiState.Success -> {
+                    LazyColumn(
+                        state = listState,
+                        modifier = modifier
+                    ) {
+                        item {
+                            Text(
+                                text = stringResource(commonStrings.home_headline),
+                                modifier = Modifier
+                                    .padding(
+                                        start = 12.dp,
+                                        top = 48.dp,
+                                        end = 12.dp
+                                    ),
+                                style = MaterialTheme.typography.headlineLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
+                        item {
+                            Text(
+                                text = feedUiState.instanceUrl,
+                                modifier = Modifier.padding(
+                                    start = 12.dp,
+                                    end = 12.dp,
+                                    bottom = 12.dp
+                                ),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        item {
+                            Row(
+                                Modifier.padding(
+                                    top = 12.dp,
+                                    start = 12.dp,
+                                    end = 12.dp,
+                                    bottom = 6.dp
+                                )
+                            ) {
+                                FeedSelector(
+                                    onClick = { showFeedSheet = true },
+                                    currentFeed = feedUiState.currentFeed
+                                )
+
+                                PostSorter(
+                                    onClick = { topAppBarActionState.showSort = true },
+                                    currentSortOption = feedUiState.sort,
+                                    currentSortTimeframe = feedUiState.timeframe
+                                )
+                            }
+                        }
+
+                        itemsIndexed(
+                            items = postListUiState.posts,
+                            /**
+                             * Index is appended to the key in case Redlib returns the same post twice,
+                             * which results in an [IllegalArgumentException] exception being thrown.
+                             */
+                            key = { index, post -> "${index}/${post.subredditName}/${post.id}" }
+                        ) { _, post ->
+                            val onClickFunction = {
+                                onPostClick(
+                                    post.subredditName,
+                                    post.id,
+                                    null,
+                                    when {
+                                        post.mediaLinks.isEmpty() -> null
+
+                                        post.mediaLinks[0].mediaType == MediaType.GALLERY_THUMBNAIL ||
+                                                post.mediaLinks[0].mediaType == MediaType.ARTICLE_THUMBNAIL ||
+                                                post.mediaLinks[0].mediaType == MediaType.VIDEO_THUMBNAIL -> {
+
+                                            post.mediaLinks[0].link
+                                        }
+
+                                        else -> null
+                                    }
+                                )
+                            }
+
+                            var isBookmarked by remember { mutableStateOf(false) }
+                            var isChecking by remember { mutableStateOf(true) }
+
+                            LaunchedEffect(Unit) {
+                                isBookmarked = checkPostBookmarked(post)
+                                isChecking = false
+                            }
+
+                            PostCard(
+                                post = post,
+                                onClick = onClickFunction,
+                                onLongClick = {
+                                    clipboardManager.setText(
+                                        AnnotatedString(
+                                            post.title
+                                        )
+                                    )
+                                },
+                                onSubredditClick = onSubredditClick,
+                                onUserClick = onUserClick,
+                                onFlairClick = onSearchClick,
+                                onImageClick = onImageClick,
+                                onVideoClick = onVideoClick,
+                                onShareClick = { onShare(getPostLink(post), context) },
+                                onBookmarkClick = {
+                                    if (isBookmarked && !isChecking) {
+                                        removePostBookmark(post)
+                                    } else if (!isChecking) {
+                                        bookmarkPost(post)
+                                    }
+
+                                    isBookmarked = !isBookmarked
+                                },
+                                modifier = Modifier.padding(
+                                    horizontal = 12.dp,
+                                    vertical = 6.dp
+                                ),
+                                showText = false,
+                                blurImage = (feedUiState.blurNsfw && post.isNsfw) ||
+                                        (feedUiState.blurSpoiler && post.isSpoiler),
+                                isBookmarked = isBookmarked,
+                                colors = CardDefaults.cardColors(
+                                    containerColor =
+                                        if (isSystemInDarkTheme())
+                                            MaterialTheme.colorScheme.surfaceContainerHigh
+                                        else
+                                            MaterialTheme.colorScheme.surfaceContainerLowest
+                                )
+                            )
+                        }
+                    }
+                }
             }
+
+            val coroutineScope = rememberCoroutineScope()
+
+            SortSheet(
+                showBottomSheet = topAppBarActionState.showSort,
+                sheetState = sortSheetState,
+                onDismissRequest = { topAppBarActionState.showSort = false },
+                onFilterClick = { sortOption, timeframe ->
+                    updateFeedSettings(null, sortOption, timeframe)
+
+                    coroutineScope.launch {
+                        listState.requestScrollToItem(0)
+                    }
+
+                    loadSortedPosts(
+                        sortOption,
+                        timeframe,
+                        listOf(feedUiState.currentFeed.uri),
+                        false
+                    )
+                },
+                currentSortOption = feedUiState.sort,
+                currentSortTimeframe = feedUiState.timeframe
+            )
+
+            FeedSheet(
+                showBottomSheet = showFeedSheet,
+                sheetState = feedSheetState,
+                onDismissRequest = { showFeedSheet = false },
+                onFeedClick = { feed ->
+                    updateFeedSettings(feed, null, null)
+
+                    onFeedChange(
+                        if (feedUiState.currentFeed == Feed.FOLLOWED)
+                            null
+                        else
+                            feedUiState.currentFeed.uri
+                    )
+
+                    coroutineScope.launch {
+                        listState.requestScrollToItem(0)
+                    }
+
+                    loadSortedPosts(
+                        feedUiState.sort,
+                        feedUiState.timeframe,
+                        listOf(feed.uri),
+                        false
+                    )
+                },
+                currentFeed = feedUiState.currentFeed,
+                shouldDisableFollowedFeed = shouldDisableFollowedFeed
+            )
         }
     }
-
-    if (isLoading) KiteLoadingIndicator(Modifier.fillMaxSize())
-
-    val coroutineScope = rememberCoroutineScope()
-
-    SortSheet(
-        showBottomSheet = topAppBarActionState.showSort,
-        sheetState = sortSheetState,
-        onDismissRequest = { topAppBarActionState.showSort = false },
-        onFilterClick = { sortOption, timeframe ->
-            changeSort(sortOption)
-            changeTimeframe(timeframe)
-
-            coroutineScope.launch {
-                listState.requestScrollToItem(0)
-            }
-
-            loadSortedPosts(
-                sortOption,
-                timeframe,
-                listOf(currentFeed.uri)
-            )
-        },
-        currentSortOption = currentSortOption,
-        currentSortTimeframe = currentSortTimeframe
-    )
-
-    FeedSheet(
-        showBottomSheet = showFeedSheet,
-        sheetState = feedSheetState,
-        onDismissRequest = { showFeedSheet = false },
-        onFeedClick = { feed ->
-            changeFeed(feed)
-
-            onFeedChange(
-                if (currentFeed == Feed.FOLLOWED)
-                    null
-                else
-                    currentFeed.uri
-            )
-
-            coroutineScope.launch {
-                listState.requestScrollToItem(0)
-            }
-
-            loadSortedPosts(
-                currentSortOption,
-                currentSortTimeframe,
-                listOf(feed.uri)
-            )
-        },
-        currentFeed = currentFeed,
-        shouldDisableFollowedFeed = shouldDisableFollowedFeed
-    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -646,12 +623,15 @@ fun HomeFeedScreenPreview(
         Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
             FeedScreen(
                 postListUiState = PostListUiState.Success(posts),
-                instanceUrl = "https://test.com",
-                currentFeed = Feed.POPULAR,
-                currentSortOption = SortOption.Post.HOT,
-                currentSortTimeframe = SortOption.Timeframe.DAY,
-                followedSubreddits = emptyList(),
-                loadPosts = { _, _, _ -> },
+                feedUiState = FeedUiState.Success(
+                    instanceUrl = "https://test.com",
+                    followedSubreddits = emptyList(),
+                    blurNsfw = false,
+                    blurSpoiler = false,
+                    currentFeed = Feed.FOLLOWED,
+                    sort = SortOption.Post.HOT,
+                    timeframe = SortOption.Timeframe.DAY
+                ),
                 onPostClick = { _, _, _, _ -> },
                 onSubredditClick = {},
                 onImageClick = { _, _ -> },
@@ -660,16 +640,13 @@ fun HomeFeedScreenPreview(
                 onVideoClick = {},
                 onFeedChange = {},
                 isTitleVisible = {},
-                loadSortedPosts = { _, _, _ -> },
+                loadSortedPosts = { _, _, _, _ -> },
                 loadFrontPage = {},
-                changeFeed = {},
-                changeSort = {},
-                changeTimeframe = {},
+                updateFeedSettings = { _, _, _ -> },
                 getPostLink = { _ -> "" },
                 checkPostBookmarked = { _ -> false },
                 bookmarkPost = {},
                 removePostBookmark = {},
-                shouldBlurNsfw = false,
             )
         }
     }
