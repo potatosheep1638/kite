@@ -106,8 +106,7 @@ class FeedViewModel @Inject constructor(
 
                 runCatching {
                     if (loadMore && _postListUiState.value is PostListUiState.Success) {
-                        posts =
-                            (_postListUiState.value as PostListUiState.Success).posts.toMutableList()
+                        posts = (_postListUiState.value as PostListUiState.Success).posts.toMutableList()
                         after = posts.last().id
                     } else {
                         _postListUiState.value = PostListUiState.Loading
@@ -126,10 +125,10 @@ class FeedViewModel @Inject constructor(
                     )
                 }.onSuccess {
                     if (loadMore) {
-                        _postListUiState.value = PostListUiState.Success(it)
-                    } else {
                         posts.addAll(it)
                         _postListUiState.value = PostListUiState.Success(posts)
+                    } else {
+                        _postListUiState.value = PostListUiState.Success(it)
                     }
                 }.onFailure {
                     _postListUiState.value = PostListUiState.Error(it.message.toString())
