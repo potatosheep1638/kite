@@ -46,11 +46,14 @@ class FeedViewModel @Inject constructor(
     private val _previousInstance = savedStateHandle.getStateFlow(PREV_INSTANCE, "")
     private val _previousSubreddits = savedStateHandle.getStateFlow(PREV_SUBREDDITS, emptyList<String>())
 
+    private val _lazyListState: StateFlow<LazyListState> = MutableStateFlow(LazyListState(0, 0))
+
     val feedUiState = combine(
         subredditRepository.getFollowedSubreddits(),
         userConfigRepository.userConfig,
-        _feedOptions
-    ) { subreddits, config, options ->
+        _feedOptions,
+        _lazyListState,
+    ) { subreddits, config, options, listState ->
         FeedUiState.Success(
             instanceUrl = config.instance,
             followedSubreddits = subreddits.map { it.subredditName },
@@ -59,7 +62,7 @@ class FeedViewModel @Inject constructor(
             currentFeed = options.feed,
             sort = options.sort,
             timeframe = options.timeframe,
-            listState = LazyListState(0, 0)
+            listState = listState
         )
     }.stateIn(
         scope = viewModelScope,
