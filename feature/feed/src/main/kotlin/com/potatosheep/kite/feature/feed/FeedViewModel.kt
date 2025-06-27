@@ -1,6 +1,8 @@
 package com.potatosheep.kite.feature.feed
 
+import android.util.Log
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.potatosheep.kite.core.common.R
@@ -23,6 +25,7 @@ import kotlin.time.Duration.Companion.seconds
 @HiltViewModel
 class FeedViewModel @Inject constructor(
     subredditRepository: SubredditRepository,
+    private val savedStateHandle: SavedStateHandle,
     private val postRepository: PostRepository,
     private val userConfigRepository: UserConfigRepository,
 ) : ViewModel() {
@@ -40,11 +43,17 @@ class FeedViewModel @Inject constructor(
         )
     )
 
+    private val _previousInstance = savedStateHandle.getStateFlow(PREV_INSTANCE, "")
+    private val _previousSubreddits = savedStateHandle.getStateFlow(PREV_SUBREDDITS, emptyList<String>())
+
+    private val _lazyListState: StateFlow<LazyListState> = MutableStateFlow(LazyListState(0, 0))
+
     val feedUiState = combine(
         subredditRepository.getFollowedSubreddits(),
         userConfigRepository.userConfig,
-        _feedOptions
-    ) { subreddits, config, options ->
+        _feedOptions,
+        _lazyListState,
+    ) { subreddits, config, options, listState ->
         FeedUiState.Success(
             instanceUrl = config.instance,
             followedSubreddits = subreddits.map { it.subredditName },
@@ -53,7 +62,7 @@ class FeedViewModel @Inject constructor(
             currentFeed = options.feed,
             sort = options.sort,
             timeframe = options.timeframe,
-            listState = LazyListState(0, 0)
+            listState = listState
         )
     }.stateIn(
         scope = viewModelScope,
@@ -61,34 +70,29 @@ class FeedViewModel @Inject constructor(
         initialValue = FeedUiState.Loading
     ).apply {
         viewModelScope.launch {
-            var previousState: FeedUiState = FeedUiState.Loading
-
             this@apply.collectLatest { state ->
                 if (state is FeedUiState.Success) {
-                    if (previousState is FeedUiState.Success) {
-                        val previousStateSuccess = (previousState as FeedUiState.Success)
+                    val isInstanceSame = state.instanceUrl == _previousInstance.value
 
-                        val containsPreviousSubscriptions =
-                            state.followedSubreddits.containsAll(previousStateSuccess.followedSubreddits) &&
-                                    state.followedSubreddits.size == previousStateSuccess.followedSubreddits.size
+                    val containsPreviousSubscriptions =
+                        state.followedSubreddits.containsAll(_previousSubreddits.value) &&
+                                state.followedSubreddits.size == _previousSubreddits.value.size
 
-                        when {
-                            containsPreviousSubscriptions -> Unit
-
-                            state.instanceUrl == previousStateSuccess.instanceUrl &&
-                                    !containsPreviousSubscriptions -> {
-                                _shouldRefresh.value = RefreshScope.FOLLOWED_ONLY
-                            }
-
-                            else -> {
-                                _shouldRefresh.value = RefreshScope.GLOBAL
-                            }
+                    when {
+                        isInstanceSame && containsPreviousSubscriptions -> {
+                            _shouldRefresh.value = RefreshScope.NO_REFRESH
                         }
-                    } else {
-                        _shouldRefresh.value = RefreshScope.GLOBAL
+
+                        isInstanceSame && !containsPreviousSubscriptions -> {
+                            _shouldRefresh.value = RefreshScope.FOLLOWED_ONLY
+                        }
+
+                        else -> {
+                            _shouldRefresh.value = RefreshScope.GLOBAL
+                        }
                     }
 
-                    previousState = state
+                    Log.d("FeedViewModel", "${_shouldRefresh.value}")
                 }
             }
         }
@@ -108,7 +112,8 @@ class FeedViewModel @Inject constructor(
 
                 runCatching {
                     if (loadMore && _postListUiState.value is PostListUiState.Success) {
-                        posts = (_postListUiState.value as PostListUiState.Success).posts.toMutableList()
+                        posts =
+                            (_postListUiState.value as PostListUiState.Success).posts.toMutableList()
                         after = posts.last().id
                     } else {
                         _postListUiState.value = PostListUiState.Loading
@@ -171,6 +176,9 @@ class FeedViewModel @Inject constructor(
                 }.onFailure {
                     _postListUiState.value = PostListUiState.Error(it.message.toString())
                 }
+
+                savedStateHandle[PREV_INSTANCE] = feedUiState.instanceUrl
+                savedStateHandle[PREV_SUBREDDITS] = feedUiState.followedSubreddits
             }
         }
     }
@@ -272,4 +280,7 @@ enum class RefreshScope {
     NO_REFRESH
 }
 
+
+const val PREV_INSTANCE = "previousInstance"
+const val PREV_SUBREDDITS = "previousSubreddits"
 const val FOLLOWED_FEED = "followedFeed"
