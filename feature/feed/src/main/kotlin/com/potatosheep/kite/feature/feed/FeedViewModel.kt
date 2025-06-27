@@ -88,6 +88,8 @@ class FeedViewModel @Inject constructor(
                             _shouldRefresh.value = RefreshScope.GLOBAL
                         }
                     }
+
+                    Log.d("FeedViewModel", "${_shouldRefresh.value}")
                 }
             }
         }
