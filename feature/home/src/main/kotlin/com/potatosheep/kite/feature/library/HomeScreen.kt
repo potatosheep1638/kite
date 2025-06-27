@@ -1,5 +1,6 @@
 package com.potatosheep.kite.feature.library
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -47,6 +48,7 @@ import com.potatosheep.kite.core.common.R.string as commonStrings
 
 @Composable
 fun HomeRoute(
+    onBackClick: () -> Unit,
     onSubredditClick: (String) -> Unit,
     onSavedClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -55,6 +57,7 @@ fun HomeRoute(
     val subredditListUiState by viewModel.subredditListUiState.collectAsStateWithLifecycle()
 
     HomeScreen(
+        onBackClick = onBackClick,
         subredditListUiState = subredditListUiState,
         onSubredditClick = onSubredditClick,
         onSavedClick = onSavedClick,
@@ -65,12 +68,17 @@ fun HomeRoute(
 
 @Composable
 fun HomeScreen(
+    onBackClick: () -> Unit,
     subredditListUiState: SubredditListUiState,
     onSubredditClick: (String) -> Unit,
     onSavedClick: () -> Unit,
     removeSubreddit: (Subreddit) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    BackHandler {
+        onBackClick()
+    }
+
     val snackbarState = LocalSnackbarHostState.current
     val listState = rememberLazyListState()
 
@@ -237,6 +245,7 @@ fun LibraryScreenPreview() {
 
     KiteTheme {
         HomeScreen(
+            onBackClick = {},
             subredditListUiState = SubredditListUiState.Success(subreddits),
             onSubredditClick = {},
             onSavedClick = {},
