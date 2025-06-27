@@ -68,15 +68,18 @@ class FeedViewModel @Inject constructor(
                     if (previousState is FeedUiState.Success) {
                         val previousStateSuccess = (previousState as FeedUiState.Success)
 
+                        val isInstanceSame = state.instanceUrl == previousStateSuccess.instanceUrl
+
                         val containsPreviousSubscriptions =
                             state.followedSubreddits.containsAll(previousStateSuccess.followedSubreddits) &&
                                     state.followedSubreddits.size == previousStateSuccess.followedSubreddits.size
 
                         when {
-                            containsPreviousSubscriptions -> Unit
+                            isInstanceSame && containsPreviousSubscriptions -> {
+                                _shouldRefresh.value = RefreshScope.NO_REFRESH
+                            }
 
-                            state.instanceUrl == previousStateSuccess.instanceUrl &&
-                                    !containsPreviousSubscriptions -> {
+                            isInstanceSame && !containsPreviousSubscriptions -> {
                                 _shouldRefresh.value = RefreshScope.FOLLOWED_ONLY
                             }
 
