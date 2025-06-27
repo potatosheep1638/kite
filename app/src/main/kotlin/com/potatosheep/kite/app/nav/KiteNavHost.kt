@@ -36,7 +36,6 @@ fun KiteNavHost(
     val navController = appState.navController
     val context = LocalContext.current
 
-    // TODO: Try using NavigationSuiteScaffold + two NavHosts: one for top level and one for the rest
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -44,17 +43,7 @@ fun KiteNavHost(
     ) {
         onboardingScreen(
             onBackClick = { navController.popBackStack() },
-            onNextClick = {
-                navController.navigate(
-                    route = TopLevelRoute,
-                    navOptions = navOptions {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            inclusive = true
-                            saveState = true
-                        }
-                    }
-                )
-            }
+            onNextClick = { appState.navigateToTopLevelDestination(true) }
         )
 
         topLevelScreens(
