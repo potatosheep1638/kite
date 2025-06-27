@@ -37,9 +37,9 @@ class HomeViewModel @Inject constructor(
         initialValue = SubredditListUiState.Loading
     )
 
-    fun removeSubreddit(subreddit: Subreddit) {
+    fun setSubreddit(subreddit: Subreddit, follow: Boolean) {
         viewModelScope.launch {
-            subredditRepository.setSubredditFollowed(subreddit, false)
+            subredditRepository.setSubredditFollowed(subreddit, follow)
         }
     }
 }
