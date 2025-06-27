@@ -122,32 +122,31 @@ internal fun FeedScreen(
     sortSheetState: SheetState = rememberModalBottomSheetState(),
     feedSheetState: SheetState = rememberModalBottomSheetState()
 ) {
-    val listState = rememberLazyListState()
     val context = LocalContext.current
 
     val clipboardManager = LocalClipboardManager.current
-
-    val shouldLoadMorePosts by remember {
-        derivedStateOf {
-            !listState.canScrollForward && listState.layoutInfo.totalItemsCount > 0
-        }
-    }
-
-    val isTitleInView by remember {
-        derivedStateOf {
-            listState.firstVisibleItemIndex == 0
-        }
-    }
 
     val topAppBarActionState = LocalTopAppBarActionState.current
     var showFeedSheet by remember { mutableStateOf(false) }
     var shouldDisableFollowedFeed by rememberSaveable { mutableStateOf(false) }
 
-    isTitleVisible(isTitleInView)
-
     when (feedUiState) {
         FeedUiState.Loading -> Unit
         is FeedUiState.Success -> {
+            val shouldLoadMorePosts by remember {
+                derivedStateOf {
+                    !feedUiState.listState.canScrollForward && feedUiState.listState.layoutInfo.totalItemsCount > 0
+                }
+            }
+
+            val isTitleInView by remember {
+                derivedStateOf {
+                    feedUiState.listState.firstVisibleItemIndex == 0
+                }
+            }
+
+            isTitleVisible(isTitleInView)
+
             if (shouldLoadMorePosts) {
                 loadSortedPosts(
                     feedUiState.sort,
@@ -202,7 +201,7 @@ internal fun FeedScreen(
 
                 is PostListUiState.Success -> {
                     LazyColumn(
-                        state = listState,
+                        state = feedUiState.listState,
                         modifier = modifier
                     ) {
                         item {
@@ -346,7 +345,7 @@ internal fun FeedScreen(
                     updateFeedSettings(null, sortOption, timeframe)
 
                     coroutineScope.launch {
-                        listState.requestScrollToItem(0)
+                        feedUiState.listState.requestScrollToItem(0)
                     }
 
                     loadSortedPosts(
@@ -375,7 +374,7 @@ internal fun FeedScreen(
                     )
 
                     coroutineScope.launch {
-                        listState.requestScrollToItem(0)
+                        feedUiState.listState.requestScrollToItem(0)
                     }
 
                     loadSortedPosts(
@@ -630,7 +629,8 @@ fun HomeFeedScreenPreview(
                     blurSpoiler = false,
                     currentFeed = Feed.FOLLOWED,
                     sort = SortOption.Post.HOT,
-                    timeframe = SortOption.Timeframe.DAY
+                    timeframe = SortOption.Timeframe.DAY,
+                    listState = rememberLazyListState()
                 ),
                 onPostClick = { _, _, _, _ -> },
                 onSubredditClick = {},

@@ -1,5 +1,6 @@
 package com.potatosheep.kite.feature.feed
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.potatosheep.kite.core.common.R
@@ -14,7 +15,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -52,7 +52,8 @@ class FeedViewModel @Inject constructor(
             blurSpoiler = config.blurSpoiler,
             currentFeed = options.feed,
             sort = options.sort,
-            timeframe = options.timeframe
+            timeframe = options.timeframe,
+            listState = LazyListState(0, 0)
         )
     }.stateIn(
         scope = viewModelScope,
@@ -84,9 +85,10 @@ class FeedViewModel @Inject constructor(
                             }
                         }
                     } else {
-                        previousState = state
                         _shouldRefresh.value = RefreshScope.GLOBAL
                     }
+
+                    previousState = state
                 }
             }
         }
@@ -106,8 +108,7 @@ class FeedViewModel @Inject constructor(
 
                 runCatching {
                     if (loadMore && _postListUiState.value is PostListUiState.Success) {
-                        posts =
-                            (_postListUiState.value as PostListUiState.Success).posts.toMutableList()
+                        posts = (_postListUiState.value as PostListUiState.Success).posts.toMutableList()
                         after = posts.last().id
                     } else {
                         _postListUiState.value = PostListUiState.Loading
@@ -126,10 +127,10 @@ class FeedViewModel @Inject constructor(
                     )
                 }.onSuccess {
                     if (loadMore) {
-                        _postListUiState.value = PostListUiState.Success(it)
-                    } else {
                         posts.addAll(it)
                         _postListUiState.value = PostListUiState.Success(posts)
+                    } else {
+                        _postListUiState.value = PostListUiState.Success(it)
                     }
                 }.onFailure {
                     _postListUiState.value = PostListUiState.Error(it.message.toString())
@@ -236,7 +237,8 @@ sealed interface FeedUiState {
         val blurSpoiler: Boolean,
         val currentFeed: Feed,
         val sort: SortOption.Post,
-        val timeframe: SortOption.Timeframe
+        val timeframe: SortOption.Timeframe,
+        val listState: LazyListState
     ) : FeedUiState
 }
 
