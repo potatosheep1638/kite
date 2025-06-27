@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -84,9 +83,10 @@ class FeedViewModel @Inject constructor(
                             }
                         }
                     } else {
-                        previousState = state
                         _shouldRefresh.value = RefreshScope.GLOBAL
                     }
+
+                    previousState = state
                 }
             }
         }
