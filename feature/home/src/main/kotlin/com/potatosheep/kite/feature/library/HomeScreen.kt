@@ -2,6 +2,9 @@ package com.potatosheep.kite.feature.library
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -22,15 +25,13 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -61,7 +62,7 @@ fun HomeRoute(
         subredditListUiState = subredditListUiState,
         onSubredditClick = onSubredditClick,
         onSavedClick = onSavedClick,
-        removeSubreddit = viewModel::removeSubreddit,
+        setSubreddit = viewModel::setSubreddit,
         modifier = modifier
     )
 }
@@ -72,7 +73,7 @@ fun HomeScreen(
     subredditListUiState: SubredditListUiState,
     onSubredditClick: (String) -> Unit,
     onSavedClick: () -> Unit,
-    removeSubreddit: (Subreddit) -> Unit,
+    setSubreddit: (Subreddit, Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     BackHandler {
@@ -83,18 +84,6 @@ fun HomeScreen(
     val listState = rememberLazyListState()
 
     val coroutineScope = rememberCoroutineScope()
-
-    val subredditMarkedForDeletion = remember { mutableStateListOf<Subreddit>() }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            if (!subredditMarkedForDeletion.isEmpty()) {
-                subredditMarkedForDeletion.forEach {
-                    removeSubreddit(it)
-                }
-            }
-        }
-    }
 
     when (subredditListUiState) {
         SubredditListUiState.Loading -> Unit
@@ -168,52 +157,49 @@ fun HomeScreen(
                     items = subredditListUiState.subreddits,
                     key = { _, subreddit -> subreddit.subredditName }
                 ) { _, subreddit ->
-                    var showPost by remember { mutableStateOf(true) }
+                    val itemVisibility = remember { Animatable(0f) }
 
-                    AnimatedVisibility(
-                        visible = showPost,
-                        enter = fadeIn(),
-                        exit = fadeOut()
-                    ) {
-                        val msg = stringResource(commonStrings.library_remove_subreddit_msg)
-                        val actionLabel = stringResource(commonStrings.undo)
+                    LaunchedEffect(Unit) {
+                        itemVisibility.animateTo(1f, tween(100))
+                    }
 
-                        SubredditRow(
-                            subreddit = subreddit,
-                            onClick = {
-                                onSubredditClick(subreddit.subredditName)
-                            },
-                            iconButtonIcon = KiteIcons.Clear,
-                            modifier = Modifier.padding(
+                    val msg = stringResource(commonStrings.library_remove_subreddit_msg)
+                    val actionLabel = stringResource(commonStrings.undo)
+
+                    SubredditRow(
+                        subreddit = subreddit,
+                        onClick = {
+                            onSubredditClick(subreddit.subredditName)
+                        },
+                        iconButtonIcon = KiteIcons.Clear,
+                        modifier = Modifier
+                            .padding(
                                 horizontal = 24.dp,
                                 vertical = 14.dp
-                            ),
-                            onIconButtonClick = {
-                                coroutineScope.launch {
-                                    showPost = false
-                                    subredditMarkedForDeletion.add(subreddit)
+                            )
+                            .alpha(itemVisibility.value)
+                        ,
+                        onIconButtonClick = {
+                            coroutineScope.launch {
+                                itemVisibility.animateTo(0f, tween(100))
+                                setSubreddit(subreddit, false)
 
-                                    val result = snackbarState.showSnackbar(
-                                        message = msg,
-                                        actionLabel = actionLabel,
-                                        duration = SnackbarDuration.Short
-                                    )
+                                val result = snackbarState.showSnackbar(
+                                    message = msg,
+                                    actionLabel = actionLabel,
+                                    duration = SnackbarDuration.Short
+                                )
 
-                                    when (result) {
-                                        SnackbarResult.ActionPerformed -> {
-                                            showPost = true
-                                            subredditMarkedForDeletion.remove(subreddit)
-                                        }
-
-                                        SnackbarResult.Dismissed -> {
-                                            subredditMarkedForDeletion.remove(subreddit)
-                                            removeSubreddit(subreddit)
-                                        }
+                                when (result) {
+                                    SnackbarResult.ActionPerformed -> {
+                                        setSubreddit(subreddit, true)
                                     }
+
+                                    SnackbarResult.Dismissed -> Unit
                                 }
                             }
-                        )
-                    }
+                        }
+                    )
                 }
             }
 
@@ -249,7 +235,7 @@ fun LibraryScreenPreview() {
             subredditListUiState = SubredditListUiState.Success(subreddits),
             onSubredditClick = {},
             onSavedClick = {},
-            removeSubreddit = {},
+            setSubreddit = { _, _ -> },
             modifier = Modifier
         )
     }
