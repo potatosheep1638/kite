@@ -10,16 +10,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.potatosheep.kite.app.nav.TopLevelDestination
-import com.potatosheep.kite.app.nav.TopLevelDestination.FEED
-import com.potatosheep.kite.app.nav.TopLevelDestination.HOME
-import com.potatosheep.kite.feature.feed.nav.navigateToFeed
-import com.potatosheep.kite.feature.library.nav.navigateToHome
+import com.potatosheep.kite.app.nav.navigateToTopLevel
 
 @Composable
 fun rememberAppState(
     shouldShowOnboarding: Boolean,
     navController: NavHostController = rememberNavController(),
-    topLevelNavController: NavHostController = rememberNavController(),
 ): KiteAppState {
     return remember(
         navController
@@ -27,7 +23,6 @@ fun rememberAppState(
         KiteAppState(
             shouldShowOnboarding = shouldShowOnboarding,
             navController = navController,
-            topLevelNavController = topLevelNavController
         )
     }
 }
@@ -35,10 +30,9 @@ fun rememberAppState(
 class KiteAppState(
     val shouldShowOnboarding: Boolean,
     val navController: NavHostController,
-    val topLevelNavController: NavHostController
 ) {
-    val currentTopLevelDestination: NavDestination?
-        @Composable get() = topLevelNavController
+    val currentDestination: NavDestination?
+        @Composable get() = navController
             .currentBackStackEntryAsState().value?.destination
 
     //val currentNavDestination: NavDestination?
@@ -49,7 +43,7 @@ class KiteAppState(
     fun navigateToTopLevelDestination(topLevelDestination: TopLevelDestination) {
         trace("Navigation: ${topLevelDestination.name}") {
             val topLevelNavOptions = navOptions {
-                popUpTo(topLevelNavController.graph.findStartDestination().id) {
+                popUpTo(navController.graph.findStartDestination().id) {
                     saveState = true
                 }
 
@@ -57,10 +51,9 @@ class KiteAppState(
                 restoreState = true
             }
 
-            when (topLevelDestination) {
-                FEED -> topLevelNavController.navigateToFeed(topLevelNavOptions)
-                HOME -> topLevelNavController.navigateToHome(topLevelNavOptions)
-            }
+            navController.navigateToTopLevel(topLevelNavOptions)
         }
     }
 }
+
+private const val TOP_LEVEL_DEST = "topLevelDest"

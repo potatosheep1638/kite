@@ -8,12 +8,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.navOptions
 import com.potatosheep.kite.app.ui.KiteAppState
 import com.potatosheep.kite.feature.about.nav.aboutScreen
 import com.potatosheep.kite.feature.bookmark.nav.bookmarkScreen
-import com.potatosheep.kite.feature.feed.nav.FeedRoute
 import com.potatosheep.kite.feature.image.nav.imageScreen
 import com.potatosheep.kite.feature.image.nav.navigateToImage
 import com.potatosheep.kite.feature.onboarding.nav.onboardingScreen
@@ -46,24 +44,23 @@ fun KiteNavHost(
     ) {
         onboardingScreen(
             onBackClick = { navController.popBackStack() },
-            onNextClick = { navController.navigate(
-                route = TopLevelRoute,
-                navOptions = navOptions {
-                    popUpTo(navController.graph.findStartDestination().id) {
-                        inclusive = true
-                        saveState = true
+            onNextClick = {
+                navController.navigate(
+                    route = TopLevelRoute,
+                    navOptions = navOptions {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            inclusive = true
+                            saveState = true
+                        }
                     }
-                }
-            )}
+                )
+            }
         )
 
-        composable<TopLevelRoute> {
-            TopLevelNavHost(
-                appState = appState,
-                startDestination = FeedRoute,
-                modifier = modifier
-            )
-        }
+        topLevelScreens(
+            appState = appState,
+            modifier = modifier
+        )
 
         postScreen(
             onSubredditClick = navController::navigateToSubreddit,
