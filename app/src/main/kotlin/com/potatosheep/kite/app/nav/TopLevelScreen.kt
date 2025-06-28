@@ -1,5 +1,11 @@
 package com.potatosheep.kite.app.nav
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -72,7 +78,12 @@ internal fun NavGraphBuilder.topLevelScreens(
     appState: KiteAppState,
     modifier: Modifier
 ) {
-    composable<TopLevelRoute> {
+    composable<TopLevelRoute>(
+        enterTransition = { EnterTransition.None },
+        exitTransition = { fadeOut() + scaleOut() },
+        popEnterTransition = { fadeIn() + scaleIn() },
+        popExitTransition = { ExitTransition.None }
+    ) {
         val topAppBarActionState = remember { TopAppBarActionState() }
 
         CompositionLocalProvider(
