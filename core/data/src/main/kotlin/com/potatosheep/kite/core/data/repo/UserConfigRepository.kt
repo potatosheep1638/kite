@@ -50,7 +50,8 @@ internal class DefaultUserConfigRepository @Inject constructor(
     ): List<Post> = networkDataSource.getPreferences(
         instanceUrl = instanceUrl,
         sort = sort,
-        subreddits = subreddits
+        subreddits = subreddits,
+        redirect = redirect
     ).map { it.toExternalModel() }
 
     override suspend fun setInstance(instanceUrl: String) {
