@@ -110,7 +110,10 @@ class MainActivity : ComponentActivity() {
                     KiteApp(appState = appState)
                 }
 
-                intentResolver(appState.navController, intent)
+                if (uiState.isColdBoot) {
+                    intentResolver(appState.navController, intent)
+                    viewModel.isBooted()
+                }
 
                 // Allow intents to work when the app is running.
                 DisposableEffect(Unit) {
