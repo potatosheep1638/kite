@@ -17,17 +17,13 @@ import javax.inject.Inject
 class KiteDownloadService @Inject constructor(
     okHttpCallFactory: dagger.Lazy<Call.Factory>,
     @Dispatcher(KiteDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
-) : MediaDownloadService {
+) : MediaDownloadService() {
     private val client = okHttpCallFactory.get()
 
-    override suspend fun downloadHLS(
-        playlistUrl: String,
-        uri: Uri,
-        context: Context
-    ) {
+    override suspend fun setHLSPlaylist(url: String) {
         withContext(ioDispatcher) {
             // Get HLS playlist
-            val playListRequest = Request.Builder().url(playlistUrl).build()
+            val playListRequest = Request.Builder().url(url).build()
             val playlist: MutableList<String> = mutableListOf()
 
             client.newCall(playListRequest).execute().use { response ->
@@ -37,20 +33,23 @@ class KiteDownloadService @Inject constructor(
 
             // Parse playlist to get audio URI
             val uris = HLSParser.parsePlaylist(playlist)
-            val audioUrl = "${playlistUrl.substring(0, playlistUrl.lastIndexOf('/')+1)}${uris.audio}"
+            val parentPath = url.substring(0, url.lastIndexOf('/')+1)
 
-            // Get the URI of the AAC file
-            val audioRequest = Request.Builder().url(audioUrl).build()
+            hlsVideoUrl = "$parentPath${uris.video}"
+            hlsAudioUrl = "$parentPath${uris.audio}"
+        }
+    }
 
-            var aacFileURI: String
-            client.newCall(audioRequest).execute().use { response ->
-                val body = requireNotNull(response.body())
-                aacFileURI = HLSParser.parseM3U8(body.byteStream().readAllLines())
-            }
+    override suspend fun downloadVideo(
+        fileName: String,
+        uri: Uri,
+        context: Context,
+        videoUrl: String
+    ) {
+        withContext(ioDispatcher) {
+            if (fileName.isEmpty()) throw IllegalArgumentException("File name cannot be empty")
 
-            if (aacFileURI.isEmpty()) throw IllegalArgumentException("No valid URI found")
-
-            // Create the MP4 file (empty)
+            // Get the directory URI
             val treeUri = context.contentResolver.persistedUriPermissions[0].uri
 
             val folderUri = DocumentsContract.buildChildDocumentsUriUsingTree(
@@ -58,19 +57,30 @@ class KiteDownloadService @Inject constructor(
                 DocumentsContract.getTreeDocumentId(treeUri)
             )
 
+            // Create the MP4 file (empty)
             val videoFileUri = DocumentsContract.createDocument(
                 context.contentResolver,
                 folderUri,
                 "video/mp4",
-                "video.mp4"
+                fileName
             )
 
             // Get the MP4 file from the network
-            val mp4ParentPath = playlistUrl
-                .substring(0, playlistUrl.lastIndexOf('/')+1)
-                .replace("hls", "vid")
-            val mp4Uri = "${uris.video.split("_", ".")[1]}.mp4"
-            val mp4Url =  "$mp4ParentPath$mp4Uri"
+            val mp4Url: String
+
+            if (videoUrl.isEmpty()) {
+                if (hlsVideoUrl.isEmpty()) throw IllegalStateException("HLS video URL cannot be empty")
+
+                val parentPath = hlsVideoUrl
+                    .substring(0, hlsVideoUrl.lastIndexOf('/')+1)
+                    .replace("hls", "vid")
+                val videoM3U8 = hlsVideoUrl.substring(hlsVideoUrl.lastIndexOf('/')+1)
+                val mp4File = "${videoM3U8.split("_", ".")[1]}.mp4"
+
+                mp4Url = "$parentPath$mp4File"
+            } else {
+                mp4Url = videoUrl
+            }
 
             val mp4Request = Request.Builder().url(mp4Url).build()
 
@@ -85,17 +95,46 @@ class KiteDownloadService @Inject constructor(
                     sink.close()
                 }
             }
+        }
+    }
+
+    override suspend fun downloadAudio(fileName: String, uri: Uri, context: Context) {
+        withContext(ioDispatcher) {
+            if (fileName.isEmpty()) throw IllegalArgumentException("File name cannot be empty")
+
+            // Get the URI of the directory to write to
+            val treeUri = context.contentResolver.persistedUriPermissions[0].uri
+
+            val folderUri = DocumentsContract.buildChildDocumentsUriUsingTree(
+                treeUri,
+                DocumentsContract.getTreeDocumentId(treeUri)
+            )
 
             // Create the AAC file (empty)
             val audioFileUri = DocumentsContract.createDocument(
                 context.contentResolver,
                 folderUri,
                 "audio/aac",
-                "audio.aac"
+                fileName
             )
 
+            // Get the name of the AAC file
+            val audioUrl = this@KiteDownloadService.hlsAudioUrl
+
+            if (audioUrl.isEmpty()) throw IllegalStateException("HLS audio URL cannot be empty")
+
+            val audioRequest = Request.Builder().url(audioUrl).build()
+
+            var aacFile: String
+            client.newCall(audioRequest).execute().use { response ->
+                val body = requireNotNull(response.body())
+                aacFile = HLSParser.parseM3U8(body.byteStream().readAllLines())
+            }
+
+            if (aacFile.isEmpty()) throw IllegalArgumentException("No audio file found")
+
             // Get the AAC file itself
-            val aacFileUrl = "${audioUrl.substring(0, audioUrl.lastIndexOf('/') + 1)}$aacFileURI"
+            val aacFileUrl = "${audioUrl.substring(0, audioUrl.lastIndexOf('/') + 1)}$aacFile"
             val aacRequest = Request.Builder().url(aacFileUrl).build()
 
             client.newCall(aacRequest).execute().use { response ->

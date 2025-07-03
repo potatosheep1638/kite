@@ -2,20 +2,49 @@ package com.potatosheep.kite.core.media
 
 import android.content.Context
 import android.net.Uri
+import java.io.IOException
+import kotlin.jvm.Throws
 
-interface MediaDownloadService {
+abstract class MediaDownloadService {
+
+    protected var hlsVideoUrl = ""
+    protected var hlsAudioUrl = ""
 
     /**
-     * Downloads the video and audio files.
+     * Sets the HLS playlist URL.
      *
-     * @param videoUrl URL of the video file
-     * @param audioUrl URL of the audio file
-     * @param uri URI of the directory to save the video and audio files
-     * @param context the application context
+     * @param url URL of HLS playlist.
      */
-    suspend fun downloadHLS(
-        playlistUrl: String,
+    abstract suspend fun setHLSPlaylist(url: String)
+
+    /**
+     * Downloads a video.
+     *
+     * @param fileName name of the downloaded file.
+     * @param uri URI of the directory to save the video and audio files.
+     * @param context the application context.
+     * @param videoUrl URL of the MP4 file. This will take precedence over the HLS playlist url, if
+     * it was set.
+     */
+    @Throws(IOException::class)
+    abstract suspend fun downloadVideo(
+        fileName: String,
         uri: Uri,
         context: Context,
+        videoUrl: String = "",
+    )
+
+    /**
+     * Downloads the audio of a HLS video.
+     *
+     * @param fileName name of the downloaded file.
+     * @param uri URI of the directory to save the video and audio files.
+     * @param context the application context.
+     */
+    @Throws(IOException::class)
+    abstract suspend fun downloadAudio(
+        fileName: String,
+        uri: Uri,
+        context: Context
     )
 }
