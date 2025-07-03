@@ -52,7 +52,7 @@ fun NavGraphBuilder.postScreen(
     onImageClick: (List<String>, List<String?>) -> Unit,
     onMoreRepliesClick: (String, String, String?, String?, Boolean, Boolean) -> Unit,
     onFlairClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
-    onVideoClick: (String, String) -> Unit,
+    onVideoClick: (String) -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {

@@ -35,7 +35,7 @@ fun NavGraphBuilder.userScreen(
     onSubredditClick: (String) -> Unit,
     onImageClick: (List<String>, List<String?>) -> Unit,
     onFlairClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
-    onVideoClick: (String, String) -> Unit,
+    onVideoClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) = composable<UserNav>(
     enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start) },

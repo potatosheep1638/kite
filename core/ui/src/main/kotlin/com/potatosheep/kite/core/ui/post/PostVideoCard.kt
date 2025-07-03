@@ -42,7 +42,7 @@ fun VideoCard(
     post: Post,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
-    onVideoClick: (String, String) -> Unit,
+    onVideoClick: (String) -> Unit,
     onSubredditClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
     onFlairClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
@@ -79,7 +79,7 @@ fun VideoCard(
         Box(
             modifier = Modifier
                 .padding(bottom = 14.dp)
-                .clickable { onVideoClick(post.mediaLinks[1].link, post.mediaLinks[2].link) },
+                .clickable { onVideoClick(post.mediaLinks[1].link) },
             contentAlignment = Alignment.Center
         ) {
             val imageRequest = ImageRequest.Builder(LocalContext.current)
@@ -158,7 +158,7 @@ private fun VideoCardPreview(
                 post = posts[1],
                 onClick = {},
                 onLongClick = {},
-                onVideoClick = { _, _ -> },
+                onVideoClick = {},
                 onSubredditClick = {},
                 onUserClick = {},
                 onFlairClick = { _, _, _, _ -> },

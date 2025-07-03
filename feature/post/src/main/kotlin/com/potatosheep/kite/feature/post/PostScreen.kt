@@ -93,7 +93,7 @@ fun PostRoute(
     // TODO: rename this
     onMoreRepliesClick: (String, String, String?, String?, Boolean, Boolean) -> Unit,
     onFlairClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
-    onVideoClick: (String, String) -> Unit,
+    onVideoClick: (String) -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PostViewModel = hiltViewModel()
@@ -133,7 +133,7 @@ internal fun PostScreen(
     onImageClick: (List<String>, List<String?>) -> Unit,
     onMoreRepliesClick: (String, String, String?, String?, Boolean, Boolean) -> Unit,
     onFlairClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
-    onVideoClick: (String, String) -> Unit,
+    onVideoClick: (String) -> Unit,
     onBackClick: () -> Unit,
     loadPost: () -> Unit,
     checkPostBookmarked: suspend (Post) -> Boolean,
@@ -547,7 +547,7 @@ private fun PostScreenPreview(
             onImageClick = { _, _ -> },
             onMoreRepliesClick = { _, _, _, _, _, _ -> },
             onFlairClick = { _, _, _, _ -> },
-            onVideoClick = { _, _ -> },
+            onVideoClick = {},
             onBackClick = {},
             loadPost = {},
             checkPostBookmarked = { _ -> false },

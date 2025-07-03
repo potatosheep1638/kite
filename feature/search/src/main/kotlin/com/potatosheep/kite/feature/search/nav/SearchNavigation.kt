@@ -40,7 +40,7 @@ fun NavGraphBuilder.searchScreen(
     onSubredditClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
     onImageClick: (List<String>, List<String?>) -> Unit,
-    onVideoClick: (String, String) -> Unit,
+    onVideoClick: (String) -> Unit,
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     modifier: Modifier = Modifier
 ) = composable<Search>(

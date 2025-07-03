@@ -21,7 +21,7 @@ fun PostCard(
     onUserClick: (String) -> Unit,
     onFlairClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onImageClick: (List<String>, List<String?>) -> Unit,
-    onVideoClick: (String, String) -> Unit,
+    onVideoClick: (String) -> Unit,
     onShareClick: () -> Unit,
     onBookmarkClick: () -> Unit,
     modifier: Modifier = Modifier,
