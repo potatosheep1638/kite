@@ -20,7 +20,11 @@ class KiteDownloadService @Inject constructor(
 ) : MediaDownloadService {
     private val client = okHttpCallFactory.get()
 
-    override suspend fun getHLSPlaylist(playlistUrl: String): HLSLink =
+    override suspend fun downloadHLS(
+        playlistUrl: String,
+        uri: Uri,
+        context: Context
+    ) {
         withContext(ioDispatcher) {
             // Get HLS playlist
             val playListRequest = Request.Builder().url(playlistUrl).build()
@@ -33,17 +37,9 @@ class KiteDownloadService @Inject constructor(
 
             // Parse playlist to get video & audio URIs
             val urls: HLSLink = HLSParser.parsePlaylist(playlist)
+            val videoUrl = urls.video
+            val audioUrl = urls.audio
 
-            return@withContext urls
-        }
-
-    override suspend fun downloadHLS(
-        videoUrl: String,
-        audioUrl: String,
-        uri: Uri,
-        context: Context
-    ) {
-        withContext(ioDispatcher) {
             // Get the URI of the .ts file
             val videoRequest = Request.Builder().url(videoUrl).build()
 
