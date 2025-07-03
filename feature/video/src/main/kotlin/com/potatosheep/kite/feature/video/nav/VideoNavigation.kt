@@ -16,7 +16,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class VideoRoute(val videoLink: String)
 
-fun NavController.navigateToVideo(videoLink: String, navOptions: NavOptions? = null) =
+fun NavController.navigateToVideo(
+    videoLink: String,
+    videoDownloadLink: String,
+    navOptions: NavOptions? = null
+) =
     navigate(
         route = VideoRoute(videoLink),
         navOptions = navOptions

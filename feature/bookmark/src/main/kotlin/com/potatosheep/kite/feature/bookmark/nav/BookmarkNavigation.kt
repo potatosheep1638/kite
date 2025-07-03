@@ -28,7 +28,7 @@ fun NavGraphBuilder.bookmarkScreen(
     onSubredditClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
     onImageClick: (List<String>, List<String?>) -> Unit,
-    onVideoClick: (String) -> Unit,
+    onVideoClick: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) = composable<BookmarkRoute>(
     enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Down) },

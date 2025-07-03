@@ -72,7 +72,7 @@ fun BookmarkRoute(
     onSubredditClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
     onImageClick: (List<String>, List<String?>) -> Unit,
-    onVideoClick: (String) -> Unit,
+    onVideoClick: (String, String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: BookmarkViewModel = hiltViewModel()
 ) {
@@ -109,7 +109,7 @@ fun BookmarkScreen(
     onSubredditClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
     onImageClick: (List<String>, List<String?>) -> Unit,
-    onVideoClick: (String) -> Unit,
+    onVideoClick: (String, String) -> Unit,
     getPostLink: (Post) -> String,
     removeBookmarkedPost: (Post) -> Unit,
     searchSavedPosts: (String) -> Unit,
@@ -334,7 +334,7 @@ fun BookmarkScreenPreview(
             onSubredditClick = {},
             onUserClick = {},
             onImageClick = { _, _ -> },
-            onVideoClick = {},
+            onVideoClick = { _, _ -> },
             getPostLink = { "" },
             removeBookmarkedPost = {},
             searchSavedPosts = {},

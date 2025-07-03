@@ -42,7 +42,7 @@ fun SubredditRoute(
     onImageClick: (List<String>, List<String?>) -> Unit,
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onUserClick: (String) -> Unit,
-    onVideoClick: (String) -> Unit,
+    onVideoClick: (String, String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SubredditViewModel = hiltViewModel()
 ) {
@@ -89,7 +89,7 @@ internal fun SubredditScreen(
     onImageClick: (List<String>, List<String?>) -> Unit,
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onUserClick: (String) -> Unit,
-    onVideoClick: (String) -> Unit,
+    onVideoClick: (String, String) -> Unit,
     loadSubreddit: () -> Unit,
     loadSortedPosts: (SortOption.Post, SortOption.Timeframe) -> Unit,
     loadMorePosts: (SortOption.Post, SortOption.Timeframe) -> Unit,
