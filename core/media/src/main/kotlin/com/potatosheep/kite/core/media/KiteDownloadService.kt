@@ -35,23 +35,11 @@ class KiteDownloadService @Inject constructor(
                 playlist.addAll(body.byteStream().readAllLines())
             }
 
-            // Parse playlist to get video & audio URIs
-            val urls: HLSLink = HLSParser.parsePlaylist(playlist)
-            val videoUrl = urls.video
-            val audioUrl = urls.audio
+            // Parse playlist to get audio URI
+            val uris = HLSParser.parsePlaylist(playlist)
+            val audioUrl = "${playlistUrl.substring(0, playlistUrl.lastIndexOf('/')+1)}${uris.audio}"
 
-            // Get the URI of the .ts file
-            val videoRequest = Request.Builder().url(videoUrl).build()
-
-            var tsFileURI: String
-            client.newCall(videoRequest).execute().use { response ->
-                val body = requireNotNull(response.body())
-                tsFileURI = HLSParser.parseM3U8(body.byteStream().readAllLines())
-            }
-
-            if (tsFileURI.isEmpty()) throw IllegalArgumentException("No valid URI found")
-
-            // Get the URI of the .aac file
+            // Get the URI of the AAC file
             val audioRequest = Request.Builder().url(audioUrl).build()
 
             var aacFileURI: String
@@ -62,7 +50,7 @@ class KiteDownloadService @Inject constructor(
 
             if (aacFileURI.isEmpty()) throw IllegalArgumentException("No valid URI found")
 
-            // Create the .mp4 file
+            // Create the MP4 file (empty)
             val treeUri = context.contentResolver.persistedUriPermissions[0].uri
 
             val folderUri = DocumentsContract.buildChildDocumentsUriUsingTree(
@@ -77,11 +65,16 @@ class KiteDownloadService @Inject constructor(
                 "video.mp4"
             )
 
-            // Get the .ts file itself
-            val tsFileUrl = "${videoUrl.substring(0, videoUrl.lastIndexOf('/') + 1)}$tsFileURI"
-            val tsRequest = Request.Builder().url(tsFileUrl).build()
+            // Get the MP4 file from the network
+            val mp4ParentPath = playlistUrl
+                .substring(0, playlistUrl.lastIndexOf('/')+1)
+                .replace("hls", "vid")
+            val mp4Uri = "${uris.video.split("_", ".")[1]}.mp4"
+            val mp4Url =  "$mp4ParentPath$mp4Uri"
 
-            client.newCall(tsRequest).execute().use { response ->
+            val mp4Request = Request.Builder().url(mp4Url).build()
+
+            client.newCall(mp4Request).execute().use { response ->
                 val body = requireNotNull(response.body())
 
                 context.contentResolver.openOutputStream(videoFileUri!!)?.let { outputStream ->
@@ -93,7 +86,7 @@ class KiteDownloadService @Inject constructor(
                 }
             }
 
-            // Create the .aac file
+            // Create the AAC file (empty)
             val audioFileUri = DocumentsContract.createDocument(
                 context.contentResolver,
                 folderUri,
@@ -101,8 +94,8 @@ class KiteDownloadService @Inject constructor(
                 "audio.aac"
             )
 
-            // Get the .ts file itself
-            val aacFileUrl = "${videoUrl.substring(0, videoUrl.lastIndexOf('/') + 1)}$aacFileURI"
+            // Get the AAC file itself
+            val aacFileUrl = "${audioUrl.substring(0, audioUrl.lastIndexOf('/') + 1)}$aacFileURI"
             val aacRequest = Request.Builder().url(aacFileUrl).build()
 
             client.newCall(aacRequest).execute().use { response ->
