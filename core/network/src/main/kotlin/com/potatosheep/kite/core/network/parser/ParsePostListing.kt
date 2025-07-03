@@ -150,14 +150,9 @@ internal fun extractPostListingMediaLinks(
         element.select("video.post_media_video").first() != null
     ) {
 
-        // TODO: Refactor this
         val videoPath = (element.select("source")
             .first()
             ?.attr("src")) ?: (element.select("video.post_media_video").first()?.attr("src"))
-
-        val videoDownloadLink = element.select("video.post_media_video")
-            .find { it.hasAttr("type") && it.attr("type") == "video/mp4" }
-            ?.attr("src") ?: ""
 
         return listOf(
             NetworkMediaLink(
@@ -169,11 +164,6 @@ internal fun extractPostListingMediaLinks(
                 link = instanceUrl + videoPath,
                 caption = null,
                 mediaType = MediaType.VIDEO
-            ),
-            NetworkMediaLink(
-                link = instanceUrl + videoDownloadLink,
-                caption = null,
-                mediaType = MediaType.VIDEO_DOWNLOAD_LINK
             )
         )
     } else {

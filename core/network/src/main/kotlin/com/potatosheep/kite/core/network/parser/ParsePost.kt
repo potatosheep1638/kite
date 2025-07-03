@@ -112,7 +112,6 @@ internal fun extractPostMediaLinks(html: Document, instanceUrl: String): List<Ne
     ) {
         val thumbnailLink = (html.select("video").first()?.attr("poster") ?: "")
 
-        // TODO: Refactor this
         val videoLink: String? =
                 html.select("source")
                     .first()
@@ -120,8 +119,6 @@ internal fun extractPostMediaLinks(html: Document, instanceUrl: String): List<Ne
                     html.select("video.post_media_video")
                         .first()
                         ?.attr("src")
-
-        val videoDownloadLink = html.select("a").first { it.hasAttr("download") }
 
         listOf(
             NetworkMediaLink(
@@ -133,11 +130,6 @@ internal fun extractPostMediaLinks(html: Document, instanceUrl: String): List<Ne
                 link = instanceUrl + videoLink,
                 caption = null,
                 mediaType = MediaType.VIDEO
-            ),
-            NetworkMediaLink(
-                link = instanceUrl + videoDownloadLink,
-                caption = null,
-                mediaType = MediaType.VIDEO_DOWNLOAD_LINK
             )
         )
     } else {
