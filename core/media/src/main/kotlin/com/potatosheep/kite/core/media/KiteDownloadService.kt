@@ -150,4 +150,27 @@ class KiteDownloadService @Inject constructor(
             }
         }
     }
+
+    override suspend fun downloadImage(
+        imageUrl: String,
+        fileName: String,
+        uri: Uri,
+        context: Context
+    ) {
+        withContext(ioDispatcher) {
+            val request = Request.Builder().url(imageUrl).build()
+
+            client.newCall(request).execute().use { response ->
+                val body = requireNotNull(response.body())
+
+                context.contentResolver.openOutputStream(uri)?.let { outputStream ->
+                    val sink = outputStream.sink().buffer()
+
+                    sink.writeAll(body.source())
+                    sink.flush()
+                    sink.close()
+                }
+            }
+        }
+    }
 }

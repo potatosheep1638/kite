@@ -47,4 +47,20 @@ abstract class MediaDownloadService {
         uri: Uri,
         context: Context
     )
+
+    /**
+     * Downloads an image.
+     *
+     * @param imageUrl URL of the image file.
+     * @param fileName name of the downloaded file.
+     * @param uri URI of the directory to save the video and audio files.
+     * @param context the application context.
+     */
+    @Throws(IOException::class)
+    abstract suspend fun downloadImage(
+        imageUrl: String,
+        fileName: String,
+        uri: Uri,
+        context: Context
+    )
 }
