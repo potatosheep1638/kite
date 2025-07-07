@@ -25,14 +25,14 @@ object HLSParser {
      * @param playlist the HLS playlist as a [List] of [String]. Each new line in a HLS playlist
      * file should correspond with an element in the list.
      *
-     * @return a [HLSLink] object containing the video and (if it exists; empty otherwise) audio
+     * @return a [HLSUri] object containing the video and (if it exists; empty otherwise) audio
      * URI.
      *
      * @throws IllegalStateException if the playlist file is empty
      * @throws IllegalArgumentException if the playlist file does not contain a `#EXTM3U` entry, or
      * if no video or audio (if the entry for it exists) URI could be found.
      */
-    fun parsePlaylist(playlist: List<String>): HLSLink = getFirstStream(playlist)
+    fun parsePlaylist(playlist: List<String>): HLSUri = getFirstStream(playlist)
 
     /**
      * Retrieves the file URI of the first `#EXT-X-BYTERANGE` entry in an M3U8 file. You should
@@ -64,7 +64,7 @@ object HLSParser {
  *
  * Could be improved.
  */
-private fun getFirstStream(playlist: List<String>): HLSLink {
+private fun getFirstStream(playlist: List<String>): HLSUri {
     if (playlist.isEmpty())
         throw IllegalStateException("The file is empty")
 
@@ -93,7 +93,7 @@ private fun getFirstStream(playlist: List<String>): HLSLink {
 
     if (videoLink.isEmpty()) throw IllegalArgumentException("Video URI could not be found")
 
-    return HLSLink(videoLink, audioLink)
+    return HLSUri(videoLink, audioLink)
 }
 
 /*
@@ -124,17 +124,6 @@ private fun getFirstFile(m3u8: List<String>): String {
 
     return uri
 }
-
-/**
- * A carrier class containing the video and audio URIs for a given HLS video.
- *
- * @property video the video URI
- * @property audio the audio URI
- */
-data class HLSLink(
-    val video: String,
-    val audio: String,
-)
 
 const val START_KEY = "#EXTM3U"
 const val END_KEY = "#EXT-X-ENDLIST"

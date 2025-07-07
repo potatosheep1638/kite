@@ -5,47 +5,55 @@ import android.net.Uri
 import java.io.IOException
 import kotlin.jvm.Throws
 
-abstract class MediaDownloadService {
-
-    protected var hlsVideoUrl = ""
-    protected var hlsAudioUrl = ""
+interface MediaDownloadService {
 
     /**
      * Sets the HLS playlist URL.
      *
      * @param url URL of HLS playlist.
+     *
+     * @return [HLSUri] containing the URLs of the video and (if it exists; empty otherwise) audio
+     * streams
      */
-    abstract suspend fun setHLSPlaylist(url: String)
+    @Throws(IOException::class)
+    suspend fun setHLSPlaylist(url: String): HLSUri
 
     /**
      * Downloads a video.
      *
+     * @param videoUrl URL of the MP4 file.
      * @param fileName name of the downloaded file.
      * @param uri URI of the directory to save the video and audio files.
      * @param context the application context.
-     * @param videoUrl URL of the MP4 file. This will take precedence over the HLS playlist url, if
-     * it was set.
+     * @param isHLS if `videoUrl` is from a HLS playlist or not. Default is `true`.
+     * @param onFinished callback that returns `true` when the download is complete.
      */
     @Throws(IOException::class)
-    abstract suspend fun downloadVideo(
+    suspend fun downloadVideo(
+        videoUrl: String,
         fileName: String,
         uri: Uri,
         context: Context,
-        videoUrl: String = "",
+        isHLS: Boolean = true,
+        onFinished: (Boolean) -> Unit = {},
     )
 
     /**
      * Downloads the audio of a HLS video.
      *
+     * @param audioUrl URL of the audio file.
      * @param fileName name of the downloaded file.
      * @param uri URI of the directory to save the video and audio files.
      * @param context the application context.
+     * @param onFinished callback that returns `true` when the download is complete.
      */
     @Throws(IOException::class)
-    abstract suspend fun downloadAudio(
+    suspend fun downloadAudio(
+        audioUrl: String,
         fileName: String,
         uri: Uri,
-        context: Context
+        context: Context,
+        onFinished: (Boolean) -> Unit = {},
     )
 
     /**
@@ -55,12 +63,14 @@ abstract class MediaDownloadService {
      * @param fileName name of the downloaded file.
      * @param uri URI of the directory to save the video and audio files.
      * @param context the application context.
+     * @param onFinished callback that returns `true` when the download is complete.
      */
     @Throws(IOException::class)
-    abstract suspend fun downloadImage(
+    suspend fun downloadImage(
         imageUrl: String,
         fileName: String,
         uri: Uri,
-        context: Context
+        context: Context,
+        onFinished: (Boolean) -> Unit = {},
     )
 }

@@ -17,10 +17,10 @@ import javax.inject.Inject
 class KiteDownloadService @Inject constructor(
     okHttpCallFactory: dagger.Lazy<Call.Factory>,
     @Dispatcher(KiteDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
-) : MediaDownloadService() {
+) : MediaDownloadService {
     private val client = okHttpCallFactory.get()
 
-    override suspend fun setHLSPlaylist(url: String) {
+    override suspend fun setHLSPlaylist(url: String): HLSUri =
         withContext(ioDispatcher) {
             // Get HLS playlist
             val playListRequest = Request.Builder().url(url).build()
@@ -35,16 +35,19 @@ class KiteDownloadService @Inject constructor(
             val uris = HLSParser.parsePlaylist(playlist)
             val parentPath = url.substring(0, url.lastIndexOf('/')+1)
 
-            hlsVideoUrl = "$parentPath${uris.video}"
-            hlsAudioUrl = "$parentPath${uris.audio}"
+            return@withContext HLSUri(
+                video = "$parentPath${uris.video}",
+                audio = "$parentPath${uris.audio}"
+            )
         }
-    }
 
     override suspend fun downloadVideo(
+        videoUrl: String,
         fileName: String,
         uri: Uri,
         context: Context,
-        videoUrl: String
+        isHLS: Boolean,
+        onFinished: (Boolean) -> Unit
     ) {
         withContext(ioDispatcher) {
             if (fileName.isEmpty()) throw IllegalArgumentException("File name cannot be empty")
@@ -68,13 +71,11 @@ class KiteDownloadService @Inject constructor(
             // Get the MP4 file from the network
             val mp4Url: String
 
-            if (videoUrl.isEmpty()) {
-                if (hlsVideoUrl.isEmpty()) throw IllegalStateException("HLS video URL cannot be empty")
-
-                val parentPath = hlsVideoUrl
-                    .substring(0, hlsVideoUrl.lastIndexOf('/')+1)
+            if (isHLS) {
+                val parentPath = videoUrl
+                    .substring(0, videoUrl.lastIndexOf('/')+1)
                     .replace("hls", "vid")
-                val videoM3U8 = hlsVideoUrl.substring(hlsVideoUrl.lastIndexOf('/')+1)
+                val videoM3U8 = videoUrl.substring(videoUrl.lastIndexOf('/')+1)
                 val mp4File = "${videoM3U8.split("_", ".")[1]}.mp4"
 
                 mp4Url = "$parentPath$mp4File"
@@ -93,12 +94,20 @@ class KiteDownloadService @Inject constructor(
                     sink.writeAll(body.source())
                     sink.flush()
                     sink.close()
+
+                    onFinished(true)
                 }
             }
         }
     }
 
-    override suspend fun downloadAudio(fileName: String, uri: Uri, context: Context) {
+    override suspend fun downloadAudio(
+        audioUrl: String,
+        fileName: String,
+        uri: Uri,
+        context: Context,
+        onFinished: (Boolean) -> Unit
+    ) {
         withContext(ioDispatcher) {
             if (fileName.isEmpty()) throw IllegalArgumentException("File name cannot be empty")
 
@@ -119,10 +128,7 @@ class KiteDownloadService @Inject constructor(
             )
 
             // Get the name of the AAC file
-            val audioUrl = this@KiteDownloadService.hlsAudioUrl
-
             if (audioUrl.isEmpty()) throw IllegalStateException("HLS audio URL cannot be empty")
-
             val audioRequest = Request.Builder().url(audioUrl).build()
 
             var aacFile: String
@@ -146,6 +152,8 @@ class KiteDownloadService @Inject constructor(
                     sink.writeAll(body.source())
                     sink.flush()
                     sink.close()
+
+                    onFinished(true)
                 }
             }
         }
@@ -155,7 +163,8 @@ class KiteDownloadService @Inject constructor(
         imageUrl: String,
         fileName: String,
         uri: Uri,
-        context: Context
+        context: Context,
+        onFinished: (Boolean) -> Unit
     ) {
         withContext(ioDispatcher) {
             val request = Request.Builder().url(imageUrl).build()
@@ -169,6 +178,8 @@ class KiteDownloadService @Inject constructor(
                     sink.writeAll(body.source())
                     sink.flush()
                     sink.close()
+
+                    onFinished(true)
                 }
             }
         }
