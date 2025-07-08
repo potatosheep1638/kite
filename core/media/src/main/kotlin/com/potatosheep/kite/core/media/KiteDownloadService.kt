@@ -46,8 +46,7 @@ class KiteDownloadService @Inject constructor(
         fileName: String,
         uri: Uri,
         context: Context,
-        isHLS: Boolean,
-        onFinished: (Boolean) -> Unit
+        isHLS: Boolean
     ) {
         withContext(ioDispatcher) {
             if (fileName.isEmpty()) throw IllegalArgumentException("File name cannot be empty")
@@ -94,8 +93,6 @@ class KiteDownloadService @Inject constructor(
                     sink.writeAll(body.source())
                     sink.flush()
                     sink.close()
-
-                    onFinished(true)
                 }
             }
         }
@@ -105,8 +102,7 @@ class KiteDownloadService @Inject constructor(
         audioUrl: String,
         fileName: String,
         uri: Uri,
-        context: Context,
-        onFinished: (Boolean) -> Unit
+        context: Context
     ) {
         withContext(ioDispatcher) {
             if (fileName.isEmpty()) throw IllegalArgumentException("File name cannot be empty")
@@ -152,8 +148,6 @@ class KiteDownloadService @Inject constructor(
                     sink.writeAll(body.source())
                     sink.flush()
                     sink.close()
-
-                    onFinished(true)
                 }
             }
         }
@@ -163,8 +157,7 @@ class KiteDownloadService @Inject constructor(
         imageUrl: String,
         fileName: String,
         uri: Uri,
-        context: Context,
-        onFinished: (Boolean) -> Unit
+        context: Context
     ) {
         withContext(ioDispatcher) {
             val request = Request.Builder().url(imageUrl).build()
@@ -178,8 +171,6 @@ class KiteDownloadService @Inject constructor(
                     sink.writeAll(body.source())
                     sink.flush()
                     sink.close()
-
-                    onFinished(true)
                 }
             }
         }

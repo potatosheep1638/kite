@@ -26,7 +26,6 @@ interface MediaDownloadService {
      * @param uri URI of the directory to save the video and audio files.
      * @param context the application context.
      * @param isHLS if `videoUrl` is from a HLS playlist or not. Default is `true`.
-     * @param onFinished callback that returns `true` when the download is complete.
      */
     @Throws(IOException::class)
     suspend fun downloadVideo(
@@ -35,7 +34,6 @@ interface MediaDownloadService {
         uri: Uri,
         context: Context,
         isHLS: Boolean = true,
-        onFinished: (Boolean) -> Unit = {},
     )
 
     /**
@@ -45,7 +43,6 @@ interface MediaDownloadService {
      * @param fileName name of the downloaded file.
      * @param uri URI of the directory to save the video and audio files.
      * @param context the application context.
-     * @param onFinished callback that returns `true` when the download is complete.
      */
     @Throws(IOException::class)
     suspend fun downloadAudio(
@@ -53,7 +50,6 @@ interface MediaDownloadService {
         fileName: String,
         uri: Uri,
         context: Context,
-        onFinished: (Boolean) -> Unit = {},
     )
 
     /**
@@ -63,7 +59,6 @@ interface MediaDownloadService {
      * @param fileName name of the downloaded file.
      * @param uri URI of the directory to save the video and audio files.
      * @param context the application context.
-     * @param onFinished callback that returns `true` when the download is complete.
      */
     @Throws(IOException::class)
     suspend fun downloadImage(
@@ -71,6 +66,5 @@ interface MediaDownloadService {
         fileName: String,
         uri: Uri,
         context: Context,
-        onFinished: (Boolean) -> Unit = {},
     )
 }
