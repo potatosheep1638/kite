@@ -10,6 +10,7 @@ import com.potatosheep.kite.core.data.model.toEntity
 import com.potatosheep.kite.core.data.model.toPostExport
 import com.potatosheep.kite.core.database.dao.PostDao
 import com.potatosheep.kite.core.database.entity.toExternalModel
+import com.potatosheep.kite.core.media.MediaDownloadService
 import com.potatosheep.kite.core.model.Comment
 import com.potatosheep.kite.core.model.Post
 import com.potatosheep.kite.core.model.Subreddit
@@ -61,12 +62,28 @@ interface PostRepository {
     suspend fun removeSavedPost(post: Post)
     suspend fun exportSavedPosts(uri: Uri, context: Context)
     suspend fun importSavedPosts(uri: Uri, context: Context)
+
+    suspend fun downloadVideo(
+        url: String,
+        fileName: String,
+        isHLS: Boolean,
+        uri: Uri,
+        context: Context
+    )
+
+    suspend fun downloadImage(
+        url: String,
+        fileName: String,
+        uri: Uri,
+        context: Context
+    )
 }
 
 internal class DefaultPostRepository @Inject constructor(
     private val networkDataSource: NetworkDataSource,
     private val postDao: PostDao,
     private val moshi: dagger.Lazy<Moshi>,
+    private val downloadService: MediaDownloadService,
     @Dispatcher(KiteDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) : PostRepository {
 
@@ -200,4 +217,43 @@ internal class DefaultPostRepository @Inject constructor(
             }
         }
     }
+
+    override suspend fun downloadVideo(
+        url: String,
+        fileName: String,
+        isHLS: Boolean,
+        uri: Uri,
+        context: Context
+    ) {
+        if (isHLS) {
+            val playlist = downloadService.setHLSPlaylist(url)
+
+            downloadService.downloadVideo(
+                videoUrl = playlist.video,
+                fileName = fileName,
+                uri = uri,
+                context = context
+            )
+
+            if (playlist.audio.isNotEmpty()) {
+                downloadService.downloadAudio(
+                    audioUrl = playlist.audio,
+                    fileName = fileName,
+                    uri = uri,
+                    context = context
+                )
+            }
+        } else {
+            downloadService.downloadVideo(
+                videoUrl = url,
+                fileName = fileName,
+                uri = uri,
+                context = context,
+                isHLS = false
+            )
+        }
+    }
+
+    override suspend fun downloadImage(url: String, fileName: String, uri: Uri, context: Context) =
+        downloadService.downloadImage(url, fileName, uri, context)
 }

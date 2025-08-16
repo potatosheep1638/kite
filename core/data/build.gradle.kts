@@ -13,6 +13,7 @@ dependencies {
     implementation(projects.core.common)
     implementation(projects.core.datastore)
     implementation(projects.core.database)
+    implementation(projects.core.media)
 
     implementation(libs.kotlinx.datetime)
     implementation(libs.moshi)
