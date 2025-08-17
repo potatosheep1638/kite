@@ -80,6 +80,7 @@ ksp-androidx-room = { group = "androidx.room", name = "room-compiler", version.r
 protobuf-protoc = { group = "com.google.protobuf", name = "protoc", version.ref = "protobuf" }
 protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobuf" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
+androidx-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-service", version.ref = "androidxLifecycle" }
 
 # Dependencies of build-logic
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
