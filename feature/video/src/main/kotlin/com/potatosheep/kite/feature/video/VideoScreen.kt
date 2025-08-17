@@ -1,11 +1,16 @@
 package com.potatosheep.kite.feature.video
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -14,9 +19,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,11 +37,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -40,6 +54,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import androidx.media3.ui.PlayerView.ControllerVisibilityListener
+import com.potatosheep.kite.core.common.R.string as commonStrings
 import com.potatosheep.kite.core.common.util.onShare
 import com.potatosheep.kite.core.designsystem.KiteTheme
 import com.potatosheep.kite.core.designsystem.MediaTopAppBar
@@ -64,6 +79,7 @@ fun VideoRoute(
         relaunchPlayer = viewModel::relaunchPlayer,
         releasePlayer = viewModel::releasePlayer,
         pausePlayer = viewModel::pausePlayer,
+        download = viewModel::download,
         modifier = modifier
     )
 }
@@ -79,6 +95,7 @@ internal fun VideoScreen(
     relaunchPlayer: (Context) -> Unit,
     releasePlayer: () -> Unit,
     pausePlayer: () -> Unit,
+    download: (String, Uri, Context) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val view = LocalView.current
@@ -90,7 +107,10 @@ internal fun VideoScreen(
     }
 
     val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+
     var hasLaunched by rememberSaveable { mutableStateOf(false) }
+    var filename by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         if (!hasLaunched) {
@@ -102,6 +122,22 @@ internal fun VideoScreen(
     LifecycleResumeEffect(Unit) {
         onPauseOrDispose {
             pausePlayer()
+        }
+    }
+
+    val fileWriterLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val data = result.data
+        val uri = data?.data
+
+        uri?.let {
+            context.contentResolver.takePersistableUriPermission(
+                it,
+                Intent.FLAG_GRANT_WRITE_URI_PERMISSION and Intent.FLAG_GRANT_READ_URI_PERMISSION,
+            )
+
+            download(filename, it, context)
         }
     }
 
@@ -121,6 +157,8 @@ internal fun VideoScreen(
                 )
                 .fillMaxSize()
         ) {
+            var showDialog by remember { mutableStateOf(false) }
+
             when (videoUiState) {
                 VideoUiState.Loading -> Unit
                 VideoUiState.Ready, VideoUiState.Ended -> {
@@ -185,12 +223,112 @@ internal fun VideoScreen(
                 MediaTopAppBar(
                     onBackClick = onBackClick,
                     onShareClick = onShareClick,
-                    onDownloadClick = {},
+                    onDownloadClick = { showDialog = true },
                     modifier = Modifier.padding(horizontal = 12.dp)
+                )
+            }
+
+            if (showDialog) {
+                FileNamer(
+                    onDismissRequest = { showDialog = false },
+                    onConfirmation = { title ->
+                        filename = title
+                        fileWriterLauncher.launch(writeIntent())
+                        showDialog = false
+                    },
+                    modifier = Modifier.widthIn(max = configuration.screenWidthDp.dp - 40.dp),
+                    properties = DialogProperties(usePlatformDefaultWidth = false),
                 )
             }
         }
     }
+}
+
+fun writeIntent(): Intent {
+    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+        addCategory(Intent.CATEGORY_DEFAULT)
+    }
+
+    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+    intent.setFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+
+    return intent
+}
+
+@Composable
+private fun FileNamer(
+    onDismissRequest: () -> Unit,
+    onConfirmation: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    properties: DialogProperties = DialogProperties(),
+) {
+    var currentFileName by rememberSaveable { mutableStateOf("") }
+    var isFieldEmpty by rememberSaveable { mutableStateOf(false) }
+
+    AlertDialog(
+        properties = properties,
+        modifier = modifier,
+        icon = null,
+        title = {
+            Text(
+                text = stringResource(commonStrings.download),
+                fontSize = 19.sp,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        },
+        text = {
+            TextField(
+                value = currentFileName,
+                onValueChange = {
+                    currentFileName = it
+                    if (isFieldEmpty && currentFileName.isNotEmpty()) isFieldEmpty = false
+                },
+                label = {
+                    Text(
+                        text = stringResource(commonStrings.filename),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                supportingText = {
+                    if (isFieldEmpty) {
+                        Text(
+                            text = stringResource(commonStrings.empty_error),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
+                placeholder = {
+                    Text(
+                        text = "",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                isError = isFieldEmpty
+            )
+        },
+        onDismissRequest = onDismissRequest,
+        confirmButton = {
+            Text(
+                text = stringResource(commonStrings.confirm),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .clickable {
+                        if (currentFileName.isEmpty())
+                            isFieldEmpty = true
+                        else
+                            onConfirmation(currentFileName)
+                    },
+            )
+        },
+        dismissButton = null
+    )
 }
 
 // TODO: Fix preview
@@ -210,7 +348,8 @@ private fun VideoScreenPreview() {
             onShareClick = {},
             relaunchPlayer = {},
             pausePlayer = {},
-            releasePlayer = {}
+            releasePlayer = {},
+            download = { _, _, _ -> }
         )
     }
 }

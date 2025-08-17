@@ -81,6 +81,8 @@
     <string name="posts">Posts</string>
     <string name="about">About</string>
     <string name="sort_options">Sort options</string>
+    <string name="download">Download</string>
+    <string name="filename">Filename</string>
 
     <!--Messages-->
     <string name="no_result">Nothing found</string>
@@ -89,6 +91,7 @@
     <string name="error">Oops! Something went wrong.</string>
     <string name="copied_clipboard">Copied to clipboard</string>
     <string name="invalid_url">Invalid URL</string>
+    <string name="empty_error">Field cannot be empty</string>
 
     <!--Sort options-->
     <string name="hot">Hot</string>
