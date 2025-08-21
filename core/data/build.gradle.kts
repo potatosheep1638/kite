@@ -19,4 +19,5 @@ dependencies {
     implementation(libs.moshi)
     implementation(libs.moshi.adapters)
     implementation(libs.moshi.kotlin.codegen)
+    implementation(libs.androidx.lifecycle)
 }

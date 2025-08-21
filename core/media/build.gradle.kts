@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kite.android.library)
     alias(libs.plugins.kite.android.hilt)
+    alias(libs.plugins.jetbrains.kotlin.parcelize)
 }
 
 android {
@@ -9,6 +10,8 @@ android {
 
 dependencies {
     implementation(projects.core.common)
+    implementation(projects.core.designsystem)
+
     implementation(libs.retrofit)
     implementation(libs.androidx.lifecycle)
 }
