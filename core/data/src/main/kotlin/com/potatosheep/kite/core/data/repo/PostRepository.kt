@@ -1,16 +1,23 @@
 package com.potatosheep.kite.core.data.repo
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleService
 import com.potatosheep.kite.core.common.Dispatcher
 import com.potatosheep.kite.core.common.KiteDispatchers
+import com.potatosheep.kite.core.common.KiteServices
+import com.potatosheep.kite.core.common.Service
+import com.potatosheep.kite.core.common.constants.IntentData
 import com.potatosheep.kite.core.common.enums.SortOption
 import com.potatosheep.kite.core.data.model.PostExport
 import com.potatosheep.kite.core.data.model.toEntity
 import com.potatosheep.kite.core.data.model.toPostExport
 import com.potatosheep.kite.core.database.dao.PostDao
 import com.potatosheep.kite.core.database.entity.toExternalModel
-import com.potatosheep.kite.core.media.MediaDownloadService
+import com.potatosheep.kite.core.media.KiteDownloadService
+import com.potatosheep.kite.core.media.model.DownloadData
 import com.potatosheep.kite.core.model.Comment
 import com.potatosheep.kite.core.model.Post
 import com.potatosheep.kite.core.model.Subreddit
@@ -73,7 +80,6 @@ interface PostRepository {
 
     suspend fun downloadImage(
         url: String,
-        fileName: String,
         uri: Uri,
         context: Context
     )
@@ -83,7 +89,7 @@ internal class DefaultPostRepository @Inject constructor(
     private val networkDataSource: NetworkDataSource,
     private val postDao: PostDao,
     private val moshi: dagger.Lazy<Moshi>,
-    private val downloadService: MediaDownloadService,
+    @Service(KiteServices.Download) private val downloadService: LifecycleService,
     @Dispatcher(KiteDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) : PostRepository {
 
@@ -225,35 +231,38 @@ internal class DefaultPostRepository @Inject constructor(
         uri: Uri,
         context: Context
     ) {
-        if (isHLS) {
-            val playlist = downloadService.setHLSPlaylist(url)
+        val downloadData = DownloadData(
+            mediaUrl = url,
+            filename = fileName,
+            contentUri = uri.toString(),
+            flags =
+                if (isHLS)
+                    DownloadData.IS_VIDEO and DownloadData.IS_HLS
+                else
+                    DownloadData.IS_VIDEO
+        )
 
-            downloadService.downloadVideo(
-                videoUrl = playlist.video,
-                fileName = fileName,
-                uri = uri,
-                context = context
-            )
+        val intent = Intent(context, downloadService::class.java)
+            .putExtra(IntentData.DOWNLOAD_DATA, downloadData)
 
-            if (playlist.audio.isNotEmpty()) {
-                downloadService.downloadAudio(
-                    audioUrl = playlist.audio,
-                    fileName = fileName,
-                    uri = uri,
-                    context = context
-                )
-            }
-        } else {
-            downloadService.downloadVideo(
-                videoUrl = url,
-                fileName = fileName,
-                uri = uri,
-                context = context,
-                isHLS = false
-            )
-        }
+        ContextCompat.startForegroundService(context, intent)
     }
 
-    override suspend fun downloadImage(url: String, fileName: String, uri: Uri, context: Context) =
-        downloadService.downloadImage(url, fileName, uri, context)
+    override suspend fun downloadImage(
+        url: String,
+        uri: Uri,
+        context: Context
+    ) {
+        val downloadData = DownloadData(
+            mediaUrl = url,
+            filename = "",
+            contentUri = uri.toString(),
+            flags = DownloadData.IS_IMAGE
+        )
+
+        val intent = Intent(context, downloadService::class.java)
+            .putExtra(IntentData.DOWNLOAD_DATA, downloadData)
+
+        ContextCompat.startForegroundService(context, intent)
+    }
 }
