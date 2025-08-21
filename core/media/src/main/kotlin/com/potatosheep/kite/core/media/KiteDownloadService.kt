@@ -1,12 +1,29 @@
 package com.potatosheep.kite.core.media
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.DocumentsContract
+import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationCompat.Builder
+import androidx.core.app.ServiceCompat
+import androidx.core.content.getSystemService
+import androidx.core.net.toUri
+import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.lifecycleScope
 import com.potatosheep.kite.core.common.Dispatcher
 import com.potatosheep.kite.core.common.KiteDispatchers
+import com.potatosheep.kite.core.common.constants.IntentData
+import com.potatosheep.kite.core.designsystem.R.drawable as KiteDrawable
+import com.potatosheep.kite.core.media.model.DownloadData
 import com.potatosheep.kite.core.media.util.readAllLines
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.Call
 import okhttp3.Request
@@ -14,26 +31,132 @@ import okio.buffer
 import okio.sink
 import javax.inject.Inject
 
-class KiteDownloadService @Inject constructor(
-    okHttpCallFactory: dagger.Lazy<Call.Factory>,
-    @Dispatcher(KiteDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
-) : MediaDownloadService {
-    private val client = okHttpCallFactory.get()
+@AndroidEntryPoint
+class KiteDownloadService : LifecycleService() {
+    @Inject
+    lateinit var okHttpCallFactory: dagger.Lazy<Call.Factory>
 
-    override suspend fun setHLSPlaylist(url: String): HLSUri =
+    @Inject
+    @Dispatcher(KiteDispatchers.IO)
+    lateinit var ioDispatcher: CoroutineDispatcher
+
+    private lateinit var notificationManager: NotificationManager
+    private lateinit var notificationBuilder: Builder
+
+    override fun onCreate() {
+        super.onCreate()
+        startService()
+        Log.d("KiteDownloadService", "Service started")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("KiteDownloadService", "Service stopped")
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
+
+        val client = okHttpCallFactory.get()
+
+        val downloadData: DownloadData? =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent?.getParcelableExtra(IntentData.DOWNLOAD_DATA, DownloadData::class.java)
+            } else {
+                intent?.getParcelableExtra(IntentData.DOWNLOAD_DATA)
+            }
+
+        if (downloadData == null) {
+            throw IllegalArgumentException("DownloadData cannot be null")
+        } else {
+            lifecycleScope.launch {
+                when (downloadData.flags) {
+                    DownloadData.IS_IMAGE -> {
+                        val filename = downloadData.contentUri.substringAfterLast("%2F")
+
+                        updateNotification(
+                            notificationBuilder,
+                            filename,
+                            "Downloading image..."
+                        )
+
+                        downloadImage(
+                            client = client,
+                            imageUrl = downloadData.mediaUrl,
+                            uri = downloadData.contentUri.toUri(),
+                            context = applicationContext
+                        )
+                    }
+
+                    DownloadData.IS_VIDEO, DownloadData.IS_VIDEO and DownloadData.IS_HLS -> {
+                        val playlist =
+                            if (downloadData.flags == DownloadData.IS_VIDEO and DownloadData.IS_HLS)
+                                getHLSPlaylist(client, downloadData.mediaUrl)
+                            else
+                                HLSUri(downloadData.mediaUrl, "")
+
+                        val contentUri = downloadData.contentUri.toUri()
+
+                        updateNotification(
+                            notificationBuilder,
+                            "${downloadData.filename}.mp4",
+                            "Downloading video..."
+                        )
+
+                        downloadVideo(
+                            client = client,
+                            videoUrl = playlist.video,
+                            fileName = downloadData.filename,
+                            uri = contentUri,
+                            context = applicationContext,
+                            isHLS = downloadData.flags == DownloadData.IS_VIDEO and DownloadData.IS_HLS
+                        )
+
+                        if (playlist.audio.isNotEmpty()) {
+                            updateNotification(
+                                notificationBuilder,
+                                "",
+                                "Downloading audio...",
+                            )
+
+                            downloadAudio(
+                                client = client,
+                                audioUrl = playlist.audio,
+                                fileName = downloadData.filename,
+                                uri = contentUri,
+                                context = applicationContext
+                            )
+                        }
+                    }
+                }
+
+                updateNotification(
+                    notificationBuilder,
+                    "",
+                    "Download complete"
+                )
+                stopNotification(notificationBuilder)
+                stopService()
+            }
+        }
+
+        return START_NOT_STICKY
+    }
+
+    private suspend fun getHLSPlaylist(client: Call.Factory, url: String): HLSUri =
         withContext(ioDispatcher) {
             // Get HLS playlist
-            val playListRequest = Request.Builder().url(url).build()
+            val playlistRequest = Request.Builder().url(url).build()
             val playlist: MutableList<String> = mutableListOf()
 
-            client.newCall(playListRequest).execute().use { response ->
+            client.newCall(playlistRequest).execute().use { response ->
                 val body = requireNotNull(response.body())
                 playlist.addAll(body.byteStream().readAllLines())
             }
 
             // Parse playlist to get audio URI
             val uris = HLSParser.parsePlaylist(playlist)
-            val parentPath = url.substring(0, url.lastIndexOf('/')+1)
+            val parentPath = url.substring(0, url.lastIndexOf('/') + 1)
 
             return@withContext HLSUri(
                 video = "$parentPath${uris.video}",
@@ -41,7 +164,8 @@ class KiteDownloadService @Inject constructor(
             )
         }
 
-    override suspend fun downloadVideo(
+    private suspend fun downloadVideo(
+        client: Call.Factory,
         videoUrl: String,
         fileName: String,
         uri: Uri,
@@ -72,9 +196,9 @@ class KiteDownloadService @Inject constructor(
 
             if (isHLS) {
                 val parentPath = videoUrl
-                    .substring(0, videoUrl.lastIndexOf('/')+1)
+                    .substring(0, videoUrl.lastIndexOf('/') + 1)
                     .replace("hls", "vid")
-                val videoM3U8 = videoUrl.substring(videoUrl.lastIndexOf('/')+1)
+                val videoM3U8 = videoUrl.substring(videoUrl.lastIndexOf('/') + 1)
                 val mp4File = "${videoM3U8.split("_", ".")[1]}.mp4"
 
                 mp4Url = "$parentPath$mp4File"
@@ -98,7 +222,8 @@ class KiteDownloadService @Inject constructor(
         }
     }
 
-    override suspend fun downloadAudio(
+    private suspend fun downloadAudio(
+        client: Call.Factory,
         audioUrl: String,
         fileName: String,
         uri: Uri,
@@ -153,9 +278,9 @@ class KiteDownloadService @Inject constructor(
         }
     }
 
-    override suspend fun downloadImage(
+    private suspend fun downloadImage(
+        client: Call.Factory,
         imageUrl: String,
-        fileName: String,
         uri: Uri,
         context: Context
     ) {
@@ -175,4 +300,57 @@ class KiteDownloadService @Inject constructor(
             }
         }
     }
+
+    // TODO: Move notification logic to :core:notifications
+    private fun startService() {
+        notificationManager = getSystemService()!!
+
+        val summaryChannel = NotificationChannel(
+            DOWNLOAD_CHANNEL,
+            "Download",
+            NotificationManager.IMPORTANCE_LOW
+        )
+
+        notificationManager.createNotificationChannel(summaryChannel)
+
+        notificationBuilder = Builder(this, DOWNLOAD_CHANNEL)
+            .setSmallIcon(KiteDrawable.round_file_download)
+            .setContentTitle("Starting") // Temp name; set later
+            .setContentText("Preparing download...")
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .setGroup(DOWNLOAD_NOTIFICATION_GROUP)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setOnlyAlertOnce(true)
+            .setGroupSummary(true)
+
+        startForeground(DOWNLOAD_NOTIFICATION_SUMMARY_ID, notificationBuilder.build())
+    }
+
+    private fun updateNotification(
+        notificationBuilder: Builder,
+        title: String = "",
+        text: String = ""
+    ) {
+        if (title.isNotEmpty()) notificationBuilder.setContentTitle(title)
+        if (text.isNotEmpty()) notificationBuilder.setContentText(text)
+
+        notificationManager.notify(DOWNLOAD_NOTIFICATION_SUMMARY_ID, notificationBuilder.build())
+    }
+
+    private fun stopNotification(notificationBuilder: Builder) {
+        notificationBuilder
+            .setOngoing(false)
+            .clearActions()
+
+        notificationManager.notify(DOWNLOAD_NOTIFICATION_SUMMARY_ID, notificationBuilder.build())
+    }
+
+    private fun stopService() {
+        ServiceCompat.stopForeground(this@KiteDownloadService, ServiceCompat.STOP_FOREGROUND_DETACH)
+        stopSelf()
+    }
 }
+
+private const val DOWNLOAD_NOTIFICATION_SUMMARY_ID = 1
+private const val DOWNLOAD_CHANNEL = "download_channel"
+private const val DOWNLOAD_NOTIFICATION_GROUP = "download_group"
