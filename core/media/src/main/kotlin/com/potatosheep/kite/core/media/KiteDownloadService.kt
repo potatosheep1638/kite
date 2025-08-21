@@ -18,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import com.potatosheep.kite.core.common.Dispatcher
 import com.potatosheep.kite.core.common.KiteDispatchers
 import com.potatosheep.kite.core.common.constants.IntentData
+import com.potatosheep.kite.core.common.R.string as commonStrings
 import com.potatosheep.kite.core.designsystem.R.drawable as KiteDrawable
 import com.potatosheep.kite.core.media.model.DownloadData
 import com.potatosheep.kite.core.media.util.readAllLines
@@ -77,7 +78,7 @@ class KiteDownloadService : LifecycleService() {
                         updateNotification(
                             notificationBuilder,
                             filename,
-                            "Downloading image..."
+                            getString(commonStrings.notify_download_image)
                         )
 
                         downloadImage(
@@ -100,7 +101,7 @@ class KiteDownloadService : LifecycleService() {
                         updateNotification(
                             notificationBuilder,
                             "${downloadData.filename}.mp4",
-                            "Downloading video..."
+                            getString(commonStrings.notify_download_video)
                         )
 
                         downloadVideo(
@@ -116,7 +117,7 @@ class KiteDownloadService : LifecycleService() {
                             updateNotification(
                                 notificationBuilder,
                                 "",
-                                "Downloading audio...",
+                                getString(commonStrings.notify_download_audio)
                             )
 
                             downloadAudio(
@@ -133,7 +134,7 @@ class KiteDownloadService : LifecycleService() {
                 updateNotification(
                     notificationBuilder,
                     "",
-                    "Download complete"
+                    getString(commonStrings.notify_downloaded)
                 )
                 stopNotification(notificationBuilder)
                 stopService()
@@ -307,7 +308,7 @@ class KiteDownloadService : LifecycleService() {
 
         val summaryChannel = NotificationChannel(
             DOWNLOAD_CHANNEL,
-            "Download",
+            getString(commonStrings.download),
             NotificationManager.IMPORTANCE_LOW
         )
 
@@ -315,8 +316,8 @@ class KiteDownloadService : LifecycleService() {
 
         notificationBuilder = Builder(this, DOWNLOAD_CHANNEL)
             .setSmallIcon(KiteDrawable.round_file_download)
-            .setContentTitle("Starting") // Temp name; set later
-            .setContentText("Preparing download...")
+            .setContentTitle(getString(commonStrings.notify_initial_title)) // Temp name; set later
+            .setContentText(getString(commonStrings.notify_prepare))
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setGroup(DOWNLOAD_NOTIFICATION_GROUP)
             .setPriority(NotificationCompat.PRIORITY_LOW)
