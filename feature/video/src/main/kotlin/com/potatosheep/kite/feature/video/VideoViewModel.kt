@@ -22,13 +22,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VideoViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     videoPlayer: Player,
+    private val savedStateHandle: SavedStateHandle,
     private val postRepository: PostRepository
 ) : ViewModel() {
 
     private val _videoLink = savedStateHandle.toRoute<VideoRoute>().videoLink
     val videoLink = savedStateHandle.getStateFlow(VIDEO_LINK, _videoLink)
+
+    val isHLS = savedStateHandle.getStateFlow(IS_HLS, false)
 
     private val _player = MutableStateFlow(videoPlayer)
     val player: StateFlow<Player> = _player
@@ -39,6 +41,7 @@ class VideoViewModel @Inject constructor(
     fun relaunchPlayer(context: Context) {
         viewModelScope.launch {
             // Log.i("VideoViewModel", _videoLink)
+            savedStateHandle[IS_HLS] = checkVideoHLS()
 
             _player.value = ExoPlayer.Builder(context).build().apply {
                 playWhenReady = true
@@ -46,7 +49,7 @@ class VideoViewModel @Inject constructor(
                     MediaItem.Builder()
                         .setUri(_videoLink)
                         .setMimeType(
-                            if (_videoLink.contains("hls"))
+                            if (isHLS.value)
                                 MimeTypes.APPLICATION_M3U8
                             else
                                 MimeTypes.VIDEO_MP4
@@ -93,7 +96,6 @@ class VideoViewModel @Inject constructor(
         uri: Uri,
         context: Context
     ) {
-
         viewModelScope.launch {
             runCatching {
                 // Log.d("VideoViewModel", uri.path.toString())
@@ -111,6 +113,10 @@ class VideoViewModel @Inject constructor(
         }
     }
 
+    private fun checkVideoHLS(): Boolean  {
+        return _videoLink.contains("/HLSPlaylist.m3u8?")
+    }
+
     override fun onCleared() {
         releasePlayer()
     }
@@ -125,3 +131,4 @@ sealed interface VideoUiState {
 }
 
 const val VIDEO_LINK = "videoLink"
+const val IS_HLS = "isHLS"

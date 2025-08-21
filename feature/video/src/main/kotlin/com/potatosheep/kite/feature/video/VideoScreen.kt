@@ -12,6 +12,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -41,6 +42,12 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,12 +75,14 @@ fun VideoRoute(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val player by viewModel.player.collectAsStateWithLifecycle()
     val videoLink by viewModel.videoLink.collectAsStateWithLifecycle()
+    val isHLS by viewModel.isHLS.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
 
     VideoScreen(
         videoUiState = uiState,
         player = player,
+        isHLS = isHLS,
         onBackClick = onBackClick,
         onShareClick = { onShare(videoLink, context) },
         relaunchPlayer = viewModel::relaunchPlayer,
@@ -90,6 +99,7 @@ fun VideoRoute(
 internal fun VideoScreen(
     videoUiState: VideoUiState,
     player: Player,
+    isHLS: Boolean,
     onBackClick: () -> Unit,
     onShareClick: () -> Unit,
     relaunchPlayer: (Context) -> Unit,
@@ -157,7 +167,8 @@ internal fun VideoScreen(
                 )
                 .fillMaxSize()
         ) {
-            var showDialog by remember { mutableStateOf(false) }
+            var showFileNamerDialog by remember { mutableStateOf(false) }
+            var showHLSDialog by remember { mutableStateOf(false) }
 
             when (videoUiState) {
                 VideoUiState.Loading -> Unit
@@ -223,18 +234,35 @@ internal fun VideoScreen(
                 MediaTopAppBar(
                     onBackClick = onBackClick,
                     onShareClick = onShareClick,
-                    onDownloadClick = { showDialog = true },
+                    onDownloadClick = {
+                        if (isHLS)
+                            showHLSDialog = true
+                        else
+                            showFileNamerDialog = true
+                    },
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
             }
 
-            if (showDialog) {
+            if (showFileNamerDialog) {
                 FileNamer(
-                    onDismissRequest = { showDialog = false },
+                    onDismissRequest = { showFileNamerDialog = false },
                     onConfirmation = { title ->
                         filename = title
                         fileWriterLauncher.launch(writeIntent())
-                        showDialog = false
+                        showFileNamerDialog = false
+                    },
+                    modifier = Modifier.widthIn(max = configuration.screenWidthDp.dp - 40.dp),
+                    properties = DialogProperties(usePlatformDefaultWidth = false),
+                )
+            }
+
+            if (showHLSDialog) {
+                HLSDialog(
+                    onDismissRequest = { showHLSDialog = false },
+                    onConfirmation = {
+                        showFileNamerDialog = true
+                        showHLSDialog = false
                     },
                     modifier = Modifier.widthIn(max = configuration.screenWidthDp.dp - 40.dp),
                     properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -242,18 +270,6 @@ internal fun VideoScreen(
             }
         }
     }
-}
-
-fun writeIntent(): Intent {
-    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
-        addCategory(Intent.CATEGORY_DEFAULT)
-    }
-
-    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-    intent.setFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-
-    return intent
 }
 
 @Composable
@@ -331,6 +347,79 @@ private fun FileNamer(
     )
 }
 
+@Composable
+private fun HLSDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    modifier: Modifier = Modifier,
+    properties: DialogProperties = DialogProperties(),
+) {
+    val annotatedString = buildAnnotatedString {
+        append("${stringResource(commonStrings.hls_warning_body)} ")
+        withLink(
+            LinkAnnotation.Url(
+                url = "https://github.com/potatosheep1638/kite/issues/22",
+                styles = TextLinkStyles(
+                    style = SpanStyle(
+                        color = MaterialTheme.colorScheme.primary,
+                        textDecoration = TextDecoration.Underline
+                    ),
+                    hoveredStyle = SpanStyle(MaterialTheme.colorScheme.inversePrimary)
+                )
+            )
+        ) {
+            append(stringResource(commonStrings.hls_warning_help_hyperlink))
+        }
+    }
+
+    AlertDialog(
+        properties = properties,
+        modifier = modifier,
+        icon = null,
+        title = {
+            Text(
+                text = stringResource(commonStrings.hls_warning_title),
+                fontSize = 19.sp,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        },
+        text = {
+            Column(Modifier) {
+                Text(
+                    text = annotatedString,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+        },
+        onDismissRequest = onDismissRequest,
+        confirmButton = {
+            Text(
+                text = stringResource(commonStrings.confirm),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .clickable { onConfirmation() },
+            )
+        },
+        dismissButton = null
+    )
+}
+
+private fun writeIntent(): Intent {
+    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+        addCategory(Intent.CATEGORY_DEFAULT)
+    }
+
+    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+    intent.setFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+
+    return intent
+}
+
 // TODO: Fix preview
 @Preview
 @Composable
@@ -344,6 +433,7 @@ private fun VideoScreenPreview() {
         VideoScreen(
             videoUiState = VideoUiState.Ready,
             player = player,
+            isHLS = false,
             onBackClick = {},
             onShareClick = {},
             relaunchPlayer = {},
