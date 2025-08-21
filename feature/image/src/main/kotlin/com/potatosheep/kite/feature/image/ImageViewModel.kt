@@ -1,10 +1,13 @@
 package com.potatosheep.kite.feature.image
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.potatosheep.kite.core.data.repo.PostRepository
 import com.potatosheep.kite.feature.image.nav.Image
 import com.potatosheep.kite.feature.image.nav.ImageParameters
 import com.potatosheep.kite.feature.image.nav.ImageParametersType
@@ -18,6 +21,7 @@ import kotlin.reflect.typeOf
 @HiltViewModel
 class ImageViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    private val postRepository: PostRepository
 ): ViewModel() {
     private val imagesAndCaptions = savedStateHandle.toRoute<Image>(
         mapOf(typeOf<ImageParameters>() to ImageParametersType)
@@ -34,6 +38,25 @@ class ImageViewModel @Inject constructor(
                 )
             }
         }
+
+
+    fun download(
+        imageUrl: String,
+        uri: Uri,
+        context: Context
+    ) {
+        viewModelScope.launch {
+            runCatching {
+                postRepository.downloadImage(
+                    url = imageUrl,
+                    uri = uri,
+                    context = context
+                )
+            }.onFailure { e ->
+                Log.d("ImageViewModel", e.stackTraceToString())
+            }
+        }
+    }
 }
 
 sealed interface ImageUiState {
