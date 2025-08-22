@@ -177,11 +177,9 @@ class KiteDownloadService : LifecycleService() {
             if (fileName.isEmpty()) throw IllegalArgumentException("File name cannot be empty")
 
             // Get the directory URI
-            val treeUri = context.contentResolver.persistedUriPermissions[0].uri
-
             val folderUri = DocumentsContract.buildChildDocumentsUriUsingTree(
-                treeUri,
-                DocumentsContract.getTreeDocumentId(treeUri)
+                uri,
+                DocumentsContract.getTreeDocumentId(uri)
             )
 
             // Create the MP4 file (empty)
@@ -234,11 +232,9 @@ class KiteDownloadService : LifecycleService() {
             if (fileName.isEmpty()) throw IllegalArgumentException("File name cannot be empty")
 
             // Get the URI of the directory to write to
-            val treeUri = context.contentResolver.persistedUriPermissions[0].uri
-
             val folderUri = DocumentsContract.buildChildDocumentsUriUsingTree(
-                treeUri,
-                DocumentsContract.getTreeDocumentId(treeUri)
+                uri,
+                DocumentsContract.getTreeDocumentId(uri)
             )
 
             // Create the AAC file (empty)
