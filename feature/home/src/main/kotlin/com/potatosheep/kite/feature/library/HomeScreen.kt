@@ -199,11 +199,11 @@ fun HomeScreen(
                                 }
                             }
                         },
-                        onLongClick = { subreddit ->
+                        onLongClick = { subredditName ->
                             onSearchClick(
                                 SortOption.Search.RELEVANCE,
                                 SortOption.Timeframe.ALL,
-                                subreddit
+                                subredditName
                             )
                         }
                     )
