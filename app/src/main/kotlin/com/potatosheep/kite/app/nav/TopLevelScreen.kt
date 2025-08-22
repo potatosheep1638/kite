@@ -249,6 +249,7 @@ private fun TopLevelScreen(
                             onBackClick = { currentTopLevelDestination = TopLevelDestination.FEED },
                             onSubredditClick = navController::navigateToSubreddit,
                             onSavedClick = navController::navigateToBookmark,
+                            onSearchClick = navController::navigateToSearch,
                             modifier = modifier
                         )
                     }

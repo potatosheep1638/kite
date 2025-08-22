@@ -33,6 +33,7 @@ fun PostDefaultCard(
     modifier: Modifier = Modifier,
     showText: Boolean = false,
     isBookmarked: Boolean = false,
+    onSubredditLongClick: (String) -> Unit = {},
     shape: Shape = RoundedCornerShape(12.dp),
     colors: CardColors = CardDefaults.cardColors(
         containerColor =
@@ -53,6 +54,7 @@ fun PostDefaultCard(
         modifier = modifier,
         onLongClick = onLongClick,
         isBookmarked = isBookmarked,
+        onSubredditLongClick = onSubredditLongClick,
         shape = shape,
         colors = colors
     ) {

@@ -97,6 +97,7 @@ internal fun UserContent(
     onPostClick: (String, String, String?, String?) -> Unit,
     onSubredditClick: (String) -> Unit,
     onImageClick: (List<String>, List<String?>) -> Unit,
+    onSearchClick: (SortOption.Search, SortOption.Timeframe, String?) -> Unit,
     onAboutClick: () -> Unit,
     onFlairClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onVideoClick: (String) -> Unit,
@@ -345,6 +346,13 @@ internal fun UserContent(
 
                                                 isBookmarked = !isBookmarked
                                             },
+                                            onSubredditLongClick = {
+                                                onSearchClick(
+                                                    SortOption.Search.RELEVANCE,
+                                                    SortOption.Timeframe.ALL,
+                                                    it
+                                                )
+                                            },
                                             modifier = Modifier.padding(
                                                 horizontal = 12.dp,
                                                 vertical = 6.dp
@@ -465,6 +473,7 @@ private fun UserPreview(
                 onPostClick = { _, _, _, _ -> },
                 onSubredditClick = {},
                 onImageClick = { _, _ -> },
+                onSearchClick = { _, _, _ -> },
                 onAboutClick = {},
                 onFlairClick = { _, _, _, _ -> },
                 onVideoClick = {},

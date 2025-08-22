@@ -41,6 +41,7 @@ fun ImageCard(
     showText: Boolean = false,
     blurImage: Boolean = false,
     isBookmarked: Boolean = false,
+    onSubredditLongClick: (String) -> Unit = {},
     shape: Shape = RoundedCornerShape(12.dp),
     colors: CardColors = CardDefaults.cardColors(
         containerColor =
@@ -62,6 +63,7 @@ fun ImageCard(
         onBookmarkClick = onBookmarkClick,
         modifier = modifier,
         isBookmarked = isBookmarked,
+        onSubredditLongClick = onSubredditLongClick,
         shape = shape,
         colors = colors
     ) {

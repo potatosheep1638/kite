@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.potatosheep.kite.core.common.enums.SortOption
 import com.potatosheep.kite.core.common.util.LocalSnackbarHostState
 import com.potatosheep.kite.core.designsystem.KiteIcons
 import com.potatosheep.kite.core.designsystem.KiteTheme
@@ -48,6 +49,7 @@ fun HomeRoute(
     onBackClick: () -> Unit,
     onSubredditClick: (String) -> Unit,
     onSavedClick: () -> Unit,
+    onSearchClick: (SortOption.Search, SortOption.Timeframe, String?) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -58,6 +60,7 @@ fun HomeRoute(
         subredditListUiState = subredditListUiState,
         onSubredditClick = onSubredditClick,
         onSavedClick = onSavedClick,
+        onSearchClick = onSearchClick,
         setSubreddit = viewModel::setSubreddit,
         modifier = modifier
     )
@@ -69,6 +72,7 @@ fun HomeScreen(
     subredditListUiState: SubredditListUiState,
     onSubredditClick: (String) -> Unit,
     onSavedClick: () -> Unit,
+    onSearchClick: (SortOption.Search, SortOption.Timeframe, String?) -> Unit,
     setSubreddit: (Subreddit, Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -194,6 +198,13 @@ fun HomeScreen(
                                     SnackbarResult.Dismissed -> Unit
                                 }
                             }
+                        },
+                        onLongClick = { subredditName ->
+                            onSearchClick(
+                                SortOption.Search.RELEVANCE,
+                                SortOption.Timeframe.ALL,
+                                subredditName
+                            )
                         }
                     )
                 }
@@ -231,6 +242,7 @@ fun LibraryScreenPreview() {
             subredditListUiState = SubredditListUiState.Success(subreddits),
             onSubredditClick = {},
             onSavedClick = {},
+            onSearchClick = { _, _, _ -> },
             setSubreddit = { _, _ -> },
             modifier = Modifier
         )

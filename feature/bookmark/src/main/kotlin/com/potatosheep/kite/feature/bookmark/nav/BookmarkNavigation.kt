@@ -10,6 +10,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import com.potatosheep.kite.core.common.enums.SortOption
 import com.potatosheep.kite.feature.bookmark.BookmarkRoute
 import kotlinx.serialization.Serializable
 
@@ -28,6 +29,7 @@ fun NavGraphBuilder.bookmarkScreen(
     onSubredditClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
     onImageClick: (List<String>, List<String?>) -> Unit,
+    onSearchClick: (SortOption.Search, SortOption.Timeframe, String?) -> Unit,
     onVideoClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) = composable<BookmarkRoute>(
@@ -43,6 +45,7 @@ fun NavGraphBuilder.bookmarkScreen(
         onSubredditClick = onSubredditClick,
         onUserClick = onUserClick,
         onImageClick = onImageClick,
+        onSearchClick = onSearchClick,
         onVideoClick = onVideoClick,
         modifier = modifier
     )

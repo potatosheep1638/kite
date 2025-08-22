@@ -34,6 +34,7 @@ fun NavGraphBuilder.userScreen(
     onPostClick: (String, String, String?, String?) -> Unit,
     onSubredditClick: (String) -> Unit,
     onImageClick: (List<String>, List<String?>) -> Unit,
+    onSearchClick: (SortOption.Search, SortOption.Timeframe, String?) -> Unit,
     onFlairClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onVideoClick: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -49,6 +50,7 @@ fun NavGraphBuilder.userScreen(
         onPostClick = onPostClick,
         onSubredditClick = onSubredditClick,
         onImageClick = onImageClick,
+        onSearchClick = onSearchClick,
         onFlairClick = onFlairClick,
         onVideoClick = onVideoClick,
         modifier = modifier

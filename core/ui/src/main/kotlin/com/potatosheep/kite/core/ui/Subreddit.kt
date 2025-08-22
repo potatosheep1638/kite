@@ -3,8 +3,10 @@ package com.potatosheep.kite.core.ui
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +37,7 @@ import com.potatosheep.kite.core.designsystem.KiteTheme
 import com.potatosheep.kite.core.designsystem.R
 import com.potatosheep.kite.core.model.Subreddit
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SubredditRow(
     subreddit: Subreddit,
@@ -42,11 +45,15 @@ fun SubredditRow(
     iconButtonIcon: ImageVector,
     modifier: Modifier = Modifier,
     showIconButton: Boolean = true,
-    onIconButtonClick: () -> Unit = {}
+    onIconButtonClick: () -> Unit = {},
+    onLongClick: (String) -> Unit = {}
 ) {
     Box(
         Modifier
-            .clickable { onClick(subreddit.subredditName) }
+            .combinedClickable(
+                onClick = { onClick(subreddit.subredditName) },
+                onLongClick = { onLongClick(subreddit.subredditName) }
+            )
             .fillMaxWidth()
     ) {
         Row(

@@ -29,6 +29,7 @@ fun PostCard(
     blurImage: Boolean = true,
     isBookmarked: Boolean = false,
     galleryRedirect: Boolean = true,
+    onSubredditLongClick: (String) -> Unit = {},
     shape: Shape = RoundedCornerShape(12.dp),
     colors: CardColors = CardDefaults.cardColors(
         containerColor = MaterialTheme.colorScheme.surfaceContainerLow
@@ -47,6 +48,7 @@ fun PostCard(
             modifier = modifier,
             showText = showText,
             isBookmarked = isBookmarked,
+            onSubredditLongClick = onSubredditLongClick,
             shape = shape,
             colors = colors
         )
@@ -67,6 +69,7 @@ fun PostCard(
                     showText = showText,
                     blurImage = blurImage,
                     isBookmarked = isBookmarked,
+                    onSubredditLongClick = onSubredditLongClick,
                     shape = shape,
                     colors = colors
                 )
@@ -92,6 +95,7 @@ fun PostCard(
                     showText = showText,
                     blurThumbnail = blurImage,
                     isBookmarked = isBookmarked,
+                    onSubredditLongClick = onSubredditLongClick,
                     shape = shape,
                     colors = colors
                 )
@@ -109,6 +113,7 @@ fun PostCard(
                     onBookmarkClick = onBookmarkClick,
                     modifier = modifier,
                     isBookmarked = isBookmarked,
+                    onSubredditLongClick = onSubredditLongClick,
                     shape = shape,
                     colors = colors
                 )
@@ -128,6 +133,7 @@ fun PostCard(
                     modifier = modifier,
                     blurThumbnail = blurImage,
                     isBookmarked = isBookmarked,
+                    onSubredditLongClick = onSubredditLongClick,
                     shape = shape,
                     colors = colors
                 )
@@ -146,6 +152,7 @@ fun PostCard(
                     modifier = modifier,
                     showText = showText,
                     isBookmarked = isBookmarked,
+                    onSubredditLongClick = onSubredditLongClick,
                     shape = shape,
                     colors = colors
                 )

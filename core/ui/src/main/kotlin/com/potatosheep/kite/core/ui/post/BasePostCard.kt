@@ -58,6 +58,7 @@ internal fun BasePostCard(
     onBookmarkClick: () -> Unit,
     modifier: Modifier = Modifier,
     isBookmarked: Boolean = false,
+    onSubredditLongClick: (String) -> Unit = {},
     shape: Shape = RoundedCornerShape(12.dp),
     colors: CardColors = CardDefaults.cardColors(
         containerColor =
@@ -94,7 +95,10 @@ internal fun BasePostCard(
                             top = 12.dp,
                             bottom = 6.dp
                         )
-                        .clickable { onSubredditClick(post.subredditName) }
+                        .combinedClickable(
+                            onClick = { onSubredditClick(post.subredditName) },
+                            onLongClick = { onSubredditLongClick(post.subredditName) }
+                        )
                 )
             }
 

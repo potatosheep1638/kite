@@ -55,6 +55,7 @@ fun GalleryCard(
     blurThumbnail: Boolean = false,
     isBookmarked: Boolean = false,
     onImageClick: ((List<String>, List<String?>) -> Unit)? = null,
+    onSubredditLongClick: (String) -> Unit = {},
     shape: Shape = RoundedCornerShape(12.dp),
     colors: CardColors = CardDefaults.cardColors(
         containerColor =
@@ -75,6 +76,7 @@ fun GalleryCard(
         onBookmarkClick = onBookmarkClick,
         modifier = modifier,
         isBookmarked = isBookmarked,
+        onSubredditLongClick = onSubredditLongClick,
         shape = shape,
         colors = colors,
         titleTrailingComposable = {
