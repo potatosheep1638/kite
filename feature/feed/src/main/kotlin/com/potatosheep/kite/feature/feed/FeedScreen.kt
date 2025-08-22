@@ -322,6 +322,14 @@ internal fun FeedScreen(
                                 blurImage = (feedUiState.blurNsfw && post.isNsfw) ||
                                         (feedUiState.blurSpoiler && post.isSpoiler),
                                 isBookmarked = isBookmarked,
+                                onSubredditLongClick = { subredditName ->
+                                    onSearchClick(
+                                        SortOption.Search.RELEVANCE,
+                                        SortOption.Timeframe.ALL,
+                                        subredditName,
+                                        ""
+                                    )
+                                },
                                 colors = CardDefaults.cardColors(
                                     containerColor =
                                         if (isSystemInDarkTheme())

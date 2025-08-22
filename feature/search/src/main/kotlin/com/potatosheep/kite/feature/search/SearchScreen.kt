@@ -510,6 +510,11 @@ internal fun SearchScreen(
                                             ),
                                             showText = false,
                                             isBookmarked = isBookmarked,
+                                            onSubredditLongClick = {
+                                                newSubredditScope = it
+                                                focusRequester.requestFocus()
+                                                isSearchBarExpanded = true
+                                            },
                                             blurImage = (blurNsfw && post.isNsfw) ||
                                                     (blurSpoiler && post.isSpoiler),
                                             colors = CardDefaults.cardColors(
