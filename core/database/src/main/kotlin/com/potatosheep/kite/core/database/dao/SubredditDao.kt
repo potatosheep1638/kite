@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SubredditDao {
 
-    @Query("SELECT * FROM subreddit")
+    @Query("SELECT * FROM subreddit ORDER BY subreddit_name")
     fun getAllSubreddits(): Flow<List<SubredditEntity>>
 
     @Query("SELECT * FROM subreddit WHERE subreddit_name LIKE :query")
