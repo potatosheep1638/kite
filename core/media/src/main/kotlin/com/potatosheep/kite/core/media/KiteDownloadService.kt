@@ -89,9 +89,9 @@ class KiteDownloadService : LifecycleService() {
                         )
                     }
 
-                    DownloadData.IS_VIDEO, DownloadData.IS_VIDEO and DownloadData.IS_HLS -> {
+                    DownloadData.IS_VIDEO, DownloadData.IS_VIDEO or DownloadData.IS_HLS -> {
                         val playlist =
-                            if (downloadData.flags == DownloadData.IS_VIDEO and DownloadData.IS_HLS)
+                            if (downloadData.flags == DownloadData.IS_VIDEO or DownloadData.IS_HLS)
                                 getHLSPlaylist(client, downloadData.mediaUrl)
                             else
                                 HLSUri(downloadData.mediaUrl, "")
@@ -110,7 +110,7 @@ class KiteDownloadService : LifecycleService() {
                             fileName = downloadData.filename,
                             uri = contentUri,
                             context = applicationContext,
-                            isHLS = downloadData.flags == DownloadData.IS_VIDEO and DownloadData.IS_HLS
+                            isHLS = downloadData.flags == DownloadData.IS_VIDEO or DownloadData.IS_HLS
                         )
 
                         if (playlist.audio.isNotEmpty()) {

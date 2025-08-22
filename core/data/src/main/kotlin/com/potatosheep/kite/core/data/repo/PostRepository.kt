@@ -237,7 +237,7 @@ internal class DefaultPostRepository @Inject constructor(
             contentUri = uri.toString(),
             flags =
                 if (isHLS)
-                    DownloadData.IS_VIDEO and DownloadData.IS_HLS
+                    DownloadData.IS_VIDEO or DownloadData.IS_HLS
                 else
                     DownloadData.IS_VIDEO
         )
