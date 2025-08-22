@@ -51,6 +51,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.potatosheep.kite.core.common.enums.SortOption
 import com.potatosheep.kite.core.common.util.onShare
 import com.potatosheep.kite.core.common.R.string as commonStrings
 import com.potatosheep.kite.core.designsystem.KiteIcons
@@ -72,6 +73,7 @@ fun BookmarkRoute(
     onSubredditClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
     onImageClick: (List<String>, List<String?>) -> Unit,
+    onSearchClick: (SortOption.Search, SortOption.Timeframe, String?) -> Unit,
     onVideoClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: BookmarkViewModel = hiltViewModel()
@@ -89,6 +91,7 @@ fun BookmarkRoute(
         onSubredditClick = onSubredditClick,
         onUserClick = onUserClick,
         onImageClick = onImageClick,
+        onSearchClick = onSearchClick,
         onVideoClick = onVideoClick,
         getPostLink = viewModel::getPostLink,
         removeBookmarkedPost = viewModel::removeBookmarkedPost,
@@ -109,6 +112,7 @@ fun BookmarkScreen(
     onSubredditClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
     onImageClick: (List<String>, List<String?>) -> Unit,
+    onSearchClick: (SortOption.Search, SortOption.Timeframe, String?) -> Unit,
     onVideoClick: (String) -> Unit,
     getPostLink: (Post) -> String,
     removeBookmarkedPost: (Post) -> Unit,
@@ -304,6 +308,13 @@ fun BookmarkScreen(
                                             (shouldBlurSpoiler && post.isSpoiler),
                                     galleryRedirect = true,
                                     isBookmarked = true,
+                                    onSubredditLongClick = {
+                                        onSearchClick(
+                                            SortOption.Search.RELEVANCE,
+                                            SortOption.Timeframe.ALL,
+                                            it
+                                        )
+                                    },
                                     colors = CardDefaults.cardColors(
                                         containerColor = contentContainerColour
                                     )
@@ -334,6 +345,7 @@ fun BookmarkScreenPreview(
             onSubredditClick = {},
             onUserClick = {},
             onImageClick = { _, _ -> },
+            onSearchClick = { _, _, _ -> },
             onVideoClick = {},
             getPostLink = { "" },
             removeBookmarkedPost = {},

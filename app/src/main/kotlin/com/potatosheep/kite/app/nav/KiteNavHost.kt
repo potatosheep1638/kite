@@ -117,6 +117,7 @@ fun KiteNavHost(
             onSubredditClick = navController::navigateToSubreddit,
             onUserClick = navController::navigateToUser,
             onImageClick = navController::navigateToImage,
+            onSearchClick = navController::navigateToSearch,
             onVideoClick = navController::navigateToVideo,
             modifier = modifier
         )
