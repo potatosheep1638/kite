@@ -1,5 +1,6 @@
 package com.potatosheep.kite.feature.video
 
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -57,6 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.Player
+import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
@@ -136,18 +138,19 @@ internal fun VideoScreen(
     }
 
     val fileWriterLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
+        ActivityResultContracts.OpenDocumentTree()
     ) { result ->
-        val data = result.data
-        val uri = data?.data
+        result?.let { uri ->
+            val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
 
-        uri?.let {
-            context.contentResolver.takePersistableUriPermission(
-                it,
-                Intent.FLAG_GRANT_WRITE_URI_PERMISSION and Intent.FLAG_GRANT_READ_URI_PERMISSION,
-            )
+            if (checkUriPersisted(context.contentResolver, uri)) {
+                context.contentResolver.releasePersistableUriPermission(uri, flags)
+            }
 
-            download(filename, it, context)
+            context.contentResolver.takePersistableUriPermission(uri, flags)
+
+            download(filename, uri, context)
         }
     }
 
@@ -249,7 +252,15 @@ internal fun VideoScreen(
                     onDismissRequest = { showFileNamerDialog = false },
                     onConfirmation = { title ->
                         filename = title
-                        fileWriterLauncher.launch(writeIntent())
+
+                        val persistedUriPermission = context.contentResolver.persistedUriPermissions.firstOrNull()
+                        val persistedUri = persistedUriPermission?.uri
+
+                        if (persistedUri == null)
+                            fileWriterLauncher.launch(Uri.EMPTY)
+                        else
+                            download(filename, persistedUri, context)
+
                         showFileNamerDialog = false
                     },
                     modifier = Modifier.widthIn(max = configuration.screenWidthDp.dp - 40.dp),
@@ -408,16 +419,8 @@ private fun HLSDialog(
     )
 }
 
-private fun writeIntent(): Intent {
-    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
-        addCategory(Intent.CATEGORY_DEFAULT)
-    }
-
-    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-    intent.setFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-
-    return intent
+private fun checkUriPersisted(contentResolver: ContentResolver, uri: Uri): Boolean {
+    return contentResolver.persistedUriPermissions.any { perm -> perm.uri == uri }
 }
 
 // TODO: Fix preview
