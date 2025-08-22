@@ -1,7 +1,12 @@
 package com.potatosheep.kite.feature.image
 
 import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -19,7 +24,6 @@ import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -90,6 +94,7 @@ fun ImageRoute(
         imageUiState = imageUiState,
         onBackClick = onBackClick,
         onShareClick = { onShare(it, context) },
+        download = viewModel::download,
         modifier = modifier
     )
 }
@@ -100,6 +105,7 @@ internal fun ImageScreen(
     imageUiState: ImageUiState,
     onBackClick: () -> Unit,
     onShareClick: (String) -> Unit,
+    download: (String, Uri, Context) -> Unit,
     modifier: Modifier = Modifier,
     previewMode: Boolean = false
 ) {
@@ -144,6 +150,14 @@ internal fun ImageScreen(
         }
     }
 
+    val fileWriterLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val data = result.data
+        val uri = data?.data
+
+        uri?.let { download(currentImageLink, uri, context) }
+    }
 
     Scaffold(
         containerColor = Color.Black,
@@ -312,7 +326,7 @@ internal fun ImageScreen(
                 MediaTopAppBar(
                     onBackClick = onBackClick,
                     onShareClick = { onShareClick(currentImageLink) },
-                    onDownloadClick = {},
+                    onDownloadClick = { fileWriterLauncher.launch(writeIntent(currentImageLink)) },
                     modifier = Modifier.padding(horizontal = 12.dp),
                 )
             }
@@ -376,6 +390,42 @@ suspend fun PointerInputScope.detectTransformGesturesWithChanges(
     }
 }
 
+private fun writeIntent(imageUrl: String): Intent {
+    val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+        addCategory(Intent.CATEGORY_OPENABLE)
+        type = getMimeType(getExtension(imageUrl))
+        putExtra(Intent.EXTRA_TITLE, getImageName(imageUrl))
+    }
+
+    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+    intent.setFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+
+    return intent
+}
+
+private fun getImageName(imageUrl: String): String {
+    val imageName = imageUrl.substringBefore("?")
+        .substringAfterLast("/")
+
+    return imageName
+}
+
+private fun getExtension(imageUrl: String): String {
+    val imageExtension = imageUrl.substringBefore("?")
+        .split(".")
+        .last()
+
+    return imageExtension
+}
+
+private fun getMimeType(extension: String): String {
+    return if (extension == "jpg")
+        "image/jpeg"
+    else
+        "image/$extension"
+}
+
 // TODO: Make a 'preview mode'
 @Preview
 @Composable
@@ -398,6 +448,7 @@ private fun ImageScreenPreview() {
                 imageUiState = ImageUiState.Success(dummyImageLinks, dummyImageCaptions),
                 onBackClick = {},
                 onShareClick = {},
+                download = { _, _, _ -> },
                 previewMode = true
             )
         }

@@ -81,6 +81,8 @@
     <string name="posts">Posts</string>
     <string name="about">About</string>
     <string name="sort_options">Sort options</string>
+    <string name="download">Download</string>
+    <string name="filename">Filename</string>
 
     <!--Messages-->
     <string name="no_result">Nothing found</string>
@@ -89,6 +91,7 @@
     <string name="error">Oops! Something went wrong.</string>
     <string name="copied_clipboard">Copied to clipboard</string>
     <string name="invalid_url">Invalid URL</string>
+    <string name="empty_error">Field cannot be empty</string>
 
     <!--Sort options-->
     <string name="hot">Hot</string>
@@ -125,4 +128,20 @@
     <string name="unfollow">Unfollow</string>
     <string name="next">Next</string>
     <string name="confirm">Confirm</string>
+
+    <!--Notifications-->
+    <string name="notify_initial_title">Starting</string>
+    <string name="notify_prepare">Preparing download...</string>
+    <string name="notify_download_image">Downloading image...</string>
+    <string name="notify_download_video">Downloading video...</string>
+    <string name="notify_download_audio">Downloading audio...</string>
+    <string name="notify_downloaded">Download complete</string>
+
+    <!--Misc-->
+    <string name="hls_warning_title">HLS video detected</string>
+    <string name="hls_warning_body">
+        Video and audio files will be downloaded separately. Use a third party tool to mux them
+        together. \n\nFor more information,
+    </string>
+    <string name="hls_warning_help_hyperlink">click here</string>
 </resources>

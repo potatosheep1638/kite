@@ -305,7 +305,7 @@ fun MediaTopAppBar(
             }
         },
         actions = {
-            /*ElevatedCard(
+            ElevatedCard(
                 onClick = onDownloadClick,
                 modifier = modifier.size(40.dp),
                 colors = CardDefaults.elevatedCardColors(
@@ -326,7 +326,7 @@ fun MediaTopAppBar(
                         tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
-            }*/
+            }
 
             ElevatedCard(
                 onClick = onShareClick,
