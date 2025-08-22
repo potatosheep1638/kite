@@ -49,6 +49,7 @@ fun ArticleCard(
     onBookmarkClick: () -> Unit,
     modifier: Modifier = Modifier,
     isBookmarked: Boolean = false,
+    onSubredditLongClick: (String) -> Unit = {},
     shape: Shape = RoundedCornerShape(12.dp),
     colors: CardColors = CardDefaults.cardColors(
         containerColor =
@@ -71,6 +72,7 @@ fun ArticleCard(
         onBookmarkClick = onBookmarkClick,
         modifier = modifier,
         isBookmarked = isBookmarked,
+        onSubredditLongClick = onSubredditLongClick,
         shape = shape,
         colors = colors,
         titleTrailingComposable = {

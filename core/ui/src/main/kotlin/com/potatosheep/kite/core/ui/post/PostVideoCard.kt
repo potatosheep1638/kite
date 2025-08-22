@@ -52,6 +52,7 @@ fun VideoCard(
     showText: Boolean = false,
     blurThumbnail: Boolean = false,
     isBookmarked: Boolean = false,
+    onSubredditLongClick: (String) -> Unit = {},
     shape: Shape = RoundedCornerShape(12.dp),
     colors: CardColors = CardDefaults.cardColors(
         containerColor =
@@ -73,6 +74,7 @@ fun VideoCard(
         onBookmarkClick = onBookmarkClick,
         modifier = modifier,
         isBookmarked = isBookmarked,
+        onSubredditLongClick = onSubredditLongClick,
         shape = shape,
         colors = colors
     ) {
