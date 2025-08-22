@@ -14,7 +14,7 @@ interface PostDao {
     @Query("SELECT * FROM post ORDER BY time_created DESC")
     fun getAll(): Flow<List<PostEntity>>
 
-    @Query("SELECT * FROM post WHERE title LIKE '%' || :query || '%'")
+    @Query("SELECT * FROM post WHERE title LIKE '%' || :query || '%' ORDER BY time_created DESC")
     fun searchPostsByTitle(query: String): Flow<List<PostEntity>>
 
     @Query("SELECT COUNT(1) FROM post WHERE post_id = :id")
