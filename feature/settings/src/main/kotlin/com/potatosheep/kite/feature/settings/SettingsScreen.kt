@@ -80,6 +80,7 @@ fun SettingsRoute(
         onBackClick = onBackClick,
         setInstance = viewModel::setInstance,
         setBlurNsfw = viewModel::setBlurNsfw,
+        setShowNsfw = viewModel::setShowNsfw,
         setBlurSpoiler = viewModel::setBlurSpoiler,
         setUseCustomInstance = viewModel::setUseCustomInstance,
         setCustomInstance = viewModel::setCustomInstance,
@@ -100,6 +101,7 @@ internal fun SettingsScreen(
     onBackClick: () -> Unit,
     setInstance: (String) -> Unit,
     setBlurNsfw: (Boolean) -> Unit,
+    setShowNsfw: (Boolean) -> Unit,
     setBlurSpoiler: (Boolean) -> Unit,
     setUseCustomInstance: (Boolean) -> Unit,
     setCustomInstance: (String) -> Unit,
@@ -213,6 +215,14 @@ internal fun SettingsScreen(
                     Spacer(Modifier.padding(vertical = 6.dp))
 
                     SettingsGroupLabel(stringResource(commonStrings.posts))
+
+                    SwitchRow(
+                        text = stringResource(commonStrings.settings_disable_nsfw),
+                        description = stringResource(commonStrings.settings_disable_nsfw_desc),
+                        selected = !settingsUiState.userConfig.showNsfw
+                    ) {
+                        setShowNsfw(!settingsUiState.userConfig.showNsfw)
+                    }
 
                     SwitchRow(
                         text = stringResource(commonStrings.settings_blur_nsfw),
@@ -530,6 +540,7 @@ private fun SettingsScreenPreview() {
                 setBlurNsfw = {},
                 setUseCustomInstance = {},
                 setCustomInstance = {},
+                setShowNsfw = {},
                 setBlurSpoiler = {},
                 exportSavedPosts = { _, _ -> },
                 importSavedPosts = { _, _ -> },
