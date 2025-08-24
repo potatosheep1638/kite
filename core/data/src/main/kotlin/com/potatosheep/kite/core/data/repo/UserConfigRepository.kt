@@ -26,6 +26,7 @@ interface UserConfigRepository {
         redirect: String = ""
         ): List<Post>
     suspend fun setInstance(instanceUrl: String)
+    suspend fun setShowNsfw(shouldShow: Boolean)
     suspend fun setNsfwBlur(shouldBlur: Boolean)
     suspend fun setOnboarding(shouldOnboard: Boolean)
     suspend fun setUseCustomInstance(shouldUse: Boolean)
@@ -56,6 +57,10 @@ internal class DefaultUserConfigRepository @Inject constructor(
 
     override suspend fun setInstance(instanceUrl: String) {
         kitePreferencesDataSource.setInstance(instanceUrl)
+    }
+
+    override suspend fun setShowNsfw(shouldShow: Boolean) {
+        kitePreferencesDataSource.setShowNsfw(shouldShow)
     }
 
     override suspend fun setNsfwBlur(shouldBlur: Boolean) {
