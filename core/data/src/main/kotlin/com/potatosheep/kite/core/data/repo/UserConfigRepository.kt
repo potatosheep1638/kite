@@ -23,7 +23,8 @@ interface UserConfigRepository {
         instanceUrl: String,
         sort: String = SortOption.Post.HOT.uri,
         subreddits: List<String> = emptyList(),
-        redirect: String = ""
+        redirect: String = "",
+        showNsfw: Boolean = true
         ): List<Post>
     suspend fun setInstance(instanceUrl: String)
     suspend fun setShowNsfw(shouldShow: Boolean)
@@ -47,12 +48,14 @@ internal class DefaultUserConfigRepository @Inject constructor(
         instanceUrl: String,
         sort: String,
         subreddits: List<String>,
-        redirect: String
+        redirect: String,
+        showNsfw: Boolean
     ): List<Post> = networkDataSource.getPreferences(
         instanceUrl = instanceUrl,
         sort = sort,
         subreddits = subreddits,
-        redirect = redirect
+        redirect = redirect,
+        showNsfw = showNsfw
     ).map { it.toExternalModel() }
 
     override suspend fun setInstance(instanceUrl: String) {

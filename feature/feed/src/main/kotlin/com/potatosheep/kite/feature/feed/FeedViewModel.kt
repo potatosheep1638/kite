@@ -45,6 +45,7 @@ class FeedViewModel @Inject constructor(
 
     private val _previousInstance = savedStateHandle.getStateFlow(PREV_INSTANCE, "")
     private val _previousSubreddits = savedStateHandle.getStateFlow(PREV_SUBREDDITS, emptyList<String>())
+    private val _previousShowNsfw = savedStateHandle.getStateFlow(PREV_SHOW_NSFW, false)
 
     private val _lazyListState: StateFlow<LazyListState> = MutableStateFlow(LazyListState(0, 0))
 
@@ -57,6 +58,7 @@ class FeedViewModel @Inject constructor(
         FeedUiState.Success(
             instanceUrl = config.instance,
             followedSubreddits = subreddits.map { it.subredditName },
+            showNsfw = config.showNsfw,
             blurNsfw = config.blurNsfw,
             blurSpoiler = config.blurSpoiler,
             currentFeed = options.feed,
@@ -78,8 +80,10 @@ class FeedViewModel @Inject constructor(
                         state.followedSubreddits.containsAll(_previousSubreddits.value) &&
                                 state.followedSubreddits.size == _previousSubreddits.value.size
 
+                    val isShowNsfwSame = state.showNsfw == _previousShowNsfw.value
+
                     when {
-                        isInstanceSame && containsPreviousSubscriptions -> {
+                        isInstanceSame && containsPreviousSubscriptions && isShowNsfwSame -> {
                             _shouldRefresh.value = RefreshScope.NO_REFRESH
                         }
 
@@ -168,7 +172,8 @@ class FeedViewModel @Inject constructor(
                         instanceUrl = feedUiState.instanceUrl,
                         redirect = redirect,
                         sort = SortOption.Post.HOT.uri,
-                        subreddits = feedUiState.followedSubreddits
+                        subreddits = feedUiState.followedSubreddits,
+                        showNsfw = feedUiState.showNsfw
                     )
                 }.onSuccess {
                     _shouldRefresh.value = RefreshScope.NO_REFRESH
@@ -179,6 +184,7 @@ class FeedViewModel @Inject constructor(
 
                 savedStateHandle[PREV_INSTANCE] = feedUiState.instanceUrl
                 savedStateHandle[PREV_SUBREDDITS] = feedUiState.followedSubreddits
+                savedStateHandle[PREV_SHOW_NSFW] = feedUiState.showNsfw
             }
         }
     }
@@ -241,6 +247,7 @@ sealed interface FeedUiState {
     data class Success(
         val instanceUrl: String,
         val followedSubreddits: List<String>,
+        val showNsfw: Boolean,
         val blurNsfw: Boolean,
         val blurSpoiler: Boolean,
         val currentFeed: Feed,
@@ -283,4 +290,5 @@ enum class RefreshScope {
 
 const val PREV_INSTANCE = "previousInstance"
 const val PREV_SUBREDDITS = "previousSubreddits"
+const val PREV_SHOW_NSFW = "previousShowNsfw"
 const val FOLLOWED_FEED = "followedFeed"
