@@ -633,6 +633,7 @@ fun HomeFeedScreenPreview(
                 feedUiState = FeedUiState.Success(
                     instanceUrl = "https://test.com",
                     followedSubreddits = emptyList(),
+                    showNsfw = true,
                     blurNsfw = false,
                     blurSpoiler = false,
                     currentFeed = Feed.FOLLOWED,

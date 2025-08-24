@@ -47,9 +47,11 @@
     <string name="settings_choose_custom_instance">Set custom instance</string>
 
     <string name="settings_blur_nsfw">Blur NSFW thumbnails</string>
-    <string name="settings_blur_nsfw_desc">Blurs images and video thumbnails if a post is marked as NSFW</string>
+    <string name="settings_blur_nsfw_desc">Blur images and video thumbnails if a post is marked as NSFW</string>
     <string name="settings_blur_spoiler">Blur spoilers</string>
-    <string name="settings_blur_spoiler_desc">Blurs images and video thumbnails if a post is marked as a spoiler</string>
+    <string name="settings_blur_spoiler_desc">Blur images and video thumbnails if a post is marked as a spoiler</string>
+    <string name="settings_disable_nsfw">Hide NSFW posts</string>
+    <string name="settings_disable_nsfw_desc">Hide posts marked Not Safe For Work (NSFW). Changing this setting will refresh your feed.</string>
 
     <string name="settings_data">Data</string>
     <string name="settings_export_saved_posts">Export saved posts</string>

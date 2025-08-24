@@ -45,6 +45,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setShowNsfw(shouldShow: Boolean) {
+        viewModelScope.launch {
+            userConfigRepository.setShowNsfw(shouldShow)
+        }
+    }
+
     fun setBlurNsfw(shouldBlur: Boolean) {
         viewModelScope.launch {
             userConfigRepository.setNsfwBlur(shouldBlur)

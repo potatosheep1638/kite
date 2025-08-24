@@ -41,12 +41,15 @@ internal class ParserNetwork @Inject constructor(
         instanceUrl: String,
         sort: String,
         subreddits: List<String>,
-        redirect: String
+        redirect: String,
+        showNsfw: Boolean
     ): List<NetworkPost> =
         withContext(defaultDispatcher) {
+            val showNsfwParam = if (showNsfw) "on" else "off"
+
             val request = Request.Builder()
                 .url("${instanceUrl}/settings/restore/?use_hls=on" +
-                        "&show_nsfw=on" +
+                        "&show_nsfw=$showNsfwParam" +
                         "&subscriptions=${subreddits.joinToString("%2B")}" +
                         "&front_page=default" +
                         "&post_sort=$sort" +
