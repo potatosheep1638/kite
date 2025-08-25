@@ -20,6 +20,22 @@ internal class KiteNotifier @Inject constructor(
     @ApplicationContext private val context: Context
 ) : Notifier {
 
+    override fun postDownloadSummaryNotification(): Notification =
+        with(context) {
+            val summaryNotification = createDownloadNotification {
+                val title = getString(commonStrings.download)
+
+                setContentTitle(title)
+                    .setContentText(title)
+                    .setSmallIcon(KiteDrawable.round_file_download)
+                    .setGroup(DOWNLOAD_NOTIFICATION_GROUP)
+                    .setGroupSummary(true)
+                    .setAutoCancel(true)
+            }
+
+            return@with summaryNotification
+        }
+
     override fun postDownloadNotification(
         filename: String,
         notificationId: Int,
@@ -36,19 +52,8 @@ internal class KiteNotifier @Inject constructor(
                     .setAutoCancel(true)
             }
 
-            val summaryNotification = createDownloadNotification {
-                val title = getString(commonStrings.download)
-
-                setContentTitle(title)
-                    .setContentText(title)
-                    .setSmallIcon(KiteDrawable.round_file_download)
-                    .setGroup(DOWNLOAD_NOTIFICATION_GROUP)
-                    .setGroupSummary(true)
-                    .setAutoCancel(true)
-            }
-
             if (checkSelfPermission(this, permission.POST_NOTIFICATIONS) != PERMISSION_GRANTED) {
-                return@with summaryNotification
+                return@with downloadNotification
             }
 
             val notificationManager = NotificationManagerCompat.from(this)
@@ -58,10 +63,8 @@ internal class KiteNotifier @Inject constructor(
                 downloadNotification
             )
 
-            return@with summaryNotification
+            return@with downloadNotification
         }
-
-    override fun updateDownloadNotification(notificationId: Int, state: Int) = Unit
 }
 
 private fun Context.getContentText(state: Int): String {

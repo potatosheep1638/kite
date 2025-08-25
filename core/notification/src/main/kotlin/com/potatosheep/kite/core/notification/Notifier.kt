@@ -6,6 +6,8 @@ import android.app.Notification
  * Interface for classes that create notifications for Kite.
  */
 interface Notifier {
+    fun postDownloadSummaryNotification(): Notification
+
     /**
      * Post a download notification.
      *
@@ -21,18 +23,6 @@ interface Notifier {
         notificationId: Int,
         state: Int
     ): Notification
-
-    /**
-     * Update a download notification.
-     *
-     * @param notificationId the ID of the target download notification
-     * @param state the desired state of the target download notification, such as
-     * [Notifier.STATE_DOWNLOADING_IMAGE]
-     */
-    fun updateDownloadNotification(
-        notificationId: Int,
-        state: Int
-    )
 
     companion object {
         /**
