@@ -1,27 +1,21 @@
 package com.potatosheep.kite.core.media
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.DocumentsContract
 import android.util.Log
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationCompat.Builder
 import androidx.core.app.ServiceCompat
-import androidx.core.content.getSystemService
 import androidx.core.net.toUri
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.potatosheep.kite.core.common.Dispatcher
 import com.potatosheep.kite.core.common.KiteDispatchers
 import com.potatosheep.kite.core.common.constants.IntentData
-import com.potatosheep.kite.core.common.R.string as commonStrings
-import com.potatosheep.kite.core.designsystem.R.drawable as KiteDrawable
 import com.potatosheep.kite.core.media.model.DownloadData
 import com.potatosheep.kite.core.media.util.readAllLines
+import com.potatosheep.kite.core.notification.Notifier
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
@@ -41,8 +35,8 @@ class KiteDownloadService : LifecycleService() {
     @Dispatcher(KiteDispatchers.IO)
     lateinit var ioDispatcher: CoroutineDispatcher
 
-    private lateinit var notificationManager: NotificationManager
-    private lateinit var notificationBuilder: Builder
+    @Inject
+    lateinit var notifier: Notifier
 
     override fun onCreate() {
         super.onCreate()
@@ -73,12 +67,12 @@ class KiteDownloadService : LifecycleService() {
             lifecycleScope.launch {
                 when (downloadData.flags) {
                     DownloadData.IS_IMAGE -> {
-                        val filename = downloadData.contentUri.substringAfterLast("%2F")
+                        val filenameWithExtension = downloadData.contentUri.substringAfterLast("%2F")
 
-                        updateNotification(
-                            notificationBuilder,
-                            filename,
-                            getString(commonStrings.notify_download_image)
+                        notifier.postDownloadNotification(
+                            filename = filenameWithExtension,
+                            notificationId = filenameWithExtension.hashCode(),
+                            state = Notifier.STATE_DOWNLOADING_IMAGE
                         )
 
                         downloadImage(
@@ -86,6 +80,12 @@ class KiteDownloadService : LifecycleService() {
                             imageUrl = downloadData.mediaUrl,
                             uri = downloadData.contentUri.toUri(),
                             context = applicationContext
+                        )
+
+                        notifier.postDownloadNotification(
+                            filename = filenameWithExtension,
+                            notificationId = filenameWithExtension.hashCode(),
+                            state = Notifier.STATE_COMPLETE
                         )
                     }
 
@@ -96,14 +96,14 @@ class KiteDownloadService : LifecycleService() {
                             else
                                 HLSUri(downloadData.mediaUrl, "")
 
-                        val contentUri = downloadData.contentUri.toUri()
-
-                        updateNotification(
-                            notificationBuilder,
-                            "${downloadData.filename}.mp4",
-                            getString(commonStrings.notify_download_video)
+                        val notificationFilename = "${downloadData.filename}.mp4"
+                        notifier.postDownloadNotification(
+                            filename = notificationFilename,
+                            notificationId = notificationFilename.hashCode(),
+                            state = Notifier.STATE_DOWNLOADING_VIDEO
                         )
 
+                        val contentUri = downloadData.contentUri.toUri()
                         downloadVideo(
                             client = client,
                             videoUrl = playlist.video,
@@ -114,10 +114,10 @@ class KiteDownloadService : LifecycleService() {
                         )
 
                         if (playlist.audio.isNotEmpty()) {
-                            updateNotification(
-                                notificationBuilder,
-                                "",
-                                getString(commonStrings.notify_download_audio)
+                            notifier.postDownloadNotification(
+                                filename = notificationFilename,
+                                notificationId = notificationFilename.hashCode(),
+                                state = Notifier.STATE_DOWNLOADING_AUDIO
                             )
 
                             downloadAudio(
@@ -128,15 +128,15 @@ class KiteDownloadService : LifecycleService() {
                                 context = applicationContext
                             )
                         }
+
+                        notifier.postDownloadNotification(
+                            filename = notificationFilename,
+                            notificationId = notificationFilename.hashCode(),
+                            state = Notifier.STATE_COMPLETE
+                        )
                     }
                 }
 
-                updateNotification(
-                    notificationBuilder,
-                    "",
-                    getString(commonStrings.notify_downloaded)
-                )
-                stopNotification(notificationBuilder)
                 stopService()
             }
         }
@@ -298,48 +298,9 @@ class KiteDownloadService : LifecycleService() {
         }
     }
 
-    // TODO: Move notification logic to :core:notifications
     private fun startService() {
-        notificationManager = getSystemService()!!
-
-        val summaryChannel = NotificationChannel(
-            DOWNLOAD_CHANNEL,
-            getString(commonStrings.download),
-            NotificationManager.IMPORTANCE_LOW
-        )
-
-        notificationManager.createNotificationChannel(summaryChannel)
-
-        notificationBuilder = Builder(this, DOWNLOAD_CHANNEL)
-            .setSmallIcon(KiteDrawable.round_file_download)
-            .setContentTitle(getString(commonStrings.notify_initial_title)) // Temp name; set later
-            .setContentText(getString(commonStrings.notify_prepare))
-            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .setGroup(DOWNLOAD_NOTIFICATION_GROUP)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setOnlyAlertOnce(true)
-            .setGroupSummary(true)
-
-        startForeground(DOWNLOAD_NOTIFICATION_SUMMARY_ID, notificationBuilder.build())
-    }
-
-    private fun updateNotification(
-        notificationBuilder: Builder,
-        title: String = "",
-        text: String = ""
-    ) {
-        if (title.isNotEmpty()) notificationBuilder.setContentTitle(title)
-        if (text.isNotEmpty()) notificationBuilder.setContentText(text)
-
-        notificationManager.notify(DOWNLOAD_NOTIFICATION_SUMMARY_ID, notificationBuilder.build())
-    }
-
-    private fun stopNotification(notificationBuilder: Builder) {
-        notificationBuilder
-            .setOngoing(false)
-            .clearActions()
-
-        notificationManager.notify(DOWNLOAD_NOTIFICATION_SUMMARY_ID, notificationBuilder.build())
+        val downloadSummaryNotification = notifier.postDownloadSummaryNotification()
+        startForeground(DOWNLOAD_NOTIFICATION_SUMMARY_ID, downloadSummaryNotification)
     }
 
     private fun stopService() {
@@ -349,5 +310,3 @@ class KiteDownloadService : LifecycleService() {
 }
 
 private const val DOWNLOAD_NOTIFICATION_SUMMARY_ID = 1
-private const val DOWNLOAD_CHANNEL = "download_channel"
-private const val DOWNLOAD_NOTIFICATION_GROUP = "download_group"
