@@ -132,12 +132,11 @@
     <string name="confirm">Confirm</string>
 
     <!--Notifications-->
-    <string name="notify_initial_title">Starting</string>
-    <string name="notify_prepare">Preparing download...</string>
-    <string name="notify_download_image">Downloading image...</string>
-    <string name="notify_download_video">Downloading video...</string>
-    <string name="notify_download_audio">Downloading audio...</string>
+    <string name="notify_download_image">Downloading image…</string>
+    <string name="notify_download_video">Downloading video…</string>
+    <string name="notify_download_audio">Downloading audio…</string>
     <string name="notify_downloaded">Download complete</string>
+    <string name="notify_download_abort">Download aborted</string>
 
     <!--Misc-->
     <string name="hls_warning_title">HLS video detected</string>
