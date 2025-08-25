@@ -65,9 +65,14 @@ class KiteDownloadService : LifecycleService() {
             throw IllegalArgumentException("DownloadData cannot be null")
         } else {
             lifecycleScope.launch {
+                val contentUri = downloadData.contentUri.toUri()
+                var filenameWithExtension = "null"
+
                 when (downloadData.flags) {
                     DownloadData.IS_IMAGE -> {
-                        val filenameWithExtension = downloadData.contentUri.substringAfterLast("%2F")
+                        filenameWithExtension = downloadData.contentUri
+                            .substringAfterLast("%2F")
+                            .replace("%20", " ")
 
                         notifier.postDownloadNotification(
                             filename = filenameWithExtension,
@@ -78,14 +83,8 @@ class KiteDownloadService : LifecycleService() {
                         downloadImage(
                             client = client,
                             imageUrl = downloadData.mediaUrl,
-                            uri = downloadData.contentUri.toUri(),
+                            uri = contentUri,
                             context = applicationContext
-                        )
-
-                        notifier.postDownloadNotification(
-                            filename = filenameWithExtension,
-                            notificationId = filenameWithExtension.hashCode(),
-                            state = Notifier.STATE_COMPLETE
                         )
                     }
 
@@ -96,46 +95,56 @@ class KiteDownloadService : LifecycleService() {
                             else
                                 HLSUri(downloadData.mediaUrl, "")
 
-                        val notificationFilename = "${downloadData.filename}.mp4"
-                        notifier.postDownloadNotification(
-                            filename = notificationFilename,
-                            notificationId = notificationFilename.hashCode(),
-                            state = Notifier.STATE_DOWNLOADING_VIDEO
-                        )
-
-                        val contentUri = downloadData.contentUri.toUri()
                         downloadVideo(
                             client = client,
                             videoUrl = playlist.video,
                             fileName = downloadData.filename,
                             uri = contentUri,
                             context = applicationContext,
-                            isHLS = downloadData.flags == DownloadData.IS_VIDEO or DownloadData.IS_HLS
+                            isHLS = downloadData.flags == DownloadData.IS_VIDEO or DownloadData.IS_HLS,
+                            onFileCreation = { uri ->
+                                filenameWithExtension = uri.toString()
+                                    .substringAfterLast("%2F")
+                                    .replace("%20", " ")
+
+                                notifier.postDownloadNotification(
+                                    filename = filenameWithExtension,
+                                    notificationId = filenameWithExtension.hashCode(),
+                                    state = Notifier.STATE_DOWNLOADING_VIDEO
+                                )
+                            }
                         )
 
                         if (playlist.audio.isNotEmpty()) {
-                            notifier.postDownloadNotification(
-                                filename = notificationFilename,
-                                notificationId = notificationFilename.hashCode(),
-                                state = Notifier.STATE_DOWNLOADING_AUDIO
-                            )
-
                             downloadAudio(
                                 client = client,
                                 audioUrl = playlist.audio,
                                 fileName = downloadData.filename,
                                 uri = contentUri,
-                                context = applicationContext
+                                context = applicationContext,
+                                onFileCreation = { uri ->
+                                    if (filenameWithExtension == "null") {
+                                        filenameWithExtension = uri.toString()
+                                            .substringAfterLast("%2F")
+                                            .replace("%20", " ")
+                                    }
+
+                                    notifier.postDownloadNotification(
+                                        filename = filenameWithExtension,
+                                        notificationId = filenameWithExtension.hashCode(),
+                                        state = Notifier.STATE_DOWNLOADING_AUDIO
+                                    )
+                                }
                             )
                         }
-
-                        notifier.postDownloadNotification(
-                            filename = notificationFilename,
-                            notificationId = notificationFilename.hashCode(),
-                            state = Notifier.STATE_COMPLETE
-                        )
                     }
                 }
+
+                notifier.postDownloadNotification(
+                    filename = filenameWithExtension,
+                    notificationId = filenameWithExtension.hashCode(),
+                    state = Notifier.STATE_COMPLETE
+                )
 
                 stopService()
             }
@@ -171,7 +180,8 @@ class KiteDownloadService : LifecycleService() {
         fileName: String,
         uri: Uri,
         context: Context,
-        isHLS: Boolean
+        isHLS: Boolean,
+        onFileCreation: (Uri) -> Unit = {}
     ) {
         withContext(ioDispatcher) {
             if (fileName.isEmpty()) throw IllegalArgumentException("File name cannot be empty")
@@ -189,6 +199,8 @@ class KiteDownloadService : LifecycleService() {
                 "video/mp4",
                 fileName
             )
+
+            onFileCreation(videoFileUri!!)
 
             // Get the MP4 file from the network
             val mp4Url: String
@@ -210,7 +222,7 @@ class KiteDownloadService : LifecycleService() {
             client.newCall(mp4Request).execute().use { response ->
                 val body = requireNotNull(response.body())
 
-                context.contentResolver.openOutputStream(videoFileUri!!)?.let { outputStream ->
+                context.contentResolver.openOutputStream(videoFileUri)?.let { outputStream ->
                     val sink = outputStream.sink().buffer()
 
                     sink.writeAll(body.source())
@@ -226,7 +238,8 @@ class KiteDownloadService : LifecycleService() {
         audioUrl: String,
         fileName: String,
         uri: Uri,
-        context: Context
+        context: Context,
+        onFileCreation: (Uri) -> Unit = {}
     ) {
         withContext(ioDispatcher) {
             if (fileName.isEmpty()) throw IllegalArgumentException("File name cannot be empty")
@@ -244,6 +257,8 @@ class KiteDownloadService : LifecycleService() {
                 "audio/aac",
                 fileName
             )
+
+            onFileCreation(audioFileUri!!)
 
             // Get the name of the AAC file
             if (audioUrl.isEmpty()) throw IllegalStateException("HLS audio URL cannot be empty")
@@ -264,7 +279,7 @@ class KiteDownloadService : LifecycleService() {
             client.newCall(aacRequest).execute().use { response ->
                 val body = requireNotNull(response.body())
 
-                context.contentResolver.openOutputStream(audioFileUri!!)?.let { outputStream ->
+                context.contentResolver.openOutputStream(audioFileUri)?.let { outputStream ->
                     val sink = outputStream.sink().buffer()
 
                     sink.writeAll(body.source())
