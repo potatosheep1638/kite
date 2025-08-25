@@ -51,7 +51,12 @@ internal class KiteNotifier @Inject constructor(
             val downloadNotification = createDownloadNotification {
                 setContentTitle(filename)
                     .setContentText(contentText)
-                    .setSmallIcon(KiteDrawable.round_file_download)
+                    .setSmallIcon(
+                        if (state == Notifier.STATE_COMPLETE)
+                            KiteDrawable.round_check_24
+                        else
+                            KiteDrawable.round_file_download
+                    )
                     .setGroup(DOWNLOAD_NOTIFICATION_GROUP)
                     .setSilent(true)
                     .setAutoCancel(true)
