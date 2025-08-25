@@ -1,5 +1,7 @@
 package com.potatosheep.kite.core.notification
 
+import android.app.Notification
+
 /**
  * Interface for classes that create notifications for Kite.
  */
@@ -12,8 +14,8 @@ interface Notifier {
      */
     fun postDownloadNotification(
         filename: String,
-        notificationId: Int
-    )
+        notificationId: Int,
+    ): Notification
 
     /**
      * Update a download notification.
