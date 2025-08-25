@@ -33,6 +33,7 @@ internal class KiteNotifier @Inject constructor(
                     .setSmallIcon(KiteDrawable.round_file_download)
                     .setGroup(DOWNLOAD_NOTIFICATION_GROUP)
                     .setGroupSummary(true)
+                    .setSilent(true)
                     .setAutoCancel(true)
             }
 
@@ -52,6 +53,7 @@ internal class KiteNotifier @Inject constructor(
                     .setContentText(contentText)
                     .setSmallIcon(KiteDrawable.round_file_download)
                     .setGroup(DOWNLOAD_NOTIFICATION_GROUP)
+                    .setSilent(true)
                     .setAutoCancel(true)
             }
 
