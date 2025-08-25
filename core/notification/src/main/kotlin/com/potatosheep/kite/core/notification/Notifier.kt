@@ -25,4 +25,12 @@ interface Notifier {
         notificationId: Int,
         state: Int
     )
+
+    companion object {
+        const val STATE_DOWNLOADING_IMAGE = 1
+        const val STATE_DOWNLOADING_VIDEO = 2
+        const val STATE_DOWNLOADING_AUDIO = 4
+        const val STATE_COMPLETE = 5
+        const val STATE_STOPPED = 6
+    }
 }
