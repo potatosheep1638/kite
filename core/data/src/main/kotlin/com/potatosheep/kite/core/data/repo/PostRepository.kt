@@ -235,6 +235,7 @@ internal class DefaultPostRepository @Inject constructor(
             mediaUrl = url,
             filename = fileName,
             contentUri = uri.toString(),
+            id = url.extractUrlId(),
             flags =
                 if (isHLS)
                     DownloadData.IS_VIDEO or DownloadData.IS_HLS
@@ -257,6 +258,7 @@ internal class DefaultPostRepository @Inject constructor(
             mediaUrl = url,
             filename = "",
             contentUri = uri.toString(),
+            id = url.extractUrlId(),
             flags = DownloadData.IS_IMAGE
         )
 
@@ -264,5 +266,25 @@ internal class DefaultPostRepository @Inject constructor(
             .putExtra(IntentData.DOWNLOAD_DATA, downloadData)
 
         ContextCompat.startForegroundService(context, intent)
+    }
+}
+
+private fun String.extractUrlId(): String {
+    val urlWithoutParams = this.substringBefore("?")
+
+    return when {
+        urlWithoutParams.contains("/hls/") -> urlWithoutParams
+            .substringAfter("/hls/")
+            .substringBeforeLast('/')
+
+        urlWithoutParams.contains("/vid/") -> urlWithoutParams
+            .substringAfter("/vid/")
+            .substringBeforeLast('/')
+
+        urlWithoutParams.contains("/img/") -> urlWithoutParams.substringAfter("/img/")
+
+        urlWithoutParams.contains("/pre/") -> urlWithoutParams.substringAfter("/pre/")
+
+        else -> this
     }
 }
