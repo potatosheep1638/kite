@@ -11,6 +11,7 @@ android {
 dependencies {
     implementation(projects.core.common)
     implementation(projects.core.designsystem)
+    implementation(projects.core.notification)
 
     implementation(libs.retrofit)
     implementation(libs.androidx.lifecycle)
