@@ -52,8 +52,6 @@ class KiteDownloadService : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
-        val client = okHttpCallFactory.get()
-
         val downloadData: DownloadData? =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 intent?.getParcelableExtra(IntentData.DOWNLOAD_DATA, DownloadData::class.java)
@@ -66,22 +64,14 @@ class KiteDownloadService : LifecycleService() {
         } else {
             lifecycleScope.launch {
                 val contentUri = downloadData.contentUri.toUri()
-                var filenameWithExtension = "null"
+                var fileUri: Uri? = null
 
                 when (downloadData.flags) {
                     DownloadData.IS_IMAGE -> {
-                        filenameWithExtension = downloadData.contentUri
-                            .substringAfterLast("%2F")
-                            .replace("%20", " ")
-
-                        notifier.postDownloadNotification(
-                            filename = filenameWithExtension,
-                            notificationId = filenameWithExtension.hashCode(),
-                            state = Notifier.STATE_DOWNLOADING_IMAGE
-                        )
+                        fileUri = contentUri
+                        downloadNotify(contentUri, Notifier.STATE_DOWNLOADING_IMAGE)
 
                         downloadImage(
-                            client = client,
                             imageUrl = downloadData.mediaUrl,
                             uri = contentUri,
                             context = applicationContext
@@ -91,48 +81,32 @@ class KiteDownloadService : LifecycleService() {
                     DownloadData.IS_VIDEO, DownloadData.IS_VIDEO or DownloadData.IS_HLS -> {
                         val playlist =
                             if (downloadData.flags == DownloadData.IS_VIDEO or DownloadData.IS_HLS)
-                                getHLSPlaylist(client, downloadData.mediaUrl)
+                                getHLSPlaylist(downloadData.mediaUrl)
                             else
                                 HLSUri(downloadData.mediaUrl, "")
 
                         downloadVideo(
-                            client = client,
                             videoUrl = playlist.video,
                             fileName = downloadData.filename,
                             uri = contentUri,
                             context = applicationContext,
                             isHLS = downloadData.flags == DownloadData.IS_VIDEO or DownloadData.IS_HLS,
-                            onFileCreation = { uri ->
-                                filenameWithExtension = uri.toString()
-                                    .substringAfterLast("%2F")
-                                    .replace("%20", " ")
-
-                                notifier.postDownloadNotification(
-                                    filename = filenameWithExtension,
-                                    notificationId = filenameWithExtension.hashCode(),
-                                    state = Notifier.STATE_DOWNLOADING_VIDEO
-                                )
+                            onFileCreation = {
+                                fileUri = it
+                                downloadNotify(it, Notifier.STATE_DOWNLOADING_VIDEO)
                             }
                         )
 
                         if (playlist.audio.isNotEmpty()) {
                             downloadAudio(
-                                client = client,
                                 audioUrl = playlist.audio,
                                 fileName = downloadData.filename,
                                 uri = contentUri,
                                 context = applicationContext,
-                                onFileCreation = { uri ->
-                                    if (filenameWithExtension == "null") {
-                                        filenameWithExtension = uri.toString()
-                                            .substringAfterLast("%2F")
-                                            .replace("%20", " ")
-                                    }
-
-                                    notifier.postDownloadNotification(
-                                        filename = filenameWithExtension,
-                                        notificationId = filenameWithExtension.hashCode(),
-                                        state = Notifier.STATE_DOWNLOADING_AUDIO
+                                onFileCreation = {
+                                    downloadNotify(
+                                        fileUri ?: it,
+                                        Notifier.STATE_DOWNLOADING_AUDIO
                                     )
                                 }
                             )
@@ -140,12 +114,7 @@ class KiteDownloadService : LifecycleService() {
                     }
                 }
 
-                notifier.postDownloadNotification(
-                    filename = filenameWithExtension,
-                    notificationId = filenameWithExtension.hashCode(),
-                    state = Notifier.STATE_COMPLETE
-                )
-
+                downloadNotify(fileUri!!, Notifier.STATE_COMPLETE)
                 stopService()
             }
         }
@@ -153,8 +122,10 @@ class KiteDownloadService : LifecycleService() {
         return START_NOT_STICKY
     }
 
-    private suspend fun getHLSPlaylist(client: Call.Factory, url: String): HLSUri =
+    private suspend fun getHLSPlaylist(url: String): HLSUri =
         withContext(ioDispatcher) {
+            val client = okHttpCallFactory.get()
+
             // Get HLS playlist
             val playlistRequest = Request.Builder().url(url).build()
             val playlist: MutableList<String> = mutableListOf()
@@ -175,142 +146,153 @@ class KiteDownloadService : LifecycleService() {
         }
 
     private suspend fun downloadVideo(
-        client: Call.Factory,
         videoUrl: String,
         fileName: String,
         uri: Uri,
         context: Context,
         isHLS: Boolean,
         onFileCreation: (Uri) -> Unit = {}
-    ) {
-        withContext(ioDispatcher) {
-            if (fileName.isEmpty()) throw IllegalArgumentException("File name cannot be empty")
+    ) = withContext(ioDispatcher) {
+        if (fileName.isEmpty()) throw IllegalArgumentException("File name cannot be empty")
 
-            // Get the directory URI
-            val folderUri = DocumentsContract.buildChildDocumentsUriUsingTree(
-                uri,
-                DocumentsContract.getTreeDocumentId(uri)
-            )
+        val client = okHttpCallFactory.get()
 
-            // Create the MP4 file (empty)
-            val videoFileUri = DocumentsContract.createDocument(
-                context.contentResolver,
-                folderUri,
-                "video/mp4",
-                fileName
-            )
+        // Get the directory URI
+        val folderUri = DocumentsContract.buildChildDocumentsUriUsingTree(
+            uri,
+            DocumentsContract.getTreeDocumentId(uri)
+        )
 
-            onFileCreation(videoFileUri!!)
+        // Create the MP4 file (empty)
+        val videoFileUri = DocumentsContract.createDocument(
+            context.contentResolver,
+            folderUri,
+            "video/mp4",
+            fileName
+        )
 
-            // Get the MP4 file from the network
-            val mp4Url: String
+        onFileCreation(videoFileUri!!)
 
-            if (isHLS) {
-                val parentPath = videoUrl
-                    .substring(0, videoUrl.lastIndexOf('/') + 1)
-                    .replace("hls", "vid")
-                val videoM3U8 = videoUrl.substring(videoUrl.lastIndexOf('/') + 1)
-                val mp4File = "${videoM3U8.split("_", ".")[1]}.mp4"
+        // Get the MP4 file from the network
+        val mp4Url: String
 
-                mp4Url = "$parentPath$mp4File"
-            } else {
-                mp4Url = videoUrl
-            }
+        if (isHLS) {
+            val parentPath = videoUrl
+                .substring(0, videoUrl.lastIndexOf('/') + 1)
+                .replace("hls", "vid")
+            val videoM3U8 = videoUrl.substring(videoUrl.lastIndexOf('/') + 1)
+            val mp4File = "${videoM3U8.split("_", ".")[1]}.mp4"
 
-            val mp4Request = Request.Builder().url(mp4Url).build()
+            mp4Url = "$parentPath$mp4File"
+        } else {
+            mp4Url = videoUrl
+        }
 
-            client.newCall(mp4Request).execute().use { response ->
-                val body = requireNotNull(response.body())
+        val mp4Request = Request.Builder().url(mp4Url).build()
 
-                context.contentResolver.openOutputStream(videoFileUri)?.let { outputStream ->
-                    val sink = outputStream.sink().buffer()
+        client.newCall(mp4Request).execute().use { response ->
+            val body = requireNotNull(response.body())
 
-                    sink.writeAll(body.source())
-                    sink.flush()
-                    sink.close()
-                }
+            context.contentResolver.openOutputStream(videoFileUri)?.let { outputStream ->
+                val sink = outputStream.sink().buffer()
+
+                sink.writeAll(body.source())
+                sink.flush()
+                sink.close()
             }
         }
     }
 
     private suspend fun downloadAudio(
-        client: Call.Factory,
         audioUrl: String,
         fileName: String,
         uri: Uri,
         context: Context,
         onFileCreation: (Uri) -> Unit = {}
-    ) {
-        withContext(ioDispatcher) {
-            if (fileName.isEmpty()) throw IllegalArgumentException("File name cannot be empty")
+    ) = withContext(ioDispatcher) {
+        if (fileName.isEmpty()) throw IllegalArgumentException("File name cannot be empty")
 
-            // Get the URI of the directory to write to
-            val folderUri = DocumentsContract.buildChildDocumentsUriUsingTree(
-                uri,
-                DocumentsContract.getTreeDocumentId(uri)
-            )
+        val client = okHttpCallFactory.get()
 
-            // Create the AAC file (empty)
-            val audioFileUri = DocumentsContract.createDocument(
-                context.contentResolver,
-                folderUri,
-                "audio/aac",
-                fileName
-            )
+        // Get the URI of the directory to write to
+        val folderUri = DocumentsContract.buildChildDocumentsUriUsingTree(
+            uri,
+            DocumentsContract.getTreeDocumentId(uri)
+        )
 
-            onFileCreation(audioFileUri!!)
+        // Create the AAC file (empty)
+        val audioFileUri = DocumentsContract.createDocument(
+            context.contentResolver,
+            folderUri,
+            "audio/aac",
+            fileName
+        )
 
-            // Get the name of the AAC file
-            if (audioUrl.isEmpty()) throw IllegalStateException("HLS audio URL cannot be empty")
-            val audioRequest = Request.Builder().url(audioUrl).build()
+        onFileCreation(audioFileUri!!)
 
-            var aacFile: String
-            client.newCall(audioRequest).execute().use { response ->
-                val body = requireNotNull(response.body())
-                aacFile = HLSParser.parseM3U8(body.byteStream().readAllLines())
-            }
+        // Get the name of the AAC file
+        if (audioUrl.isEmpty()) throw IllegalStateException("HLS audio URL cannot be empty")
+        val audioRequest = Request.Builder().url(audioUrl).build()
 
-            if (aacFile.isEmpty()) throw IllegalArgumentException("No audio file found")
+        var aacFile: String
+        client.newCall(audioRequest).execute().use { response ->
+            val body = requireNotNull(response.body())
+            aacFile = HLSParser.parseM3U8(body.byteStream().readAllLines())
+        }
 
-            // Get the AAC file itself
-            val aacFileUrl = "${audioUrl.substring(0, audioUrl.lastIndexOf('/') + 1)}$aacFile"
-            val aacRequest = Request.Builder().url(aacFileUrl).build()
+        if (aacFile.isEmpty()) throw IllegalArgumentException("No audio file found")
 
-            client.newCall(aacRequest).execute().use { response ->
-                val body = requireNotNull(response.body())
+        // Get the AAC file itself
+        val aacFileUrl = "${audioUrl.substring(0, audioUrl.lastIndexOf('/') + 1)}$aacFile"
+        val aacRequest = Request.Builder().url(aacFileUrl).build()
 
-                context.contentResolver.openOutputStream(audioFileUri)?.let { outputStream ->
-                    val sink = outputStream.sink().buffer()
+        client.newCall(aacRequest).execute().use { response ->
+            val body = requireNotNull(response.body())
 
-                    sink.writeAll(body.source())
-                    sink.flush()
-                    sink.close()
-                }
+            context.contentResolver.openOutputStream(audioFileUri)?.let { outputStream ->
+                val sink = outputStream.sink().buffer()
+
+                sink.writeAll(body.source())
+                sink.flush()
+                sink.close()
             }
         }
     }
 
     private suspend fun downloadImage(
-        client: Call.Factory,
         imageUrl: String,
         uri: Uri,
         context: Context
-    ) {
-        withContext(ioDispatcher) {
-            val request = Request.Builder().url(imageUrl).build()
+    ) = withContext(ioDispatcher) {
+        val client = okHttpCallFactory.get()
+        val request = Request.Builder().url(imageUrl).build()
 
-            client.newCall(request).execute().use { response ->
-                val body = requireNotNull(response.body())
+        client.newCall(request).execute().use { response ->
+            val body = requireNotNull(response.body())
 
-                context.contentResolver.openOutputStream(uri)?.let { outputStream ->
-                    val sink = outputStream.sink().buffer()
+            context.contentResolver.openOutputStream(uri)?.let { outputStream ->
+                val sink = outputStream.sink().buffer()
 
-                    sink.writeAll(body.source())
-                    sink.flush()
-                    sink.close()
-                }
+                sink.writeAll(body.source())
+                sink.flush()
+                sink.close()
             }
         }
+    }
+
+    private fun downloadNotify(
+        uri: Uri,
+        state: Int
+    ) {
+        val filename = uri.toString()
+            .substringAfterLast("%2F")
+            .replace("%20", " ")
+
+        notifier.postDownloadNotification(
+            filename = filename,
+            notificationId = filename.hashCode(),
+            state = state
+        )
     }
 
     private fun startService() {
