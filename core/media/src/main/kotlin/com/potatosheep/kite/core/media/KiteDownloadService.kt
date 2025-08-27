@@ -9,6 +9,8 @@ import android.util.Log
 import android.util.SparseBooleanArray
 import androidx.core.app.ServiceCompat
 import androidx.core.net.toUri
+import androidx.core.util.keyIterator
+import androidx.core.util.remove
 import androidx.core.util.set
 import androidx.core.util.valueIterator
 import androidx.lifecycle.LifecycleService
@@ -69,6 +71,11 @@ class KiteDownloadService : LifecycleService() {
             throw IllegalArgumentException("DownloadData cannot be null")
         } else {
             val downloadId = downloadData.id.hashCode()
+
+            if (downloadQueue.keyIterator().asSequence().contains(downloadId)) {
+                return START_NOT_STICKY
+            }
+
             downloadQueue[downloadId] = true
 
             val contentUri = downloadData.contentUri.toUri()
@@ -166,6 +173,7 @@ class KiteDownloadService : LifecycleService() {
                 }
 
                 downloadQueue[downloadId] = false
+                downloadQueue.remove(downloadId, false)
                 stopServiceIfDone()
             }
         }
