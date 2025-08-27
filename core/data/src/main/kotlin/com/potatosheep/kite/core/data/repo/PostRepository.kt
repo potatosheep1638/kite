@@ -64,7 +64,10 @@ interface PostRepository {
     ): Pair<List<Post>, List<Subreddit>>
 
     suspend fun checkIfPostHasRecord(postId: String): Int
-    fun getSavedPosts(query: String): Flow<List<Post>>
+    fun getSavedPosts(
+        query: String,
+        showNsfw: Boolean
+    ): Flow<List<Post>>
     suspend fun savePost(post: Post)
     suspend fun removeSavedPost(post: Post)
     suspend fun exportSavedPosts(uri: Uri, context: Context)
@@ -161,14 +164,17 @@ internal class DefaultPostRepository @Inject constructor(
 
     override suspend fun checkIfPostHasRecord(postId: String): Int = postDao.getPostCount(postId)
 
-    override fun getSavedPosts(query: String): Flow<List<Post>> {
+    override fun getSavedPosts(
+        query: String,
+        showNsfw: Boolean
+    ): Flow<List<Post>> {
         return if (query.isEmpty()) {
-            postDao.getAll()
+            postDao.getAll(showNsfw)
                 .map { postList ->
                     postList.map { it.toExternalModel() }
                 }
         } else {
-            postDao.searchPostsByTitle(query)
+            postDao.searchPostsByTitle(query, showNsfw)
                 .map { postList ->
                     postList.map { it.toExternalModel() }
                 }
@@ -180,7 +186,7 @@ internal class DefaultPostRepository @Inject constructor(
     override suspend fun removeSavedPost(post: Post) = postDao.deletePost(post.toEntity())
 
     override suspend fun exportSavedPosts(uri: Uri, context: Context) {
-        val posts = postDao.getAll()
+        val posts = postDao.getAll(true)
             .first()
             .map { it.toPostExport() }
 
