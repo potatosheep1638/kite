@@ -28,7 +28,7 @@ class BookmarkViewModel @Inject constructor(
 
     val query = savedStateHandle.getStateFlow(QUERY, "")
 
-    val showNsfwFlow = userConfigRepository.userConfig
+    private val showNsfwFlow = userConfigRepository.userConfig
         .map { it.showNsfw }
 
     private val combinedQuery = query.combine(showNsfwFlow) { q, nsfw ->
