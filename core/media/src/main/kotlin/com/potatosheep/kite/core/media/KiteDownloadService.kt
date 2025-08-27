@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.Call
 import okhttp3.Request
+import okio.FileNotFoundException
 import okio.buffer
 import okio.sink
 import javax.inject.Inject
@@ -71,18 +72,28 @@ class KiteDownloadService : LifecycleService() {
             downloadQueue[downloadId] = true
 
             val contentUri = downloadData.contentUri.toUri()
-            var fileUri: Uri? = null
 
             lifecycleScope.launch {
                 when (downloadData.flags) {
                     DownloadData.IS_IMAGE -> {
-                        fileUri = contentUri
-                        downloadNotify(contentUri, Notifier.STATE_DOWNLOADING_IMAGE)
+                        val imageFilename = contentUri.getFilename()
+
+                        downloadNotify(
+                            imageFilename,
+                            downloadId,
+                            Notifier.STATE_DOWNLOADING_IMAGE,
+                        )
 
                         downloadImage(
                             imageUrl = downloadData.mediaUrl,
                             uri = contentUri,
                             context = applicationContext
+                        )
+
+                        downloadNotify(
+                            imageFilename,
+                            downloadId,
+                            Notifier.STATE_COMPLETE,
                         )
                     }
 
@@ -96,43 +107,65 @@ class KiteDownloadService : LifecycleService() {
                             else
                                 HLSUri(downloadData.mediaUrl, "")
 
-                        var audioUri: Uri? = null
+                        val videoFileUri = applicationContext.createFile(
+                            downloadData.filename,
+                            contentUri,
+                            "video/mp4"
+                        )
+                        var audioFileUri: Uri? = null
+
+                        if (videoFileUri == null)
+                            throw FileNotFoundException("Failed to create or find file. Ensure the URI supplied is a directory.")
+
+                        val videoFilename = videoFileUri.getFilename()
+
+                        if (isHLS) {
+                            audioFileUri = applicationContext.createFile(
+                                downloadData.filename,
+                                contentUri,
+                                "audio/aac"
+                            )
+
+                            if (audioFileUri == null)
+                                throw FileNotFoundException("Failed to create or find file. Ensure the URI supplied is a directory.")
+                        }
+
+                        downloadNotify(
+                            videoFilename,
+                            downloadId,
+                            Notifier.STATE_DOWNLOADING_VIDEO,
+                        )
 
                         downloadVideo(
                             videoUrl = playlist.video,
-                            fileName = downloadData.filename,
-                            uri = contentUri,
+                            uri = videoFileUri,
                             context = applicationContext,
-                            isHLS = downloadData.flags == DownloadData.IS_VIDEO or DownloadData.IS_HLS,
-                            onFileCreation = {
-                                if (isHLS) audioUri = applicationContext
-                                    .createAudioFile(it.getFilename(), contentUri)
-
-                                fileUri = it
-                                downloadNotify(it, Notifier.STATE_DOWNLOADING_VIDEO)
-                            }
+                            isHLS = isHLS
                         )
 
                         if (playlist.audio.isNotEmpty()) {
+                            downloadNotify(
+                                videoFilename,
+                                downloadId,
+                                Notifier.STATE_DOWNLOADING_AUDIO
+                            )
+
                             downloadAudio(
                                 audioUrl = playlist.audio,
-                                fileName = fileUri?.getFilename() ?: downloadData.filename,
-                                uri = audioUri!!,
+                                uri = audioFileUri!!,
                                 context = applicationContext,
-                                onFileCreation = {
-                                    downloadNotify(
-                                        fileUri ?: it,
-                                        Notifier.STATE_DOWNLOADING_AUDIO
-                                    )
-                                }
                             )
                         }
+
+                        downloadNotify(
+                            videoFilename,
+                            downloadId,
+                            Notifier.STATE_COMPLETE
+                        )
                     }
                 }
 
                 downloadQueue[downloadId] = false
-                downloadNotify(fileUri!!, Notifier.STATE_COMPLETE)
-
                 stopServiceIfDone()
             }
         }
@@ -166,31 +199,11 @@ class KiteDownloadService : LifecycleService() {
     // Call this BEFORE downloadAudio
     private suspend fun downloadVideo(
         videoUrl: String,
-        fileName: String,
         uri: Uri,
         context: Context,
         isHLS: Boolean,
-        onFileCreation: (Uri) -> Unit = {}
     ) = withContext(ioDispatcher) {
-        if (fileName.isEmpty()) throw IllegalArgumentException("File name cannot be empty")
-
         val client = okHttpCallFactory.get()
-
-        // Get the directory URI
-        val folderUri = DocumentsContract.buildChildDocumentsUriUsingTree(
-            uri,
-            DocumentsContract.getTreeDocumentId(uri)
-        )
-
-        // Create the MP4 file (empty)
-        val videoFileUri = DocumentsContract.createDocument(
-            context.contentResolver,
-            folderUri,
-            "video/mp4",
-            fileName
-        )
-
-        onFileCreation(videoFileUri!!)
 
         // Get the MP4 file from the network
         val mp4Url: String
@@ -212,7 +225,7 @@ class KiteDownloadService : LifecycleService() {
         client.newCall(mp4Request).execute().use { response ->
             val body = requireNotNull(response.body())
 
-            context.contentResolver.openOutputStream(videoFileUri)?.let { outputStream ->
+            context.contentResolver.openOutputStream(uri)?.let { outputStream ->
                 val sink = outputStream.sink().buffer()
 
                 sink.writeAll(body.source())
@@ -222,19 +235,12 @@ class KiteDownloadService : LifecycleService() {
         }
     }
 
-    // Call this AFTER Context.createAudioFile()!
     private suspend fun downloadAudio(
         audioUrl: String,
-        fileName: String,
         uri: Uri,
         context: Context,
-        onFileCreation: (Uri) -> Unit = {}
     ) = withContext(ioDispatcher) {
-        if (fileName.isEmpty()) throw IllegalArgumentException("File name cannot be empty")
-
         val client = okHttpCallFactory.get()
-
-        onFileCreation(uri)
 
         // Get the name of the AAC file
         if (audioUrl.isEmpty()) throw IllegalStateException("HLS audio URL cannot be empty")
@@ -287,14 +293,13 @@ class KiteDownloadService : LifecycleService() {
     }
 
     private fun downloadNotify(
-        uri: Uri,
+        filename: String,
+        notificationId: Int,
         state: Int
     ) {
-        val filename = uri.getFilename()
-
         notifier.postDownloadNotification(
             filename = filename,
-            notificationId = filename.hashCode(),
+            notificationId = notificationId,
             state = state
         )
     }
@@ -315,25 +320,26 @@ class KiteDownloadService : LifecycleService() {
     }
 }
 
-private fun Context.createAudioFile(
+private fun Context.createFile(
     filename: String,
-    uri: Uri,
+    directoryUri: Uri,
+    mimeType: String
 ): Uri? {
     // Get the URI of the directory to write to
     val folderUri = DocumentsContract.buildChildDocumentsUriUsingTree(
-        uri,
-        DocumentsContract.getTreeDocumentId(uri)
+        directoryUri,
+        DocumentsContract.getTreeDocumentId(directoryUri)
     )
 
     // Create the AAC file (empty)
-    val audioFileUri = DocumentsContract.createDocument(
+    val fileUri = DocumentsContract.createDocument(
         this.contentResolver,
         folderUri,
-        "audio/aac",
+        mimeType,
         filename
     )
 
-    return audioFileUri
+    return fileUri
 }
 
 private fun Uri.getFilename() = this.toString()
