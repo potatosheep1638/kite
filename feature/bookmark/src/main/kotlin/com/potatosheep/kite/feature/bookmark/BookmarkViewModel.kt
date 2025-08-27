@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -26,6 +27,17 @@ class BookmarkViewModel @Inject constructor(
 ) : ViewModel() {
 
     val query = savedStateHandle.getStateFlow(QUERY, "")
+
+    val showNsfwFlow = userConfigRepository.userConfig
+        .map { it.showNsfw }
+
+    private val combinedQuery = query.combine(showNsfwFlow) { q, nsfw ->
+        CombinedQuery.Query(q, nsfw)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+        initialValue = CombinedQuery.Empty
+    )
 
     val blurNsfw = userConfigRepository.userConfig
         .map { it.blurNsfw }
@@ -61,33 +73,35 @@ class BookmarkViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            query.collectLatest {
-                val postFlow = postRepository.getSavedPosts(it)
+            combinedQuery.collectLatest { state ->
+                if (state is CombinedQuery.Query) {
+                    val postFlow = postRepository.getSavedPosts(state.query, state.showNsfw)
 
-                postFlow.map { postList ->
-                    postList.map { post ->
-                        post.copy(
-                            mediaLinks = post.mediaLinks.map { mediaLink ->
-                                when (mediaLink.mediaType) {
-                                    MediaType.ARTICLE_THUMBNAIL, MediaType.ARTICLE_LINK -> {
-                                        mediaLink
-                                    }
-
-                                    else -> {
-                                        if (mediaLink.link.isEmpty()) {
+                    postFlow.map { postList ->
+                        postList.map { post ->
+                            post.copy(
+                                mediaLinks = post.mediaLinks.map { mediaLink ->
+                                    when (mediaLink.mediaType) {
+                                        MediaType.ARTICLE_THUMBNAIL, MediaType.ARTICLE_LINK -> {
                                             mediaLink
-                                        } else {
-                                            mediaLink.copy(
-                                                link = "${instanceUrl.first { it.isNotEmpty() }}${mediaLink.link}"
-                                            )
+                                        }
+
+                                        else -> {
+                                            if (mediaLink.link.isEmpty()) {
+                                                mediaLink
+                                            } else {
+                                                mediaLink.copy(
+                                                    link = "${instanceUrl.first { it.isNotEmpty() }}${mediaLink.link}"
+                                                )
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        )
+                            )
+                        }
+                    }.collectLatest {
+                        _uiState.value = PostListUiState.Success(it)
                     }
-                }.collectLatest {
-                    _uiState.value = PostListUiState.Success(it)
                 }
             }
         }
@@ -116,5 +130,17 @@ sealed interface PostListUiState {
         val posts: List<Post>
     ) : PostListUiState
 }
+
+private sealed interface CombinedQuery {
+
+    data object Empty : CombinedQuery
+
+    data class Query(
+        val query: String,
+        val showNsfw: Boolean
+    ) : CombinedQuery
+}
+
+
 
 const val QUERY = "query"
