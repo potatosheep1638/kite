@@ -8,6 +8,7 @@ data class DownloadData(
     val mediaUrl: String,
     val filename: String,
     val contentUri: String,
+    val id: String,
     val flags: Int
 ) : Parcelable {
     companion object {
