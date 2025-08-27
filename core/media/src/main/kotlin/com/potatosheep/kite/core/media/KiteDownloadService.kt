@@ -84,10 +84,11 @@ class KiteDownloadService : LifecycleService() {
                 when (downloadData.flags) {
                     DownloadData.IS_IMAGE -> {
                         val imageFilename = contentUri.getFilename()
+                        val imageNotificationId = imageFilename.hashCode()
 
                         downloadNotify(
                             imageFilename,
-                            downloadId,
+                            imageNotificationId,
                             Notifier.STATE_DOWNLOADING_IMAGE,
                         )
 
@@ -99,7 +100,7 @@ class KiteDownloadService : LifecycleService() {
 
                         downloadNotify(
                             imageFilename,
-                            downloadId,
+                            imageNotificationId,
                             Notifier.STATE_COMPLETE,
                         )
                     }
@@ -125,6 +126,7 @@ class KiteDownloadService : LifecycleService() {
                             throw FileNotFoundException("Failed to create or find file. Ensure the URI supplied is a directory.")
 
                         val videoFilename = videoFileUri.getFilename()
+                        val videoNotificationId = videoFilename.hashCode()
 
                         if (isHLS) {
                             audioFileUri = applicationContext.createFile(
@@ -139,7 +141,7 @@ class KiteDownloadService : LifecycleService() {
 
                         downloadNotify(
                             videoFilename,
-                            downloadId,
+                            videoNotificationId,
                             Notifier.STATE_DOWNLOADING_VIDEO,
                         )
 
@@ -153,7 +155,7 @@ class KiteDownloadService : LifecycleService() {
                         if (playlist.audio.isNotEmpty()) {
                             downloadNotify(
                                 videoFilename,
-                                downloadId,
+                                videoNotificationId,
                                 Notifier.STATE_DOWNLOADING_AUDIO
                             )
 
@@ -166,7 +168,7 @@ class KiteDownloadService : LifecycleService() {
 
                         downloadNotify(
                             videoFilename,
-                            downloadId,
+                            videoNotificationId,
                             Notifier.STATE_COMPLETE
                         )
                     }
