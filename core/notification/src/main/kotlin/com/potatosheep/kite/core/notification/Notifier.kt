@@ -17,7 +17,8 @@ interface Notifier {
      * Post a download notification.
      *
      * @param filename the name of the file to be downloaded
-     * @param notificationId the ID of the notification.
+     * @param downloadId the ID of the download
+     * @param notificationId the ID of the notification
      * @param state the initial state of the target download notification, such as
      * [Notifier.STATE_DOWNLOADING_IMAGE]
      *
@@ -25,6 +26,7 @@ interface Notifier {
      */
     fun postDownloadNotification(
         filename: String,
+        downloadId: Int,
         notificationId: Int,
         state: Int
     ): Notification
