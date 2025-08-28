@@ -16,6 +16,5 @@ internal object MediaModule {
 
     @Service(KiteServices.Download)
     @Provides
-    @Singleton
     fun downloadService(): LifecycleService = KiteDownloadService()
 }
