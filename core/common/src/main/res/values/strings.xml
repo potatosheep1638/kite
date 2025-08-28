@@ -130,6 +130,7 @@
     <string name="unfollow">Unfollow</string>
     <string name="next">Next</string>
     <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
 
     <!--Notifications-->
     <string name="notify_download_image">Downloading image…</string>
