@@ -20,7 +20,7 @@ interface PostDao {
 
     @Query(
         "SELECT * FROM post " +
-                "WHERE (:showNsfw = 0 AND is_nsfw = :showNsfw) OR (:showNsfw = 1 AND 1 = 1) " +
+                "WHERE ((:showNsfw = 0 AND is_nsfw = :showNsfw) OR (:showNsfw = 1 AND 1 = 1)) " +
                 "AND title LIKE '%' || :query || '%' " +
                 "ORDER BY time_created DESC"
     )
