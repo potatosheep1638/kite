@@ -25,6 +25,7 @@ interface Notifier {
      */
     fun postDownloadNotification(
         filename: String,
+        downloadId: Int,
         notificationId: Int,
         state: Int
     ): Notification

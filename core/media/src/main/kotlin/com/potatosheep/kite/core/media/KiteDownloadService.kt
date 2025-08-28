@@ -17,6 +17,7 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.potatosheep.kite.core.common.Dispatcher
 import com.potatosheep.kite.core.common.KiteDispatchers
+import com.potatosheep.kite.core.common.constants.DownloadIntent
 import com.potatosheep.kite.core.common.constants.IntentData
 import com.potatosheep.kite.core.media.model.DownloadData
 import com.potatosheep.kite.core.media.util.readAllLines
@@ -27,9 +28,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.Call
 import okhttp3.Request
+import okhttp3.ResponseBody
 import okio.FileNotFoundException
 import okio.buffer
 import okio.sink
+import okio.source
+import java.io.OutputStream
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -60,6 +64,28 @@ class KiteDownloadService : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
+        when (intent?.action) {
+            DownloadIntent.ACTION_STOP_DOWNLOAD -> {
+                val downloadId = intent.getIntExtra(IntentData.DOWNLOAD_ID, -1)
+                val downloadFilename = intent.getStringExtra(IntentData.DOWNLOAD_FILENAME)
+
+                if (downloadId != -1 && downloadFilename != null) {
+                    downloadQueue[downloadId] = false
+                    downloadQueue.remove(downloadId, false)
+
+                    downloadNotify(
+                        downloadFilename,
+                        downloadId,
+                        downloadFilename.hashCode(),
+                        Notifier.STATE_STOPPED,
+                    )
+
+                    stopServiceIfDone()
+                    return START_NOT_STICKY
+                }
+            }
+        }
+
         val downloadData: DownloadData? =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 intent?.getParcelableExtra(IntentData.DOWNLOAD_DATA, DownloadData::class.java)
@@ -88,21 +114,26 @@ class KiteDownloadService : LifecycleService() {
 
                         downloadNotify(
                             imageFilename,
+                            downloadId,
                             imageNotificationId,
                             Notifier.STATE_DOWNLOADING_IMAGE,
                         )
 
                         downloadImage(
                             imageUrl = downloadData.mediaUrl,
+                            downloadId = downloadId,
                             uri = contentUri,
                             context = applicationContext
                         )
 
-                        downloadNotify(
-                            imageFilename,
-                            imageNotificationId,
-                            Notifier.STATE_COMPLETE,
-                        )
+                        if (downloadQueue[downloadId]) {
+                            downloadNotify(
+                                imageFilename,
+                                downloadId,
+                                imageNotificationId,
+                                Notifier.STATE_COMPLETE,
+                            )
+                        }
                     }
 
                     DownloadData.IS_VIDEO, DownloadData.IS_VIDEO or DownloadData.IS_HLS -> {
@@ -141,36 +172,43 @@ class KiteDownloadService : LifecycleService() {
 
                         downloadNotify(
                             videoFilename,
+                            downloadId,
                             videoNotificationId,
                             Notifier.STATE_DOWNLOADING_VIDEO,
                         )
 
                         downloadVideo(
                             videoUrl = playlist.video,
+                            downloadId = downloadId,
                             uri = videoFileUri,
                             context = applicationContext,
                             isHLS = isHLS
                         )
 
-                        if (playlist.audio.isNotEmpty()) {
+                        if (playlist.audio.isNotEmpty() && downloadQueue[downloadId]) {
                             downloadNotify(
                                 videoFilename,
+                                downloadId,
                                 videoNotificationId,
                                 Notifier.STATE_DOWNLOADING_AUDIO
                             )
 
                             downloadAudio(
                                 audioUrl = playlist.audio,
+                                downloadId = downloadId,
                                 uri = audioFileUri!!,
                                 context = applicationContext,
                             )
                         }
 
-                        downloadNotify(
-                            videoFilename,
-                            videoNotificationId,
-                            Notifier.STATE_COMPLETE
-                        )
+                        if (downloadQueue[downloadId]) {
+                            downloadNotify(
+                                videoFilename,
+                                downloadId,
+                                videoNotificationId,
+                                Notifier.STATE_COMPLETE
+                            )
+                        }
                     }
                 }
 
@@ -209,6 +247,7 @@ class KiteDownloadService : LifecycleService() {
     // Call this BEFORE downloadAudio
     private suspend fun downloadVideo(
         videoUrl: String,
+        downloadId: Int,
         uri: Uri,
         context: Context,
         isHLS: Boolean,
@@ -236,17 +275,14 @@ class KiteDownloadService : LifecycleService() {
             val body = requireNotNull(response.body())
 
             context.contentResolver.openOutputStream(uri)?.let { outputStream ->
-                val sink = outputStream.sink().buffer()
-
-                sink.writeAll(body.source())
-                sink.flush()
-                sink.close()
+                progressDownload(outputStream, body, downloadId)
             }
         }
     }
 
     private suspend fun downloadAudio(
         audioUrl: String,
+        downloadId: Int,
         uri: Uri,
         context: Context,
     ) = withContext(ioDispatcher) {
@@ -272,17 +308,14 @@ class KiteDownloadService : LifecycleService() {
             val body = requireNotNull(response.body())
 
             context.contentResolver.openOutputStream(uri)?.let { outputStream ->
-                val sink = outputStream.sink().buffer()
-
-                sink.writeAll(body.source())
-                sink.flush()
-                sink.close()
+                progressDownload(outputStream, body, downloadId)
             }
         }
     }
 
     private suspend fun downloadImage(
         imageUrl: String,
+        downloadId: Int,
         uri: Uri,
         context: Context
     ) = withContext(ioDispatcher) {
@@ -293,22 +326,42 @@ class KiteDownloadService : LifecycleService() {
             val body = requireNotNull(response.body())
 
             context.contentResolver.openOutputStream(uri)?.let { outputStream ->
-                val sink = outputStream.sink().buffer()
-
-                sink.writeAll(body.source())
-                sink.flush()
-                sink.close()
+                progressDownload(outputStream, body, downloadId)
             }
         }
     }
 
+    private fun progressDownload(
+        outputStream: OutputStream,
+        body: ResponseBody,
+        downloadId: Int
+    ) {
+        val source = body.source()
+        val sourceBytes = body.byteStream().source()
+
+        val sink = outputStream.sink().buffer()
+
+        while (downloadQueue[downloadId] &&
+            sourceBytes.read(sink.buffer, DOWNLOAD_CHUNK_SIZE) != -1L
+        ) {
+            sink.emit()
+        }
+
+        sink.flush()
+        sink.close()
+        source.close()
+        sourceBytes.close()
+    }
+
     private fun downloadNotify(
         filename: String,
+        downloadId: Int,
         notificationId: Int,
         state: Int
     ) {
         notifier.postDownloadNotification(
             filename = filename,
+            downloadId = downloadId,
             notificationId = notificationId,
             state = state
         )
@@ -357,3 +410,4 @@ private fun Uri.getFilename() = this.toString()
     .replace("%20", " ")
 
 private const val DOWNLOAD_NOTIFICATION_SUMMARY_ID = 1
+private const val DOWNLOAD_CHUNK_SIZE = 8L * 1024
