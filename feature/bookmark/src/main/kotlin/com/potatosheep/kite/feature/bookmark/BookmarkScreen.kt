@@ -28,6 +28,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -169,17 +170,14 @@ fun BookmarkScreen(
                     .focusRequester(focusRequester)
                     .onFocusChanged { isSearchBarFocused = it.isFocused },
                 onClear = {
+                    searchSavedPosts("")
+
                     if (!isSearchBarFocused) {
                         focusRequester.requestFocus()
-                        searchSavedPosts("")
                     }
                 },
                 onQueryChange = {
                     searchSavedPosts(it)
-
-                    coroutineScope.launch {
-                        listState.requestScrollToItem(0)
-                    }
                 },
                 inputFieldColors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.Transparent,
@@ -209,6 +207,10 @@ fun BookmarkScreen(
             when (postListUiState) {
                 PostListUiState.Loading -> Unit
                 is PostListUiState.Success -> {
+                    LaunchedEffect(postListUiState.posts.size) {
+                        listState.scrollToItem(0)
+                    }
+
                     if (postListUiState.posts.isEmpty()) {
                         NoResultsMsg(
                             title = "Nothing found",
