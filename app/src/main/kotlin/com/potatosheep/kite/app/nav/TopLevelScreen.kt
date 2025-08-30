@@ -44,7 +44,7 @@ import androidx.navigation.compose.composable
 import com.potatosheep.kite.app.ui.KiteAppState
 import com.potatosheep.kite.core.common.TopAppBarActionState
 import com.potatosheep.kite.core.common.R.string as commonStrings
-import com.potatosheep.kite.core.common.enums.MenuOption
+import com.potatosheep.kite.app.MenuOption
 import com.potatosheep.kite.core.common.enums.SortOption
 import com.potatosheep.kite.core.common.util.LocalSnackbarHostState
 import com.potatosheep.kite.core.common.util.LocalTopAppBarActionState
