@@ -178,38 +178,42 @@ private fun TopLevelScreen(
 
                 Box(Modifier.alignToRightOfParent()) {
                     val menuOptions = MenuOption.entries
+                    val destinationIsHome = currentTopLevelDestination == TopLevelDestination.HOME
+                    val destinationIsFeed = currentTopLevelDestination == TopLevelDestination.FEED
 
                     KiteDropdownMenu(
                         expanded = isMenuExpanded,
                         onDismissRequest = { isMenuExpanded = false },
                     ) {
                         menuOptions.forEach { option ->
-                            KiteDropdownMenuItem(
-                                text = option.label,
-                                onClick =
-                                    when (option) {
-                                        MenuOption.SORT -> {
-                                            {
-                                                topAppBarActionState.showSort = true
-                                                isMenuExpanded = false
+                            if ((option != MenuOption.SORT && destinationIsHome) || destinationIsFeed) {
+                                KiteDropdownMenuItem(
+                                    text = option.label,
+                                    onClick =
+                                        when (option) {
+                                            MenuOption.SORT -> {
+                                                {
+                                                    topAppBarActionState.showSort = true
+                                                    isMenuExpanded = false
+                                                }
                                             }
-                                        }
 
-                                        MenuOption.SETTINGS -> {
-                                            {
-                                                navController.navigateToSettings()
-                                                isMenuExpanded = false
+                                            MenuOption.SETTINGS -> {
+                                                {
+                                                    navController.navigateToSettings()
+                                                    isMenuExpanded = false
+                                                }
                                             }
-                                        }
 
-                                        MenuOption.ABOUT -> {
-                                            {
-                                                navController.navigateToAbout()
-                                                isMenuExpanded = false
+                                            MenuOption.ABOUT -> {
+                                                {
+                                                    navController.navigateToAbout()
+                                                    isMenuExpanded = false
+                                                }
                                             }
                                         }
-                                    }
-                            )
+                                )
+                            }
                         }
                     }
                 }
