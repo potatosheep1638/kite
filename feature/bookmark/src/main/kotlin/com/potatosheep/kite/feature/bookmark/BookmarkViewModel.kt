@@ -71,6 +71,9 @@ class BookmarkViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<PostListUiState>(PostListUiState.Loading)
     val uiState = _uiState
 
+    private val _shouldScrollToTop = MutableStateFlow(false)
+    val shouldScrollToTop = _shouldScrollToTop
+
     init {
         viewModelScope.launch {
             combinedQuery.collectLatest { state ->
@@ -100,6 +103,7 @@ class BookmarkViewModel @Inject constructor(
                             )
                         }
                     }.collectLatest {
+                        _shouldScrollToTop.value = true
                         _uiState.value = PostListUiState.Success(it)
                     }
                 }
@@ -119,6 +123,10 @@ class BookmarkViewModel @Inject constructor(
         viewModelScope.launch {
             savedStateHandle[QUERY] = query
         }
+    }
+
+    fun scrolledToTop() {
+        _shouldScrollToTop.value = false
     }
 }
 
