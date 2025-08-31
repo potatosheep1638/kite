@@ -18,6 +18,7 @@ dependencies {
     implementation(projects.core.common)
     implementation(projects.core.markdown)
     implementation(projects.core.domain)
+    implementation(projects.core.translation)
 
     implementation(libs.coil)
     implementation(libs.coil.compose)

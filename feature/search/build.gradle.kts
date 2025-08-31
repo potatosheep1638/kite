@@ -16,6 +16,7 @@ dependencies {
     implementation(projects.core.designsystem)
     implementation(projects.core.ui)
     implementation(projects.core.domain)
+    implementation(projects.core.translation)
 
     implementation(libs.coil)
     implementation(libs.coil.compose)
