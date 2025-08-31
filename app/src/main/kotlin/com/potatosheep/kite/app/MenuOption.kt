@@ -1,4 +1,4 @@
-package com.potatosheep.kite.core.common.enums
+package com.potatosheep.kite.app
 
 enum class MenuOption(val label: String) {
     SORT("Sort"),
