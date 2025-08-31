@@ -11,8 +11,8 @@ android {
     defaultConfig {
         compileSdk = 35
         applicationId = "com.potatosheep.kite"
-        versionCode = 8
-        versionName = "0.3.1-beta"
+        versionCode = 9
+        versionName = "0.3.2-beta"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
