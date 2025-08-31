@@ -178,6 +178,10 @@ fun BookmarkScreen(
                 },
                 onQueryChange = {
                     searchSavedPosts(it)
+
+                    coroutineScope.launch {
+                        listState.animateScrollToItem(0)
+                    }
                 },
                 inputFieldColors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.Transparent,
@@ -207,10 +211,6 @@ fun BookmarkScreen(
             when (postListUiState) {
                 PostListUiState.Loading -> Unit
                 is PostListUiState.Success -> {
-                    LaunchedEffect(postListUiState.posts.size) {
-                        listState.scrollToItem(0)
-                    }
-
                     if (postListUiState.posts.isEmpty()) {
                         NoResultsMsg(
                             title = "Nothing found",
