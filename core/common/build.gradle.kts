@@ -9,5 +9,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.translation)
+
     implementation(libs.coil)
 }

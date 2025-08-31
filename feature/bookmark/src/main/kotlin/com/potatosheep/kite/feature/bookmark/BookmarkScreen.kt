@@ -54,7 +54,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.potatosheep.kite.core.common.enums.SortOption
 import com.potatosheep.kite.core.common.util.onShare
-import com.potatosheep.kite.core.common.R.string as commonStrings
 import com.potatosheep.kite.core.designsystem.KiteIcons
 import com.potatosheep.kite.core.designsystem.KiteLoadingIndicator
 import com.potatosheep.kite.core.designsystem.KiteSearchBar
@@ -63,6 +62,7 @@ import com.potatosheep.kite.core.designsystem.LocalBackgroundColor
 import com.potatosheep.kite.core.designsystem.NoResultsMsg
 import com.potatosheep.kite.core.model.MediaType
 import com.potatosheep.kite.core.model.Post
+import com.potatosheep.kite.core.translation.R.string as Translation
 import com.potatosheep.kite.core.ui.param.PostListPreviewParameterProvider
 import com.potatosheep.kite.core.ui.post.PostCard
 import kotlinx.coroutines.launch
@@ -235,8 +235,8 @@ fun BookmarkScreen(
                             AnimatedVisibility(
                                 visible = showPost
                             ) {
-                                val msg = stringResource(commonStrings.bookmark_post_removed_msg)
-                                val actionLabel = stringResource(commonStrings.undo)
+                                val msg = stringResource(Translation.bookmark_post_removed_msg)
+                                val actionLabel = stringResource(Translation.undo)
 
                                 PostCard(
                                     post = post,

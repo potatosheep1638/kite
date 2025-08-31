@@ -82,7 +82,7 @@ import com.potatosheep.kite.core.ui.param.PostsAndComments
 import com.potatosheep.kite.core.ui.param.PostsAndCommentsPreviewParameterProvider
 import com.potatosheep.kite.core.ui.post.PostCard
 import kotlinx.coroutines.launch
-import com.potatosheep.kite.core.common.R.string as commonStrings
+import com.potatosheep.kite.core.translation.R.string as Translation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -159,9 +159,9 @@ internal fun PostScreen(
         topBar = {
             SmallTopAppBar(
                 backIcon = Icons.AutoMirrored.Rounded.ArrowBack,
-                backIconContentDescription = stringResource(commonStrings.back),
+                backIconContentDescription = stringResource(Translation.back),
                 onBackClick = onBackClick,
-                title = stringResource(com.potatosheep.kite.core.common.R.string.post),
+                title = stringResource(Translation.post),
                 scrollBehavior = scrollBehavior,
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = contentContainerColour
@@ -320,7 +320,7 @@ internal fun PostScreen(
                                             },
                                             label = {
                                                 Text(
-                                                    text = stringResource(commonStrings.post_view_all_comments),
+                                                    text = stringResource(Translation.post_view_all_comments),
                                                     color = MaterialTheme.colorScheme.onSurface,
                                                     style = MaterialTheme.typography.labelLarge
                                                 )
@@ -353,7 +353,7 @@ internal fun PostScreen(
                                             },
                                             label = {
                                                 Text(
-                                                    text = stringResource(commonStrings.post_view_parent_comment),
+                                                    text = stringResource(Translation.post_view_parent_comment),
                                                     color = MaterialTheme.colorScheme.onSurface,
                                                     style = MaterialTheme.typography.labelLarge
                                                 )

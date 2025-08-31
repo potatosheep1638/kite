@@ -107,7 +107,7 @@ import com.potatosheep.kite.core.ui.SubredditRow
 import com.potatosheep.kite.core.ui.param.PostListPreviewParameterProvider
 import com.potatosheep.kite.core.ui.post.PostCard
 import kotlinx.coroutines.launch
-import com.potatosheep.kite.core.common.R.string as commonStrings
+import com.potatosheep.kite.core.translation.R.string as Translation
 
 @Composable
 fun SearchRoute(
@@ -418,8 +418,8 @@ internal fun SearchScreen(
                 is SearchUiState.Success -> {
                     KiteTabRow(
                         tabs = listOf(
-                            stringResource(commonStrings.posts),
-                            stringResource(commonStrings.subreddits)
+                            stringResource(Translation.posts),
+                            stringResource(Translation.subreddits)
                         ),
                         screens = listOf(
                             {
@@ -549,8 +549,8 @@ internal fun SearchScreen(
                                         )
                                     } else if (subredditListingUiState is SubredditListingUiState.NoResult) {
                                         NoResultsMsg(
-                                            title = stringResource(commonStrings.no_result),
-                                            subtitle = stringResource(commonStrings.no_result_subreddit_subtitle),
+                                            title = stringResource(Translation.no_result),
+                                            subtitle = stringResource(Translation.no_result_subreddit_subtitle),
                                             modifier = Modifier.fillMaxSize()
                                         )
                                     }
@@ -570,8 +570,8 @@ internal fun SearchScreen(
                 searchUiState is SearchUiState.EmptyQuery
             ) {
                 NoResultsMsg(
-                    title = stringResource(commonStrings.no_result),
-                    subtitle = stringResource(commonStrings.no_result_subtitle),
+                    title = stringResource(Translation.no_result),
+                    subtitle = stringResource(Translation.no_result_subtitle),
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -718,11 +718,11 @@ private fun SubredditSearchResultCard(
                             horizontalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = "${stringResource(commonStrings.see)} ${
+                                text = "${stringResource(Translation.see)} ${
                                     if (expanded)
-                                        stringResource(commonStrings.less)
+                                        stringResource(Translation.less)
                                     else
-                                        stringResource(commonStrings.more)
+                                        stringResource(Translation.more)
                                 }",
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -737,9 +737,9 @@ private fun SubredditSearchResultCard(
                                     KiteIcons.DropdownAlt,
                                 contentDescription =
                                 if (expanded)
-                                    stringResource(commonStrings.collapse_list_subreddit)
+                                    stringResource(Translation.collapse_list_subreddit)
                                 else
-                                    stringResource(commonStrings.expand_list_subreddit),
+                                    stringResource(Translation.expand_list_subreddit),
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -784,7 +784,7 @@ private fun PostSorter(
             trailingIcon = {
                 Icon(
                     imageVector = KiteIcons.DropdownAlt,
-                    contentDescription = stringResource(commonStrings.content_desc_sort)
+                    contentDescription = stringResource(Translation.content_desc_sort)
                 )
             },
             modifier = Modifier.padding(end = 6.dp)

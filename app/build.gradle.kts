@@ -48,6 +48,7 @@ dependencies {
     implementation(projects.core.designsystem)
     implementation(projects.core.common)
     implementation(projects.core.markdown)
+    implementation(projects.core.translation)
 
     implementation(projects.feature.feed)
     implementation(projects.feature.home)

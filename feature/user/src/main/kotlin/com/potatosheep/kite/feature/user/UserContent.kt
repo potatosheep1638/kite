@@ -78,7 +78,7 @@ import com.potatosheep.kite.core.ui.UserCommentCard
 import com.potatosheep.kite.core.ui.param.PostsAndComments
 import com.potatosheep.kite.core.ui.param.PostsAndCommentsPreviewParameterProvider
 import com.potatosheep.kite.core.ui.post.PostCard
-import com.potatosheep.kite.core.common.R.string as commonStrings
+import com.potatosheep.kite.core.translation.R.string as Translation
 
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class,
@@ -168,7 +168,7 @@ internal fun UserContent(
                         ) {
                             Icon(
                                 imageVector = KiteIcons.Sort,
-                                contentDescription = stringResource(commonStrings.content_desc_sort)
+                                contentDescription = stringResource(Translation.content_desc_sort)
                             )
                         }
                     },
@@ -247,7 +247,7 @@ internal fun UserContent(
                                 Row(verticalAlignment = Alignment.Top) {
                                     Icon(
                                         imageVector = KiteIcons.Karma,
-                                        contentDescription = stringResource(commonStrings.content_desc_karma),
+                                        contentDescription = stringResource(Translation.content_desc_karma),
                                         modifier = Modifier.size(18.dp)
                                     )
 

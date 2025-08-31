@@ -16,7 +16,7 @@ import com.potatosheep.kite.core.common.KiteServices
 import com.potatosheep.kite.core.common.Service
 import com.potatosheep.kite.core.common.constants.DownloadIntent
 import com.potatosheep.kite.core.common.constants.IntentData
-import com.potatosheep.kite.core.common.R.string as commonStrings
+import com.potatosheep.kite.core.translation.R.string as Translation
 import com.potatosheep.kite.core.designsystem.R.drawable as KiteDrawable
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -34,7 +34,7 @@ internal class KiteNotifier @Inject constructor(
     override fun postDownloadSummaryNotification(): Notification =
         with(context) {
             val summaryNotification = createDownloadNotification {
-                val title = getString(commonStrings.download)
+                val title = getString(Translation.download)
 
                 setContentTitle(title)
                     .setContentText(title)
@@ -73,7 +73,7 @@ internal class KiteNotifier @Inject constructor(
                 if (state != Notifier.STATE_COMPLETE && state != Notifier.STATE_STOPPED)
                     addAction(
                         0,
-                        getString(commonStrings.cancel),
+                        getString(Translation.cancel),
                         downloadPendingIntent(downloadId, filename)
                     )
             }
@@ -110,12 +110,12 @@ internal class KiteNotifier @Inject constructor(
 
 private fun Context.getContentText(state: Int): String {
     return when (state) {
-        Notifier.STATE_DOWNLOADING_IMAGE -> getString(commonStrings.notify_download_image)
-        Notifier.STATE_DOWNLOADING_VIDEO -> getString(commonStrings.notify_download_video)
-        Notifier.STATE_DOWNLOADING_AUDIO -> getString(commonStrings.notify_download_audio)
-        Notifier.STATE_COMPLETE -> getString(commonStrings.notify_downloaded)
-        Notifier.STATE_STOPPED -> getString(commonStrings.notify_download_abort)
-        else -> getString(commonStrings.error)
+        Notifier.STATE_DOWNLOADING_IMAGE -> getString(Translation.notify_download_image)
+        Notifier.STATE_DOWNLOADING_VIDEO -> getString(Translation.notify_download_video)
+        Notifier.STATE_DOWNLOADING_AUDIO -> getString(Translation.notify_download_audio)
+        Notifier.STATE_COMPLETE -> getString(Translation.notify_downloaded)
+        Notifier.STATE_STOPPED -> getString(Translation.notify_download_abort)
+        else -> getString(Translation.error)
     }
 }
 
@@ -135,7 +135,7 @@ private fun Context.createDownloadNotification(
 private fun Context.ensureChannelExists() {
     val channel = NotificationChannel(
         DOWNLOAD_NOTIFICATION_CHANNEL_ID,
-        getString(commonStrings.download),
+        getString(Translation.download),
         NotificationManager.IMPORTANCE_DEFAULT
     )
 

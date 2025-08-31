@@ -79,7 +79,7 @@ import com.potatosheep.kite.core.ui.DynamicAsyncImage
 import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.abs
-import com.potatosheep.kite.core.common.R.string as commonStrings
+import com.potatosheep.kite.core.translation.R.string as Translation
 
 @Composable
 fun ImageRoute(
@@ -285,7 +285,7 @@ internal fun ImageScreen(
                                         containerColor = LocalBackgroundColor.current
                                     )
                                 ) {
-                                    val captionCopiedToastText = stringResource(commonStrings.copied_clipboard)
+                                    val captionCopiedToastText = stringResource(Translation.copied_clipboard)
 
                                     Text(
                                         text = imageUiState.captions[page] ?: "",

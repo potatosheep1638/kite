@@ -46,7 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.potatosheep.kite.core.common.R.string as commonStrings
+import com.potatosheep.kite.core.translation.R.string as Translation
 import com.potatosheep.kite.core.designsystem.KiteFonts
 import com.potatosheep.kite.core.designsystem.KiteIcons
 import com.potatosheep.kite.core.designsystem.KiteTheme
@@ -70,7 +70,7 @@ internal fun UserAbout(
             SmallTopAppBar(
                 backIcon = Icons.AutoMirrored.Rounded.ArrowBack,
                 onBackClick = onBackClick,
-                title = stringResource(commonStrings.about),
+                title = stringResource(Translation.about),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = LocalBackgroundColor.current
                 ),
@@ -177,7 +177,7 @@ internal fun UserAbout(
                             ) {
                                 Icon(
                                     imageVector = KiteIcons.Karma,
-                                    contentDescription = stringResource(commonStrings.content_desc_karma),
+                                    contentDescription = stringResource(Translation.content_desc_karma),
                                     modifier = Modifier.size(26.dp),
                                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                 )
