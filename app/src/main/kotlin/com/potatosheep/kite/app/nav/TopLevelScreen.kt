@@ -43,7 +43,6 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.potatosheep.kite.app.ui.KiteAppState
 import com.potatosheep.kite.core.common.TopAppBarActionState
-import com.potatosheep.kite.core.common.R.string as commonStrings
 import com.potatosheep.kite.app.MenuOption
 import com.potatosheep.kite.core.common.enums.SortOption
 import com.potatosheep.kite.core.common.util.LocalSnackbarHostState
@@ -55,6 +54,7 @@ import com.potatosheep.kite.core.designsystem.KiteIcons
 import com.potatosheep.kite.core.designsystem.KiteNavigationSuiteScaffold
 import com.potatosheep.kite.core.designsystem.KiteTopAppBar
 import com.potatosheep.kite.core.designsystem.LocalBackgroundColor
+import com.potatosheep.kite.core.translation.R.string as Translation
 import com.potatosheep.kite.feature.about.nav.navigateToAbout
 import com.potatosheep.kite.feature.bookmark.nav.navigateToBookmark
 import com.potatosheep.kite.feature.feed.nav.FeedScreen
@@ -161,11 +161,11 @@ private fun TopLevelScreen(
                         if (isTitleVisible)
                             ""
                         else
-                            stringResource(commonStrings.home_top_app_bar_title),
+                            stringResource(Translation.home_top_app_bar_title),
                     searchIcon = KiteIcons.Search,
-                    searchIconContentDescription = stringResource(commonStrings.content_desc_search),
+                    searchIconContentDescription = stringResource(Translation.content_desc_search),
                     optionsIcon = KiteIcons.MoreOptions,
-                    optionsContentDescription = stringResource(commonStrings.content_desc_more_options),
+                    optionsContentDescription = stringResource(Translation.content_desc_more_options),
                     onSearchClick = {
                         navController.navigateToSearch(
                             SortOption.Search.RELEVANCE,

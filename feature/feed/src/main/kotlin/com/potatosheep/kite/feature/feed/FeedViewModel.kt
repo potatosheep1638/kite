@@ -5,12 +5,12 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.potatosheep.kite.core.common.R
 import com.potatosheep.kite.core.common.enums.SortOption
 import com.potatosheep.kite.core.data.repo.PostRepository
 import com.potatosheep.kite.core.data.repo.SubredditRepository
 import com.potatosheep.kite.core.data.repo.UserConfigRepository
 import com.potatosheep.kite.core.model.Post
+import com.potatosheep.kite.core.translation.R.string as Translation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -268,15 +268,15 @@ enum class Feed(
     val uri: String
 ) {
     FOLLOWED(
-        label = R.string.home_feed_followed,
+        label = Translation.home_feed_followed,
         uri = FOLLOWED_FEED
     ),
     POPULAR(
-        label = R.string.home_feed_popular,
+        label = Translation.home_feed_popular,
         uri = "popular"
     ),
     ALL(
-        label = R.string.home_feed_all,
+        label = Translation.home_feed_all,
         uri = "all"
     )
 }

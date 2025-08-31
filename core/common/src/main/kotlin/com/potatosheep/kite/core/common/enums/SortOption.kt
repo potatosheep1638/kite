@@ -1,51 +1,51 @@
 package com.potatosheep.kite.core.common.enums
 
-import com.potatosheep.kite.core.common.R
+import com.potatosheep.kite.core.translation.R.string as Translation
 
 object SortOption {
 
     enum class Post(val label: Int, val uri: String) {
         HOT(
-            label = R.string.hot,
+            label = Translation.hot,
             uri = "hot"
         ),
         NEW(
-            label = R.string.sort_new,
+            label = Translation.sort_new,
             uri = "new"
         ),
         TOP(
-            label = R.string.top,
+            label = Translation.top,
             uri = "top"
         ),
         RISING(
-            label = R.string.rising,
+            label = Translation.rising,
             uri = "rising"
         ),
         CONTROVERSIAL(
-            label = R.string.controversial,
+            label = Translation.controversial,
             uri = "controversial"
         )
     }
 
     enum class Comment(val label: Int, val uri: String) {
         CONFIDENCE(
-            label = R.string.confidence,
+            label = Translation.confidence,
             uri = "confidence"
         ),
         TOP(
-            label = R.string.top,
+            label = Translation.top,
             uri = "top"
         ),
         NEW(
-            label = R.string.sort_new,
+            label = Translation.sort_new,
             uri = "new"
         ),
         CONTROVERSIAL(
-            label = R.string.controversial,
+            label = Translation.controversial,
             uri = "controversial"
         ),
         OLD(
-            label = R.string.old,
+            label = Translation.old,
             uri = "old"
         )
     }
@@ -53,69 +53,69 @@ object SortOption {
 
     enum class User(val label: Int, val uri: String) {
         HOT(
-            label = R.string.hot,
+            label = Translation.hot,
             uri = "hot"
         ),
         NEW(
-            label = R.string.sort_new,
+            label = Translation.sort_new,
             uri = "new"
         ),
         TOP(
-            label = R.string.top,
+            label = Translation.top,
             uri = "top"
         ),
         CONTROVERSIAL(
-            label = R.string.controversial,
+            label = Translation.controversial,
             uri = "controversial"
         )
     }
 
     enum class Search(val label: Int, val uri: String) {
         RELEVANCE(
-            label = R.string.relevance,
+            label = Translation.relevance,
             uri = "relevance"
         ),
         HOT(
-            label = R.string.hot,
+            label = Translation.hot,
             uri = "hot"
         ),
         TOP(
-            label = R.string.top,
+            label = Translation.top,
             uri = "top"
         ),
         NEW(
-            label = R.string.sort_new,
+            label = Translation.sort_new,
             uri = "new"
         ),
         COMMENTS(
-            label = R.string.comments,
+            label = Translation.comments,
             uri = "comments"
         )
     }
 
     enum class Timeframe(val label: Int, val uri: String) {
         HOUR(
-            label = R.string.hour,
+            label = Translation.hour,
             uri = "hour"
         ),
         DAY(
-            label = R.string.day,
+            label = Translation.day,
             uri = "day"
         ),
         WEEK(
-            label = R.string.week,
+            label = Translation.week,
             uri = "week"
         ),
         MONTH(
-            label = R.string.month,
+            label = Translation.month,
             uri = "month"
         ),
         YEAR(
-            label = R.string.year,
+            label = Translation.year,
             uri = "year"
         ),
         ALL(
-            label = R.string.all,
+            label = Translation.all,
             uri = "all"
         ),
     }

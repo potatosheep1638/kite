@@ -42,7 +42,7 @@ import com.potatosheep.kite.core.designsystem.NoResultsMsg
 import com.potatosheep.kite.core.model.Subreddit
 import com.potatosheep.kite.core.ui.SubredditRow
 import kotlinx.coroutines.launch
-import com.potatosheep.kite.core.common.R.string as commonStrings
+import com.potatosheep.kite.core.translation.R.string as Translation
 
 @Composable
 fun HomeRoute(
@@ -112,7 +112,7 @@ fun HomeScreen(
                             ) {
                                 Icon(
                                     imageVector = KiteIcons.Bookmark,
-                                    contentDescription = stringResource(commonStrings.library_saved),
+                                    contentDescription = stringResource(Translation.library_saved),
                                     modifier = Modifier
                                         .padding(12.dp)
                                 )
@@ -120,14 +120,14 @@ fun HomeScreen(
 
                             Column {
                                 Text(
-                                    text = stringResource(commonStrings.library_saved),
+                                    text = stringResource(Translation.library_saved),
                                     modifier = Modifier.padding(start = 12.dp),
                                     style = MaterialTheme.typography.titleMedium,
                                     color = MaterialTheme.colorScheme.onSurface,
                                 )
 
                                 Text(
-                                    text = stringResource(commonStrings.library_saved_description),
+                                    text = stringResource(Translation.library_saved_description),
                                     modifier = Modifier.padding(start = 12.dp),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -140,7 +140,7 @@ fun HomeScreen(
                 item {
                     if (subredditListUiState.subreddits.isNotEmpty()) {
                         Text(
-                            text = stringResource(commonStrings.subreddits),
+                            text = stringResource(Translation.subreddits),
                             modifier = Modifier.padding(
                                 start = 24.dp,
                                 top = 24.dp,
@@ -163,8 +163,8 @@ fun HomeScreen(
                         itemVisibility.animateTo(1f, tween(100))
                     }
 
-                    val msg = stringResource(commonStrings.library_remove_subreddit_msg)
-                    val actionLabel = stringResource(commonStrings.undo)
+                    val msg = stringResource(Translation.library_remove_subreddit_msg)
+                    val actionLabel = stringResource(Translation.undo)
 
                     SubredditRow(
                         subreddit = subreddit,
@@ -212,8 +212,8 @@ fun HomeScreen(
 
             if (subredditListUiState.subreddits.isEmpty()) {
                 NoResultsMsg(
-                    title = stringResource(commonStrings.no_result),
-                    subtitle = stringResource(commonStrings.library_no_subreddits_msg),
+                    title = stringResource(Translation.no_result),
+                    subtitle = stringResource(Translation.library_no_subreddits_msg),
                     modifier = Modifier
                         .fillMaxSize()
                 )

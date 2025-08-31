@@ -54,7 +54,7 @@ import com.potatosheep.kite.core.designsystem.R
 import com.potatosheep.kite.core.designsystem.SmallTopAppBar
 import com.potatosheep.kite.core.markdown.MarkdownText
 import com.potatosheep.kite.core.model.Subreddit
-import com.potatosheep.kite.core.common.R.string as commonStrings
+import com.potatosheep.kite.core.translation.R.string as Translation
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
@@ -71,7 +71,7 @@ internal fun SubredditAboutContent(
             SmallTopAppBar(
                 backIcon = Icons.AutoMirrored.Rounded.ArrowBack,
                 onBackClick = onBackClick,
-                title = stringResource(commonStrings.about),
+                title = stringResource(Translation.about),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = LocalBackgroundColor.current
                 ),
@@ -183,7 +183,7 @@ internal fun SubredditAboutContent(
                                 )
 
                                 Text(
-                                    text = stringResource(commonStrings.subreddit_following_label),
+                                    text = stringResource(Translation.subreddit_following_label),
                                     style = MaterialTheme.typography.titleSmall,
                                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                                 )
@@ -227,7 +227,7 @@ internal fun SubredditAboutContent(
                                 )
 
                                 Text(
-                                    text = stringResource(commonStrings.subreddit_online_label),
+                                    text = stringResource(Translation.subreddit_online_label),
                                     style = MaterialTheme.typography.titleSmall,
                                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                                 )

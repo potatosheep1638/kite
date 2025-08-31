@@ -56,13 +56,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.potatosheep.kite.core.common.R.string as commonStrings
 import com.potatosheep.kite.core.designsystem.KiteIcons
 import com.potatosheep.kite.core.designsystem.KiteTheme
 import com.potatosheep.kite.core.designsystem.LocalBackgroundColor
 import com.potatosheep.kite.core.designsystem.SettingRow
 import com.potatosheep.kite.core.designsystem.SmallTopAppBar
 import com.potatosheep.kite.core.model.UserConfig
+import com.potatosheep.kite.core.translation.R.string as Translation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -141,7 +141,7 @@ internal fun SettingsScreen(
     Scaffold(
         topBar = {
             SmallTopAppBar(
-                title = stringResource(commonStrings.settings_top_app_bar_title),
+                title = stringResource(Translation.settings_top_app_bar_title),
                 backIcon = KiteIcons.Back,
                 backIconContentDescription = "Back",
                 onBackClick = onBackClick,
@@ -180,13 +180,13 @@ internal fun SettingsScreen(
                     val configuration = LocalConfiguration.current
 
                     SettingsGroupLabel(
-                        text = stringResource(commonStrings.settings_network),
+                        text = stringResource(Translation.settings_network),
                         modifier = Modifier.padding(top = 12.dp)
                     )
 
                     SettingRow(
-                        text = stringResource(commonStrings.instance),
-                        description = stringResource(commonStrings.settings_instance_desc)
+                        text = stringResource(Translation.instance),
+                        description = stringResource(Translation.settings_instance_desc)
                     ) {
                         showInstanceDialog = true
                     }
@@ -194,8 +194,8 @@ internal fun SettingsScreen(
                     HorizontalDivider(Modifier.padding(vertical = 6.dp))
 
                     SwitchRow(
-                        text = stringResource(commonStrings.settings_custom_instance),
-                        description = stringResource(commonStrings.settings_custom_instance_desc),
+                        text = stringResource(Translation.settings_custom_instance),
+                        description = stringResource(Translation.settings_custom_instance_desc),
                         selected = settingsUiState.userConfig.shouldUseCustomInstance
                     ) {
                         setUseCustomInstance(!settingsUiState.userConfig.shouldUseCustomInstance)
@@ -205,7 +205,7 @@ internal fun SettingsScreen(
                         visible = settingsUiState.userConfig.shouldUseCustomInstance
                     ) {
                         SettingRow(
-                            text = stringResource(commonStrings.settings_choose_custom_instance),
+                            text = stringResource(Translation.settings_choose_custom_instance),
                             description = settingsUiState.userConfig.customInstance
                         ) {
                             showCustomInstanceDialog = true
@@ -214,27 +214,27 @@ internal fun SettingsScreen(
 
                     Spacer(Modifier.padding(vertical = 6.dp))
 
-                    SettingsGroupLabel(stringResource(commonStrings.posts))
+                    SettingsGroupLabel(stringResource(Translation.posts))
 
                     SwitchRow(
-                        text = stringResource(commonStrings.settings_disable_nsfw),
-                        description = stringResource(commonStrings.settings_disable_nsfw_desc),
+                        text = stringResource(Translation.settings_disable_nsfw),
+                        description = stringResource(Translation.settings_disable_nsfw_desc),
                         selected = !settingsUiState.userConfig.showNsfw
                     ) {
                         setShowNsfw(!settingsUiState.userConfig.showNsfw)
                     }
 
                     SwitchRow(
-                        text = stringResource(commonStrings.settings_blur_nsfw),
-                        description = stringResource(commonStrings.settings_blur_nsfw_desc),
+                        text = stringResource(Translation.settings_blur_nsfw),
+                        description = stringResource(Translation.settings_blur_nsfw_desc),
                         selected = settingsUiState.userConfig.blurNsfw
                     ) {
                         setBlurNsfw(!settingsUiState.userConfig.blurNsfw)
                     }
 
                     SwitchRow(
-                        text = stringResource(commonStrings.settings_blur_spoiler),
-                        description = stringResource(commonStrings.settings_blur_spoiler_desc),
+                        text = stringResource(Translation.settings_blur_spoiler),
+                        description = stringResource(Translation.settings_blur_spoiler_desc),
                         selected = settingsUiState.userConfig.blurSpoiler
                     ) {
                         setBlurSpoiler(!settingsUiState.userConfig.blurSpoiler)
@@ -242,18 +242,18 @@ internal fun SettingsScreen(
 
                     Spacer(Modifier.padding(vertical = 6.dp))
 
-                    SettingsGroupLabel(stringResource(commonStrings.settings_data))
+                    SettingsGroupLabel(stringResource(Translation.settings_data))
 
                     SettingRow(
-                        text = stringResource(commonStrings.settings_export_saved_posts),
-                        description = stringResource(commonStrings.settings_export_saved_posts_desc)
+                        text = stringResource(Translation.settings_export_saved_posts),
+                        description = stringResource(Translation.settings_export_saved_posts_desc)
                     ) {
                         fileWriterLauncher.launch(writeFileIntent())
                     }
 
                     SettingRow(
-                        text = stringResource(commonStrings.settings_import_saved_posts),
-                        description = stringResource(commonStrings.settings_import_saved_posts_desc)
+                        text = stringResource(Translation.settings_import_saved_posts),
+                        description = stringResource(Translation.settings_import_saved_posts_desc)
                     ) {
                         fileReaderLauncher.launch(readFileIntent())
                     }
@@ -333,7 +333,7 @@ private fun InstanceDialog(
         icon = null,
         title = {
             Text(
-                text = stringResource(commonStrings.settings_choose_instance),
+                text = stringResource(Translation.settings_choose_instance),
                 fontSize = 19.sp,
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface
@@ -363,7 +363,7 @@ private fun InstanceDialog(
         onDismissRequest = onDismissRequest,
         confirmButton = {
             Text(
-                text = stringResource(commonStrings.confirm),
+                text = stringResource(Translation.confirm),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
@@ -391,7 +391,7 @@ private fun CustomInstanceDialog(
         icon = null,
         title = {
             Text(
-                text = stringResource(commonStrings.settings_choose_custom_instance),
+                text = stringResource(Translation.settings_choose_custom_instance),
                 fontSize = 19.sp,
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface

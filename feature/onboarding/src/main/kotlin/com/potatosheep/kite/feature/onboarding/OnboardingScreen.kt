@@ -59,7 +59,7 @@ import com.potatosheep.kite.core.designsystem.KiteTheme
 import com.potatosheep.kite.core.designsystem.LocalBackgroundColor
 import com.potatosheep.kite.core.designsystem.SmallTopAppBar
 import com.potatosheep.kite.core.model.UserConfig
-import com.potatosheep.kite.core.common.R.string as commonStrings
+import com.potatosheep.kite.core.translation.R.string as Translation
 
 @Composable
 fun OnboardingRoute(
@@ -132,7 +132,7 @@ internal fun OnboardingScreen(
                 )
         ) {
             Text(
-                text = stringResource(commonStrings.onboarding_headline),
+                text = stringResource(Translation.onboarding_headline),
                 modifier = Modifier
                     .padding(
                         top = 48.dp,
@@ -146,7 +146,7 @@ internal fun OnboardingScreen(
             )
 
             Text(
-                text = stringResource(commonStrings.onboarding_subtitle),
+                text = stringResource(Translation.onboarding_subtitle),
                 modifier = Modifier
                     .padding(
                         top = 6.dp,
@@ -182,8 +182,8 @@ internal fun OnboardingScreen(
                     ) {
                         Column {
                             OptionRow(
-                                text = stringResource(commonStrings.settings_choose_instance),
-                                description = stringResource(commonStrings.settings_instance_desc),
+                                text = stringResource(Translation.settings_choose_instance),
+                                description = stringResource(Translation.settings_instance_desc),
                                 selected = currentSelectedOption == OnboardingOption.PUBLIC,
                                 onClick = {
                                     currentSelectedOption = OnboardingOption.PUBLIC
@@ -194,7 +194,7 @@ internal fun OnboardingScreen(
                             if (currentSelectedOption == OnboardingOption.PUBLIC) {
                                 Text(
                                     text = onboardingUiState.userConfig.instance.ifEmpty {
-                                        stringResource(commonStrings.onboarding_no_instance)
+                                        stringResource(Translation.onboarding_no_instance)
                                     },
                                     modifier = Modifier
                                         .padding(
@@ -223,7 +223,7 @@ internal fun OnboardingScreen(
                                     )
                                 ) {
                                     Text(
-                                        text = stringResource(commonStrings.settings_choose_instance),
+                                        text = stringResource(Translation.settings_choose_instance),
                                         color = MaterialTheme.colorScheme.onSecondary,
                                         style = MaterialTheme.typography.labelLarge
                                     )
@@ -231,8 +231,8 @@ internal fun OnboardingScreen(
                             }
 
                             OptionRow(
-                                text = stringResource(commonStrings.settings_choose_custom_instance),
-                                description = stringResource(commonStrings.settings_custom_instance_desc),
+                                text = stringResource(Translation.settings_choose_custom_instance),
+                                description = stringResource(Translation.settings_custom_instance_desc),
                                 selected = currentSelectedOption == OnboardingOption.CUSTOM,
                                 onClick = {
                                     currentSelectedOption = OnboardingOption.CUSTOM
@@ -272,7 +272,7 @@ internal fun OnboardingScreen(
 
                                 if (!isUrlValid) {
                                     Text(
-                                        text = stringResource(commonStrings.invalid_url),
+                                        text = stringResource(Translation.invalid_url),
                                         modifier = Modifier
                                             .padding(
                                                 start = 24.dp,
@@ -316,7 +316,7 @@ internal fun OnboardingScreen(
                                 )
                             ) {
                                 Text(
-                                    text = stringResource(commonStrings.next),
+                                    text = stringResource(Translation.next),
                                     color = MaterialTheme.colorScheme.onPrimary,
                                     style = MaterialTheme.typography.labelLarge
                                 )
@@ -417,7 +417,7 @@ private fun InstanceDialog(
         icon = null,
         title = {
             Text(
-                text = stringResource(commonStrings.settings_choose_instance),
+                text = stringResource(Translation.settings_choose_instance),
                 fontSize = 19.sp,
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface
@@ -447,7 +447,7 @@ private fun InstanceDialog(
         onDismissRequest = onDismissRequest,
         confirmButton = {
             Text(
-                text = stringResource(commonStrings.confirm),
+                text = stringResource(Translation.confirm),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier

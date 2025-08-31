@@ -16,7 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.potatosheep.kite.core.common.R.string as commonStrings
+import com.potatosheep.kite.core.translation.R.string as Translation
 
 @Composable
 fun ErrorMsg(
@@ -29,7 +29,7 @@ fun ErrorMsg(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = stringResource(commonStrings.error),
+            text = stringResource(Translation.error),
             modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
@@ -53,7 +53,7 @@ fun ErrorMsg(
                 .padding(top = 12.dp)
         ) {
             Text(
-                text = stringResource(commonStrings.retry),
+                text = stringResource(Translation.retry),
                 color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.labelLarge
             )
