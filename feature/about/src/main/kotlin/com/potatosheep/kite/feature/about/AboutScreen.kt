@@ -26,7 +26,7 @@ import com.potatosheep.kite.core.designsystem.KiteTheme
 import com.potatosheep.kite.core.designsystem.LocalBackgroundColor
 import com.potatosheep.kite.core.designsystem.SettingRow
 import com.potatosheep.kite.core.designsystem.SmallTopAppBar
-import com.potatosheep.kite.core.common.R.string as commonStrings
+import com.potatosheep.kite.core.translation.R.string as Translation
 
 @Composable
 fun AboutRoute(
@@ -56,9 +56,9 @@ internal fun AboutScreen(
         topBar = {
             SmallTopAppBar(
                 backIcon = Icons.AutoMirrored.Rounded.ArrowBack,
-                backIconContentDescription = stringResource(commonStrings.back),
+                backIconContentDescription = stringResource(Translation.back),
                 onBackClick = onBackClick,
-                title = stringResource(commonStrings.about),
+                title = stringResource(Translation.about),
                 scrollBehavior = scrollBehavior,
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = backgroundColor
@@ -80,18 +80,18 @@ internal fun AboutScreen(
                 )
         ) {
             SettingRow(
-                text = stringResource(commonStrings.about_version),
+                text = stringResource(Translation.about_version),
                 description = version
             ) { }
 
             SettingRow(
-                text = stringResource(commonStrings.about_source_code),
-                description = stringResource(commonStrings.about_source_code_desc)
+                text = stringResource(Translation.about_source_code),
+                description = stringResource(Translation.about_source_code_desc)
             ) { uriHandler.openUri(GITHUB_LINK) }
 
 
             Text(
-                text = stringResource(commonStrings.about_license),
+                text = stringResource(Translation.about_license),
                 modifier = Modifier.padding(
                     24.dp
                 ),

@@ -52,7 +52,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import com.potatosheep.kite.core.common.R.string as commonStrings
+import com.potatosheep.kite.core.translation.R.string as Translation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -121,7 +121,7 @@ fun SmallTopAppBar(
     title: String,
     modifier: Modifier = Modifier,
     actions: @Composable (RowScope.() -> Unit) = {},
-    backIconContentDescription: String = stringResource(commonStrings.back),
+    backIconContentDescription: String = stringResource(Translation.back),
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
     scrollBehavior: TopAppBarScrollBehavior? = null
 ) {
@@ -169,7 +169,7 @@ fun KiteSearchBar(
     leadingComposable: (@Composable () -> Unit)? = null,
     onClear: () -> Unit = {},
     onQueryChange: (String) -> Unit = {},
-    backIconContentDescription: String = stringResource(commonStrings.back),
+    backIconContentDescription: String = stringResource(Translation.back),
     inputFieldColors: TextFieldColors = TextFieldDefaults.colors(),
     colors: SearchBarColors = SearchBarDefaults.colors(),
     content: @Composable () -> Unit
@@ -298,7 +298,7 @@ fun MediaTopAppBar(
                 ) {
                     Icon(
                         imageVector = KiteIcons.Back,
-                        contentDescription = stringResource(commonStrings.back),
+                        contentDescription = stringResource(Translation.back),
                         tint = MaterialTheme.colorScheme.onBackground
                     )
                 }

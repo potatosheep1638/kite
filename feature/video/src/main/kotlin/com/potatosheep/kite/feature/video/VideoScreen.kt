@@ -63,7 +63,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import androidx.media3.ui.PlayerView.ControllerVisibilityListener
-import com.potatosheep.kite.core.common.R.string as commonStrings
+import com.potatosheep.kite.core.translation.R.string as Translation
 import com.potatosheep.kite.core.common.util.onShare
 import com.potatosheep.kite.core.designsystem.KiteTheme
 import com.potatosheep.kite.core.designsystem.MediaTopAppBar
@@ -299,7 +299,7 @@ private fun FileNamer(
         icon = null,
         title = {
             Text(
-                text = stringResource(commonStrings.download),
+                text = stringResource(Translation.download),
                 fontSize = 19.sp,
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface
@@ -314,7 +314,7 @@ private fun FileNamer(
                 },
                 label = {
                     Text(
-                        text = stringResource(commonStrings.filename),
+                        text = stringResource(Translation.filename),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -322,7 +322,7 @@ private fun FileNamer(
                 supportingText = {
                     if (isFieldEmpty) {
                         Text(
-                            text = stringResource(commonStrings.empty_error),
+                            text = stringResource(Translation.empty_error),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.error
                         )
@@ -341,7 +341,7 @@ private fun FileNamer(
         onDismissRequest = onDismissRequest,
         confirmButton = {
             Text(
-                text = stringResource(commonStrings.confirm),
+                text = stringResource(Translation.confirm),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
@@ -366,7 +366,7 @@ private fun HLSDialog(
     properties: DialogProperties = DialogProperties(),
 ) {
     val annotatedString = buildAnnotatedString {
-        append("${stringResource(commonStrings.hls_warning_body)} ")
+        append("${stringResource(Translation.hls_warning_body)} ")
         withLink(
             LinkAnnotation.Url(
                 url = "https://github.com/potatosheep1638/kite/issues/22",
@@ -379,7 +379,7 @@ private fun HLSDialog(
                 )
             )
         ) {
-            append(stringResource(commonStrings.hls_warning_help_hyperlink))
+            append(stringResource(Translation.hls_warning_help_hyperlink))
         }
     }
 
@@ -389,7 +389,7 @@ private fun HLSDialog(
         icon = null,
         title = {
             Text(
-                text = stringResource(commonStrings.hls_warning_title),
+                text = stringResource(Translation.hls_warning_title),
                 fontSize = 19.sp,
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface
@@ -407,7 +407,7 @@ private fun HLSDialog(
         onDismissRequest = onDismissRequest,
         confirmButton = {
             Text(
-                text = stringResource(commonStrings.confirm),
+                text = stringResource(Translation.confirm),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier

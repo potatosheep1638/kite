@@ -54,7 +54,7 @@ import com.potatosheep.kite.core.model.Post
 import com.potatosheep.kite.core.ui.param.PostListPreviewParameterProvider
 import com.potatosheep.kite.core.ui.post.PostCard
 import kotlinx.coroutines.launch
-import com.potatosheep.kite.core.common.R.string as commonStrings
+import com.potatosheep.kite.core.translation.R.string as Translation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -206,7 +206,7 @@ internal fun FeedScreen(
                     ) {
                         item {
                             Text(
-                                text = stringResource(commonStrings.home_headline),
+                                text = stringResource(Translation.home_headline),
                                 modifier = Modifier
                                     .padding(
                                         start = 12.dp,
@@ -417,7 +417,7 @@ private fun SortSheet(
         modifier = modifier
     ) {
         Text(
-            text = stringResource(commonStrings.sort_options),
+            text = stringResource(Translation.sort_options),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 16.dp)
         )
@@ -504,7 +504,7 @@ private fun FeedSheet(
         modifier = modifier
     ) {
         Text(
-            text = stringResource(commonStrings.home_feed_sheet_title),
+            text = stringResource(Translation.home_feed_sheet_title),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 16.dp)
         )
@@ -611,7 +611,7 @@ private fun PostSorter(
             trailingIcon = {
                 Icon(
                     imageVector = KiteIcons.DropdownAlt,
-                    contentDescription = stringResource(commonStrings.content_desc_sort)
+                    contentDescription = stringResource(Translation.content_desc_sort)
                 )
             },
             modifier = Modifier.padding(end = 6.dp)

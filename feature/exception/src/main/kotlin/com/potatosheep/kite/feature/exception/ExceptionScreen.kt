@@ -65,7 +65,7 @@ import com.potatosheep.kite.core.designsystem.KiteTheme
 import com.potatosheep.kite.core.designsystem.LocalBackgroundColor
 import com.potatosheep.kite.core.designsystem.SmallTopAppBar
 import java.io.IOException
-import com.potatosheep.kite.core.common.R.string as commonStrings
+import com.potatosheep.kite.core.translation.R.string as Translation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -106,7 +106,7 @@ internal fun ExceptionScreen(
             SmallTopAppBar(
                 title = "",
                 backIcon = KiteIcons.Back,
-                backIconContentDescription = stringResource(commonStrings.back),
+                backIconContentDescription = stringResource(Translation.back),
                 onBackClick = onBackClick,
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = LocalBackgroundColor.current
@@ -135,7 +135,7 @@ internal fun ExceptionScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = stringResource(commonStrings.exception_headline),
+                text = stringResource(Translation.exception_headline),
                 modifier = Modifier
                     .padding(
                         top = 24.dp,
@@ -192,7 +192,7 @@ internal fun ExceptionScreen(
                 )
             ) {
                 Text(
-                    text = stringResource(commonStrings.exception_title),
+                    text = stringResource(Translation.exception_title),
                     modifier = Modifier
                         .padding(
                             start = 12.dp,
@@ -214,7 +214,7 @@ internal fun ExceptionScreen(
                 )
             ) {
                 Text(
-                    text = stringResource(commonStrings.exception_subtitle),
+                    text = stringResource(Translation.exception_subtitle),
                     modifier = Modifier
                         .padding(
                             top = 2.dp,

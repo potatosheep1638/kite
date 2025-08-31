@@ -84,7 +84,7 @@ import com.potatosheep.kite.core.model.Subreddit
 import com.potatosheep.kite.core.ui.param.PostListPreviewParameterProvider
 import com.potatosheep.kite.core.ui.post.PostCard
 import kotlinx.coroutines.launch
-import com.potatosheep.kite.core.common.R.string as commonStrings
+import com.potatosheep.kite.core.translation.R.string as Translation
 
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class,
@@ -179,7 +179,7 @@ fun SubredditPostContent(
                         ) {
                             Icon(
                                 imageVector = KiteIcons.Search,
-                                contentDescription = stringResource(commonStrings.content_desc_search)
+                                contentDescription = stringResource(Translation.content_desc_search)
                             )
                         }
 
@@ -193,7 +193,7 @@ fun SubredditPostContent(
                         ) {
                             Icon(
                                 imageVector = KiteIcons.Sort,
-                                contentDescription = stringResource(commonStrings.content_desc_sort)
+                                contentDescription = stringResource(Translation.content_desc_sort)
                             )
                         }
                     },
@@ -287,14 +287,14 @@ fun SubredditPostContent(
                                 ) {
                                     Icon(
                                         imageVector = KiteIcons.Subscribers,
-                                        contentDescription = stringResource(commonStrings.subscribers),
+                                        contentDescription = stringResource(Translation.subscribers),
                                         modifier = Modifier.size(18.dp)
                                     )
 
                                     Text(
                                         text = "${subreddit.subscribers.abbreviate()} ${
                                             stringResource(
-                                                commonStrings.subreddit_subscribers
+                                                Translation.subreddit_subscribers
                                             )
                                         }",
                                         style = MaterialTheme.typography.labelLarge,
@@ -309,14 +309,14 @@ fun SubredditPostContent(
 
                                     Icon(
                                         imageVector = KiteIcons.ActiveUsers,
-                                        contentDescription = stringResource(commonStrings.active_users),
+                                        contentDescription = stringResource(Translation.active_users),
                                         modifier = Modifier.size(17.dp)
                                     )
 
                                     Text(
                                         text = "${subreddit.activeUsers.abbreviate()} ${
                                             stringResource(
-                                                commonStrings.subreddit_online
+                                                Translation.subreddit_online
                                             )
                                         }",
                                         style = MaterialTheme.typography.labelLarge,
@@ -363,7 +363,7 @@ fun SubredditPostContent(
                                 trailingIcon = {
                                     Icon(
                                         imageVector = KiteIcons.DropdownAlt,
-                                        contentDescription = stringResource(commonStrings.content_desc_sort)
+                                        contentDescription = stringResource(Translation.content_desc_sort)
                                     )
                                 },
                                 modifier = Modifier.padding(end = 6.dp)
@@ -385,9 +385,9 @@ fun SubredditPostContent(
                                 ) {
                                     Text(
                                         text = if (isSubredditFollowed)
-                                            stringResource(commonStrings.unfollow)
+                                            stringResource(Translation.unfollow)
                                         else
-                                            stringResource(commonStrings.follow),
+                                            stringResource(Translation.follow),
                                         color =
                                             if (isSubredditFollowed)
                                                 MaterialTheme.colorScheme.error
