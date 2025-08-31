@@ -116,6 +116,10 @@ private fun TopLevelScreen(
     var isMenuExpanded by remember { mutableStateOf(false) }
     var subredditScope: String? by remember { mutableStateOf(null) }
 
+    if (currentTopLevelDestination == TopLevelDestination.HOME) {
+        isTitleVisible = false
+    }
+
     KiteNavigationSuiteScaffold(
         navigationSuiteItems = {
             appState.topLevelDestinations.forEach { destination ->
