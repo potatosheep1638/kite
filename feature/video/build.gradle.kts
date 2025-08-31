@@ -15,6 +15,7 @@ dependencies {
     implementation(projects.core.designsystem)
     implementation(projects.core.ui)
     implementation(projects.core.common)
+    implementation(projects.core.translation)
 
     implementation(libs.kotlinx.serialization.json)
 
