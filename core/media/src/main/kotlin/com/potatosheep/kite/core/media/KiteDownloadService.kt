@@ -159,7 +159,7 @@ class KiteDownloadService : LifecycleService() {
                         val videoFilename = videoFileUri.getFilename()
                         val videoNotificationId = videoFilename.hashCode()
 
-                        if (isHLS) {
+                        if (isHLS && playlist.audio.isNotEmpty()) {
                             audioFileUri = applicationContext.createFile(
                                 downloadData.filename,
                                 contentUri,
@@ -240,7 +240,7 @@ class KiteDownloadService : LifecycleService() {
 
             return@withContext HLSUri(
                 video = "$parentPath${uris.video}",
-                audio = "$parentPath${uris.audio}"
+                audio = if (uris.audio.isEmpty()) "" else "$parentPath${uris.audio}"
             )
         }
 
