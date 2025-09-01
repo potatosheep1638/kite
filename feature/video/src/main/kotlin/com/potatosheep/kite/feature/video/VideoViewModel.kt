@@ -114,7 +114,7 @@ class VideoViewModel @Inject constructor(
     }
 
     private fun checkVideoHLS(): Boolean  {
-        return _videoLink.contains("/HLSPlaylist.m3u8?")
+        return _videoLink.contains("/HLSPlaylist.m3u8")
     }
 
     override fun onCleared() {
