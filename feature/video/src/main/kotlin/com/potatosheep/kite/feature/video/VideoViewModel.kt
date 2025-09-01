@@ -102,7 +102,7 @@ class VideoViewModel @Inject constructor(
                 postRepository.downloadVideo(
                     url = _videoLink,
                     fileName = filename,
-                    isHLS = _videoLink.contains("/HLSPlaylist.m3u8?"),
+                    isHLS = _videoLink.contains("/HLSPlaylist.m3u8"),
                     uri = uri,
                     context = context,
                 )
