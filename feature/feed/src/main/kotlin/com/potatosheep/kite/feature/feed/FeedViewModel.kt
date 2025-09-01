@@ -87,6 +87,10 @@ class FeedViewModel @Inject constructor(
                             _shouldRefresh.value = RefreshScope.NO_REFRESH
                         }
 
+                        !isShowNsfwSame -> {
+                            _shouldRefresh.value = RefreshScope.GLOBAL
+                        }
+
                         isInstanceSame && !containsPreviousSubscriptions -> {
                             _shouldRefresh.value = RefreshScope.FOLLOWED_ONLY
                         }
