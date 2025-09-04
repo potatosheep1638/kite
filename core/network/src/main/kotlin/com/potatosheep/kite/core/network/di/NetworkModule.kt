@@ -37,27 +37,7 @@ internal interface NetworkModule {
         @Singleton
         fun okHttpCallFactory(@ApplicationContext application: Context): Call.Factory =
             OkHttpClient.Builder()
-                .cache(
-                    Cache(
-                        directory = application.cacheDir,
-                        maxSize = (10 * 1024 * 1024).toLong()
-                    )
-                )
                 .cookieJar(SimpleCookieJar(emptyList()))
-                .addNetworkInterceptor { chain ->
-                    val request = chain.request()
-                        .newBuilder()
-                        .header(
-                            name = "Cache-Control",
-                            value = CacheControl.Builder()
-                                .maxAge(1, TimeUnit.MINUTES)
-                                .build()
-                                .toString()
-                        )
-                        .build()
-
-                    chain.proceed(request)
-                }
                 .connectTimeout(0, TimeUnit.MILLISECONDS)
                 .readTimeout(0, TimeUnit.MILLISECONDS)
                 .build()
