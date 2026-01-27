@@ -169,7 +169,7 @@ internal fun FeedScreen(
                 }
             }
 
-            LaunchedEffect(shouldRefresh, feedUiState.currentFeed) {
+            LaunchedEffect(shouldRefresh) {
                 when (shouldRefresh) {
                     RefreshScope.FOLLOWED_ONLY -> {
                         if (feedUiState.currentFeed == Feed.FOLLOWED) {
@@ -389,12 +389,16 @@ internal fun FeedScreen(
                             feedUiState.currentFeed.uri
                     )
 
-                    loadSortedPosts(
-                        feedUiState.sort,
-                        feedUiState.timeframe,
-                        listOf(feed.uri),
-                        false
-                    )
+                    if (shouldRefresh != RefreshScope.NO_REFRESH) {
+                        loadFrontPage();
+                    } else {
+                        loadSortedPosts(
+                            feedUiState.sort,
+                            feedUiState.timeframe,
+                            listOf(feed.uri),
+                            false
+                        )
+                    }
                 },
                 currentFeed = feedUiState.currentFeed,
                 shouldDisableFollowedFeed = shouldDisableFollowedFeed
