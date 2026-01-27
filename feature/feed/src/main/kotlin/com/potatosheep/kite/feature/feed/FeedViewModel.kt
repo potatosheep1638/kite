@@ -49,9 +49,6 @@ class FeedViewModel @Inject constructor(
 
     private val _lazyListState: StateFlow<LazyListState> = MutableStateFlow(LazyListState(0, 0))
 
-    private val _shouldScrollToTop = MutableStateFlow(false)
-    val shouldScrollToTop = _shouldScrollToTop
-
     val feedUiState = combine(
         subredditRepository.getFollowedSubreddits(),
         userConfigRepository.userConfig,
@@ -147,7 +144,6 @@ class FeedViewModel @Inject constructor(
                         _postListUiState.value = PostListUiState.Success(posts)
                     } else {
                         _postListUiState.value = PostListUiState.Success(it)
-                        _shouldScrollToTop.value = true
                     }
                 }.onFailure {
                     _postListUiState.value = PostListUiState.Error(it.message.toString())
@@ -186,7 +182,6 @@ class FeedViewModel @Inject constructor(
                 }.onSuccess {
                     _shouldRefresh.value = RefreshScope.NO_REFRESH
                     _postListUiState.value = PostListUiState.Success(it)
-                    _shouldScrollToTop.value = true
                 }.onFailure {
                     _postListUiState.value = PostListUiState.Error(it.message.toString())
                 }
@@ -227,12 +222,6 @@ class FeedViewModel @Inject constructor(
     fun removePostBookmark(post: Post) {
         viewModelScope.launch {
             postRepository.removeSavedPost(post)
-        }
-    }
-
-    fun scrolledToTop() {
-        viewModelScope.launch {
-            _shouldScrollToTop.value = false
         }
     }
 }

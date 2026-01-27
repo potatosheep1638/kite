@@ -73,12 +73,10 @@ fun FeedRoute(
     val feedUiState by viewModel.feedUiState.collectAsStateWithLifecycle()
     val postListUiState by viewModel.postListUiState.collectAsStateWithLifecycle()
     val shouldRefresh by viewModel.shouldRefresh.collectAsStateWithLifecycle()
-    val shouldScrollToTop by viewModel.shouldScrollToTop.collectAsStateWithLifecycle()
 
     FeedScreen(
         feedUiState = feedUiState,
         postListUiState = postListUiState,
-        shouldScrollToTop = shouldScrollToTop,
         onPostClick = onPostClick,
         onSubredditClick = onSubredditClick,
         onImageClick = onImageClick,
@@ -94,7 +92,6 @@ fun FeedRoute(
         checkPostBookmarked = viewModel::checkIfPostExists,
         bookmarkPost = viewModel::bookmarkPost,
         removePostBookmark = viewModel::removePostBookmark,
-        scrolledToTop = viewModel::scrolledToTop,
         modifier = modifier,
         shouldRefresh = shouldRefresh,
     )
@@ -105,7 +102,6 @@ fun FeedRoute(
 internal fun FeedScreen(
     feedUiState: FeedUiState,
     postListUiState: PostListUiState,
-    shouldScrollToTop: Boolean,
     onPostClick: (String, String, String?, String?) -> Unit,
     onSubredditClick: (String) -> Unit,
     onImageClick: (List<String>, List<String?>) -> Unit,
@@ -121,7 +117,6 @@ internal fun FeedScreen(
     bookmarkPost: (Post) -> Unit,
     removePostBookmark: (Post) -> Unit,
     getPostLink: (Post) -> String,
-    scrolledToTop: () -> Unit,
     modifier: Modifier = Modifier,
     shouldRefresh: RefreshScope = RefreshScope.NO_REFRESH,
     sortSheetState: SheetState = rememberModalBottomSheetState(),
@@ -205,13 +200,6 @@ internal fun FeedScreen(
                 }
 
                 is PostListUiState.Success -> {
-                    LaunchedEffect(shouldScrollToTop) {
-                        if (shouldScrollToTop) {
-                            feedUiState.listState.requestScrollToItem(0)
-                            scrolledToTop()
-                        }
-                    }
-
                     LazyColumn(
                         state = feedUiState.listState,
                         modifier = modifier
@@ -364,6 +352,10 @@ internal fun FeedScreen(
                 onFilterClick = { sortOption, timeframe ->
                     updateFeedSettings(null, sortOption, timeframe)
 
+                    coroutineScope.launch {
+                        feedUiState.listState.requestScrollToItem(0)
+                    }
+
                     loadSortedPosts(
                         sortOption,
                         timeframe,
@@ -388,6 +380,10 @@ internal fun FeedScreen(
                         else
                             feedUiState.currentFeed.uri
                     )
+
+                    coroutineScope.launch {
+                        feedUiState.listState.requestScrollToItem(0)
+                    }
 
                     loadSortedPosts(
                         feedUiState.sort,
@@ -645,7 +641,6 @@ fun HomeFeedScreenPreview(
                     timeframe = SortOption.Timeframe.DAY,
                     listState = rememberLazyListState()
                 ),
-                shouldScrollToTop = false,
                 onPostClick = { _, _, _, _ -> },
                 onSubredditClick = {},
                 onImageClick = { _, _ -> },
@@ -661,7 +656,6 @@ fun HomeFeedScreenPreview(
                 checkPostBookmarked = { _ -> false },
                 bookmarkPost = {},
                 removePostBookmark = {},
-                scrolledToTop = {}
             )
         }
     }
