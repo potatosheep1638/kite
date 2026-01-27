@@ -83,12 +83,10 @@ fun BookmarkRoute(
     val shouldBlurNsfw by viewModel.blurNsfw.collectAsStateWithLifecycle()
     val shouldBlurSpoiler by viewModel.blurSpoiler.collectAsStateWithLifecycle()
     val query by viewModel.query.collectAsStateWithLifecycle()
-    val shouldScrollToTop by viewModel.shouldScrollToTop.collectAsStateWithLifecycle()
 
     BookmarkScreen(
         postListUiState = postListUiState,
         query = query,
-        shouldScrollToTop = shouldScrollToTop,
         onBackClick = onBackClick,
         onPostClick = onPostClick,
         onSubredditClick = onSubredditClick,
@@ -99,7 +97,6 @@ fun BookmarkRoute(
         getPostLink = viewModel::getPostLink,
         removeBookmarkedPost = viewModel::removeBookmarkedPost,
         searchSavedPosts = viewModel::searchSavedPosts,
-        scrolledToTop = viewModel::scrolledToTop,
         shouldBlurNsfw = shouldBlurNsfw,
         shouldBlurSpoiler = shouldBlurSpoiler,
         modifier = modifier
@@ -111,7 +108,6 @@ fun BookmarkRoute(
 fun BookmarkScreen(
     postListUiState: PostListUiState,
     query: String,
-    shouldScrollToTop: Boolean,
     onBackClick: () -> Unit,
     onPostClick: (String, String, String?, String?) -> Unit,
     onSubredditClick: (String) -> Unit,
@@ -122,7 +118,6 @@ fun BookmarkScreen(
     getPostLink: (Post) -> String,
     removeBookmarkedPost: (Post) -> Unit,
     searchSavedPosts: (String) -> Unit,
-    scrolledToTop: () -> Unit,
     shouldBlurNsfw: Boolean,
     shouldBlurSpoiler: Boolean,
     modifier: Modifier = Modifier
@@ -183,6 +178,7 @@ fun BookmarkScreen(
                 },
                 onQueryChange = {
                     searchSavedPosts(it)
+                    listState.requestScrollToItem(0)
                 },
                 inputFieldColors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.Transparent,
@@ -212,13 +208,6 @@ fun BookmarkScreen(
             when (postListUiState) {
                 PostListUiState.Loading -> Unit
                 is PostListUiState.Success -> {
-                    LaunchedEffect(shouldScrollToTop) {
-                        if (shouldScrollToTop) {
-                            listState.requestScrollToItem(0)
-                            scrolledToTop()
-                        }
-                    }
-
                     if (postListUiState.posts.isEmpty()) {
                         NoResultsMsg(
                             title = "Nothing found",
@@ -350,7 +339,6 @@ fun BookmarkScreenPreview(
         BookmarkScreen(
             postListUiState = PostListUiState.Success(posts),
             query = "",
-            shouldScrollToTop = false,
             onBackClick = {},
             onPostClick = { _, _, _, _ -> },
             onSubredditClick = {},
@@ -361,7 +349,6 @@ fun BookmarkScreenPreview(
             getPostLink = { "" },
             removeBookmarkedPost = {},
             searchSavedPosts = {},
-            scrolledToTop = {},
             shouldBlurNsfw = true,
             shouldBlurSpoiler = true,
             modifier = Modifier
