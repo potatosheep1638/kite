@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.potatosheep.kite.feature.api"
+    namespace = "com.potatosheep.kite.feature.about.api"
 }
 
 dependencies {
