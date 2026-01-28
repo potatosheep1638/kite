@@ -100,7 +100,7 @@ internal fun UserAbout(
                 val sharedBoundsModifier =
                     if (this != null && animatedVisibilityScope != null) {
                         Modifier.sharedElement(
-                            state = rememberSharedContentState(key = "about"),
+                            sharedContentState = rememberSharedContentState(key = "about"),
                             animatedVisibilityScope = animatedVisibilityScope
                         )
                     } else {
