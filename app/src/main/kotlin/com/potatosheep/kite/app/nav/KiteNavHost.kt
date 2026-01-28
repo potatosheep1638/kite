@@ -8,8 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import com.potatosheep.kite.app.ui.KiteAppState
-import com.potatosheep.kite.feature.about.nav.aboutScreen
-import com.potatosheep.kite.feature.bookmark.nav.bookmarkScreen
+import com.potatosheep.kite.feature.about.impl.nav.aboutScreen
+import com.potatosheep.kite.feature.bookmark.impl.nav.bookmarkScreen
 import com.potatosheep.kite.feature.image.nav.imageScreen
 import com.potatosheep.kite.feature.image.nav.navigateToImage
 import com.potatosheep.kite.feature.onboarding.nav.onboardingScreen

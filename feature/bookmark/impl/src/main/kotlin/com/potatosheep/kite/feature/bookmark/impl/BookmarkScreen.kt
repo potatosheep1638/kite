@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.bookmark
+package com.potatosheep.kite.feature.bookmark.impl
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.isSystemInDarkTheme

@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.bookmark.nav
+package com.potatosheep.kite.feature.bookmark.impl.nav
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.fadeIn
@@ -11,7 +11,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.potatosheep.kite.core.common.enums.SortOption
-import com.potatosheep.kite.feature.bookmark.BookmarkRoute
+import com.potatosheep.kite.feature.bookmark.impl.BookmarkRoute
 import kotlinx.serialization.Serializable
 
 @Serializable

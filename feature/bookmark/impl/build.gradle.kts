@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.potatosheep.kite.feature.bookmark"
+    namespace = "com.potatosheep.kite.feature.bookmark.impl"
 }
 
 dependencies {

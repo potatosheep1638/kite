@@ -59,7 +59,7 @@ dependencies {
     implementation(projects.feature.search)
     implementation(projects.feature.video)
     implementation(projects.feature.settings)
-    implementation(projects.feature.bookmark)
+    implementation(projects.feature.bookmark.impl)
     implementation(projects.feature.exception)
     implementation(projects.feature.onboarding)
     implementation(projects.feature.about.impl)

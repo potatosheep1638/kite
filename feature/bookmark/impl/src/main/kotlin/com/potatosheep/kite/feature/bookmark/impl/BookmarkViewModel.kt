@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.bookmark
+package com.potatosheep.kite.feature.bookmark.impl
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

@@ -55,8 +55,8 @@ import com.potatosheep.kite.core.designsystem.KiteNavigationSuiteScaffold
 import com.potatosheep.kite.core.designsystem.KiteTopAppBar
 import com.potatosheep.kite.core.designsystem.LocalBackgroundColor
 import com.potatosheep.kite.core.translation.R.string as Translation
-import com.potatosheep.kite.feature.about.nav.navigateToAbout
-import com.potatosheep.kite.feature.bookmark.nav.navigateToBookmark
+import com.potatosheep.kite.feature.about.impl.nav.navigateToAbout
+import com.potatosheep.kite.feature.bookmark.impl.nav.navigateToBookmark
 import com.potatosheep.kite.feature.feed.nav.FeedScreen
 import com.potatosheep.kite.feature.image.nav.navigateToImage
 import com.potatosheep.kite.feature.library.nav.HomeScreen
