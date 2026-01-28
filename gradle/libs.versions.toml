@@ -118,6 +118,10 @@ kite-android-hilt = { id = "kite.android.hilt", version = "unspecified" }
 kite-android-compose = { id = "kite.android.compose", version = "unspecified" }
 kite-android-application = { id = "kite.android.application", version = "unspecified" }
 kite-android-library = { id = "kite.android.library", version = "unspecified" }
+# TODO: Delete this
 kite-android-feature = { id = "kite.android.feature", version = "unspecified" }
+# END
+kite-android-feature-api = { id = "kite.android.feature.api" }
+kite-android-feature-impl = { id = "kite.android.feature.impl" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

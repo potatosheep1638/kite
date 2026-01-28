@@ -48,15 +48,27 @@ gradlePlugin {
             implementationClass = "AndroidApplicationConventionPlugin"
         }
 
+        // TODO: Remove this
         register("androidFeature") {
             id = "kite.android.feature"
             implementationClass = "AndroidFeatureConventionPlugin"
+        }
+
+        register("androidFeatureApi") {
+            id = libs.plugins.kite.android.feature.api.get().pluginId
+            implementationClass = "AndroidFeatureApiConventionPlugin"
+        }
+
+        register("androidFeatureImpl") {
+            id = libs.plugins.kite.android.feature.impl.get().pluginId
+            implementationClass = "AndroidFeatureImplConventionPlugin"
         }
 
         register("androidLibrary") {
             id = "kite.android.library"
             implementationClass = "AndroidLibraryConventionPlugin"
         }
+
         register("jvmLibrary") {
             id = "kite.jvm.library"
             implementationClass = "JvmLibraryConventionPlugin"
