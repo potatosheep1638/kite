@@ -6,9 +6,7 @@ import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
-import androidx.navigation.navOptions
 import com.potatosheep.kite.app.ui.KiteAppState
 import com.potatosheep.kite.feature.about.nav.aboutScreen
 import com.potatosheep.kite.feature.bookmark.nav.bookmarkScreen

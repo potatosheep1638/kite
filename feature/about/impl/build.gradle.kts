@@ -1,12 +1,11 @@
 plugins {
     alias(libs.plugins.kite.android.library)
     alias(libs.plugins.kite.android.compose)
-    alias(libs.plugins.kite.android.feature)
-    alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.kite.android.feature.impl)
 }
 
 android {
-    namespace = "com.potatosheep.kite.feature.about"
+    namespace = "com.potatosheep.kite.feature.about.impl"
 }
 
 dependencies {
