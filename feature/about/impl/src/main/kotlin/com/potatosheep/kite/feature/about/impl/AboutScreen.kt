@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.about
+package com.potatosheep.kite.feature.about.impl
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets

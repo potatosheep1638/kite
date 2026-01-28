@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.about.nav
+package com.potatosheep.kite.feature.about.impl.nav
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.fadeIn
@@ -10,7 +10,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import com.potatosheep.kite.feature.about.AboutRoute
+import com.potatosheep.kite.feature.about.impl.AboutRoute
 import kotlinx.serialization.Serializable
 
 @Serializable
