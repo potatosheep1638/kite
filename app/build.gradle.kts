@@ -9,7 +9,7 @@ android {
     namespace = "com.potatosheep.kite.app"
 
     defaultConfig {
-        compileSdk = 35
+        compileSdk = 36
         applicationId = "com.potatosheep.kite"
         versionCode = 9
         versionName = "0.3.4-beta"
@@ -62,7 +62,7 @@ dependencies {
     implementation(projects.feature.bookmark)
     implementation(projects.feature.exception)
     implementation(projects.feature.onboarding)
-    implementation(projects.feature.about)
+    implementation(projects.feature.about.impl)
 
     implementation(libs.androidx.material3.adaptive.navigation.suite.android)
     implementation(libs.kotlinx.serialization.json)
