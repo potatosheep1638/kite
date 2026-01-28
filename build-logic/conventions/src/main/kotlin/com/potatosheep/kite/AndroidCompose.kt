@@ -20,9 +20,16 @@ internal fun Project.configureAndroidCompose(
             val bom = libs.findLibrary("androidx-compose-bom").get()
             add("implementation", platform(bom))
             add("implementation", libs.findLibrary("androidx-compose-material3").get())
-            add("implementation", libs.findLibrary("androidx-hilt-navigation-compose").get())
             add("implementation", libs.findLibrary("androidx-ui-tooling-preview-android").get())
+            // OLD
+            add("implementation", libs.findLibrary("androidx-hilt-navigation-compose").get())
             add("implementation", libs.findLibrary("androidx.navigation.compose").get())
+            // NEW
+            add("implementation", libs.findLibrary("androidx-navigation3-runtime").get())
+            add("implementation", libs.findLibrary("androidx-navigation3-ui").get())
+            add("implementation", libs.findLibrary("androidx-lifecycle-viewmodel-navigation3").get())
+            add("implementation", libs.findLibrary("androidx-hilt-lifecycle-viewModelCompose").get())
+            // END
             add("debugImplementation", libs.findLibrary("androidx-compose-ui-tooling").get())
         }
     }
