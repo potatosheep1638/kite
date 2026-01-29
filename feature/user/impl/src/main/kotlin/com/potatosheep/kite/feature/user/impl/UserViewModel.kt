@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.user
+package com.potatosheep.kite.feature.user.impl
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -11,7 +11,7 @@ import com.potatosheep.kite.core.data.repo.UserRepository
 import com.potatosheep.kite.core.model.Comment
 import com.potatosheep.kite.core.model.Post
 import com.potatosheep.kite.core.model.User
-import com.potatosheep.kite.feature.user.nav.UserNav
+import com.potatosheep.kite.feature.user.impl.nav.UserNav
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

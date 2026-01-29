@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.user
+package com.potatosheep.kite.feature.user.impl
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -47,7 +47,6 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.potatosheep.kite.core.translation.R.string as Translation
-import com.potatosheep.kite.core.designsystem.KiteFonts
 import com.potatosheep.kite.core.designsystem.KiteIcons
 import com.potatosheep.kite.core.designsystem.KiteTheme
 import com.potatosheep.kite.core.designsystem.LocalBackgroundColor

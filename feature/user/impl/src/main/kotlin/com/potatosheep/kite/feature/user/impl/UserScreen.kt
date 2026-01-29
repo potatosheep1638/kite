@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.user
+package com.potatosheep.kite.feature.user.impl
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalSharedTransitionApi
