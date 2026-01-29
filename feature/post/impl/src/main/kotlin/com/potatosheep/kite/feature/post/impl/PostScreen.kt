@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.post
+package com.potatosheep.kite.feature.post.impl
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn

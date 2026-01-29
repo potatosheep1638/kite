@@ -52,7 +52,7 @@ dependencies {
 
     implementation(projects.feature.feed.impl)
     implementation(projects.feature.home.impl)
-    implementation(projects.feature.post)
+    implementation(projects.feature.post.impl)
     implementation(projects.feature.image.impl)
     implementation(projects.feature.subreddit)
     implementation(projects.feature.user)

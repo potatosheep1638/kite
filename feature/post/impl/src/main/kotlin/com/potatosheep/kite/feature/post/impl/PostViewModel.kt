@@ -1,6 +1,5 @@
-package com.potatosheep.kite.feature.post
+package com.potatosheep.kite.feature.post.impl
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,7 +11,7 @@ import com.potatosheep.kite.core.model.Comment
 import com.potatosheep.kite.core.model.MediaLink
 import com.potatosheep.kite.core.model.MediaType
 import com.potatosheep.kite.core.model.Post
-import com.potatosheep.kite.feature.post.nav.PostRoute
+import com.potatosheep.kite.feature.post.impl.nav.PostRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

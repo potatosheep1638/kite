@@ -1,8 +1,6 @@
-package com.potatosheep.kite.feature.post.nav
+package com.potatosheep.kite.feature.post.impl.nav
 
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -13,7 +11,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.potatosheep.kite.core.common.enums.SortOption
-import com.potatosheep.kite.feature.post.PostRoute
+import com.potatosheep.kite.feature.post.impl.PostRoute
 import kotlinx.serialization.Serializable
 
 @Serializable
