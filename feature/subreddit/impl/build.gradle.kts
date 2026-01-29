@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.potatosheep.kite.feature.post"
+    namespace = "com.potatosheep.kite.feature.subreddit.impl"
 }
 
 dependencies {

@@ -1,7 +1,5 @@
-package com.potatosheep.kite.feature.subreddit.nav
+package com.potatosheep.kite.feature.subreddit.impl.nav
 
-import android.content.Intent
-import android.util.Log
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -11,15 +9,11 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
-import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
-import androidx.navigation.toRoute
 import com.potatosheep.kite.core.common.enums.SortOption
-import com.potatosheep.kite.feature.subreddit.SubredditRoute
-import kotlinx.serialization.SerialName
+import com.potatosheep.kite.feature.subreddit.impl.SubredditRoute
 import kotlinx.serialization.Serializable
-import kotlin.reflect.typeOf
 
 @Serializable
 data class Subreddit(

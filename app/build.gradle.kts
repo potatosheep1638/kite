@@ -54,7 +54,7 @@ dependencies {
     implementation(projects.feature.home.impl)
     implementation(projects.feature.post.impl)
     implementation(projects.feature.image.impl)
-    implementation(projects.feature.subreddit)
+    implementation(projects.feature.subreddit.impl)
     implementation(projects.feature.user)
     implementation(projects.feature.search.impl)
     implementation(projects.feature.video)

@@ -63,7 +63,7 @@ import com.potatosheep.kite.feature.home.impl.nav.HomeScreen
 import com.potatosheep.kite.feature.post.impl.nav.navigateToPost
 import com.potatosheep.kite.feature.search.impl.nav.navigateToSearch
 import com.potatosheep.kite.feature.settings.impl.nav.navigateToSettings
-import com.potatosheep.kite.feature.subreddit.nav.navigateToSubreddit
+import com.potatosheep.kite.feature.subreddit.impl.nav.navigateToSubreddit
 import com.potatosheep.kite.feature.user.nav.navigateToUser
 import com.potatosheep.kite.feature.video.nav.navigateToVideo
 import kotlinx.serialization.Serializable

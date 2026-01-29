@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.subreddit
+package com.potatosheep.kite.feature.subreddit.impl
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibilityScope

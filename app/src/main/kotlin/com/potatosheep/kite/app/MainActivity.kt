@@ -34,7 +34,7 @@ import com.potatosheep.kite.core.designsystem.KiteTheme
 import com.potatosheep.kite.feature.exception.ExceptionRoute
 import com.potatosheep.kite.feature.image.nav.navigateToImage
 import com.potatosheep.kite.feature.post.impl.nav.navigateToPost
-import com.potatosheep.kite.feature.subreddit.nav.navigateToSubreddit
+import com.potatosheep.kite.feature.subreddit.impl.nav.navigateToSubreddit
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.subreddit
+package com.potatosheep.kite.feature.subreddit.impl
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalSharedTransitionApi

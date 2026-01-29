@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.subreddit
+package com.potatosheep.kite.feature.subreddit.impl
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -30,7 +30,7 @@ class SubredditViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val subreddit =
-        savedStateHandle.toRoute<com.potatosheep.kite.feature.subreddit.nav.Subreddit>().subreddit
+        savedStateHandle.toRoute<com.potatosheep.kite.feature.subreddit.impl.nav.Subreddit>().subreddit
 
     private val _postUiState = MutableStateFlow<PostUiState>(PostUiState.Loading)
     val postUiState: StateFlow<PostUiState> = _postUiState
