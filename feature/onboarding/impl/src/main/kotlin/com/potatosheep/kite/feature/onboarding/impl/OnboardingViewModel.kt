@@ -1,9 +1,8 @@
-package com.potatosheep.kite.feature.onboarding
+package com.potatosheep.kite.feature.onboarding.impl
 
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.potatosheep.kite.core.data.repo.UserConfigRepository
 import com.potatosheep.kite.core.model.UserConfig
 import dagger.hilt.android.lifecycle.HiltViewModel

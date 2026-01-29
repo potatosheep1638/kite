@@ -10,7 +10,7 @@ import com.potatosheep.kite.app.nav.KiteNavHost
 import com.potatosheep.kite.app.nav.TopLevelRoute
 import com.potatosheep.kite.core.common.util.LocalSnackbarHostState
 import com.potatosheep.kite.core.designsystem.LocalBackgroundColor
-import com.potatosheep.kite.feature.onboarding.nav.OnboardingRoute
+import com.potatosheep.kite.feature.onboarding.impl.nav.OnboardingRoute
 
 @Composable
 fun KiteApp(

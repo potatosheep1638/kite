@@ -12,7 +12,7 @@ import com.potatosheep.kite.feature.about.impl.nav.aboutScreen
 import com.potatosheep.kite.feature.bookmark.impl.nav.bookmarkScreen
 import com.potatosheep.kite.feature.image.nav.imageScreen
 import com.potatosheep.kite.feature.image.nav.navigateToImage
-import com.potatosheep.kite.feature.onboarding.nav.onboardingScreen
+import com.potatosheep.kite.feature.onboarding.impl.nav.onboardingScreen
 import com.potatosheep.kite.feature.post.nav.navigateToPost
 import com.potatosheep.kite.feature.post.nav.postScreen
 import com.potatosheep.kite.feature.search.nav.navigateToSearch

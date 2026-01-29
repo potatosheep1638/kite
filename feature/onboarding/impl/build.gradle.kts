@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.potatosheep.kite.feature.onboarding"
+    namespace = "com.potatosheep.kite.feature.onboarding.impl"
 }
 
 dependencies {

@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.onboarding
+package com.potatosheep.kite.feature.onboarding.impl
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition

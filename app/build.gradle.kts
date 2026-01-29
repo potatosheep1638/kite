@@ -61,7 +61,7 @@ dependencies {
     implementation(projects.feature.settings)
     implementation(projects.feature.bookmark.impl)
     implementation(projects.feature.exception)
-    implementation(projects.feature.onboarding)
+    implementation(projects.feature.onboarding.impl)
     implementation(projects.feature.about.impl)
 
     implementation(libs.androidx.material3.adaptive.navigation.suite.android)
