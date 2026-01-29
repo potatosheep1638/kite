@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.library
+package com.potatosheep.kite.feature.home.impl
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable

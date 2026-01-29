@@ -59,7 +59,7 @@ import com.potatosheep.kite.feature.about.impl.nav.navigateToAbout
 import com.potatosheep.kite.feature.bookmark.impl.nav.navigateToBookmark
 import com.potatosheep.kite.feature.feed.impl.nav.FeedScreen
 import com.potatosheep.kite.feature.image.nav.navigateToImage
-import com.potatosheep.kite.feature.library.nav.HomeScreen
+import com.potatosheep.kite.feature.home.impl.nav.HomeScreen
 import com.potatosheep.kite.feature.post.nav.navigateToPost
 import com.potatosheep.kite.feature.search.nav.navigateToSearch
 import com.potatosheep.kite.feature.settings.nav.navigateToSettings

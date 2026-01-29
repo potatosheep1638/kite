@@ -51,7 +51,7 @@ dependencies {
     implementation(projects.core.translation)
 
     implementation(projects.feature.feed.impl)
-    implementation(projects.feature.home)
+    implementation(projects.feature.home.impl)
     implementation(projects.feature.post)
     implementation(projects.feature.image)
     implementation(projects.feature.subreddit)
