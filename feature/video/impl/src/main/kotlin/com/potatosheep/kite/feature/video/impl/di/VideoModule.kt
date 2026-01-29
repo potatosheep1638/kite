@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.video.di
+package com.potatosheep.kite.feature.video.impl.di
 
 import android.content.Context
 import androidx.media3.common.Player

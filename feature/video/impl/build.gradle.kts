@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.potatosheep.kite.feature.video"
+    namespace = "com.potatosheep.kite.feature.video.impl"
 }
 
 dependencies {

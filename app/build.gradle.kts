@@ -57,7 +57,7 @@ dependencies {
     implementation(projects.feature.subreddit.impl)
     implementation(projects.feature.user.impl)
     implementation(projects.feature.search.impl)
-    implementation(projects.feature.video)
+    implementation(projects.feature.video.impl)
     implementation(projects.feature.settings.impl)
     implementation(projects.feature.bookmark.impl)
     implementation(projects.feature.exception)

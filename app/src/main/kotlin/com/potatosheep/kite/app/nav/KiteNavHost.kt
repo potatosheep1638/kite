@@ -22,8 +22,8 @@ import com.potatosheep.kite.feature.subreddit.impl.nav.navigateToSubreddit
 import com.potatosheep.kite.feature.subreddit.impl.nav.subredditScreen
 import com.potatosheep.kite.feature.user.impl.nav.navigateToUser
 import com.potatosheep.kite.feature.user.impl.nav.userScreen
-import com.potatosheep.kite.feature.video.nav.navigateToVideo
-import com.potatosheep.kite.feature.video.nav.videoScreen
+import com.potatosheep.kite.feature.video.impl.nav.navigateToVideo
+import com.potatosheep.kite.feature.video.impl.nav.videoScreen
 
 @Composable
 fun KiteNavHost(

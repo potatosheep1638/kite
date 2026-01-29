@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.video
+package com.potatosheep.kite.feature.video.impl
 
 import android.content.Context
 import android.net.Uri
@@ -6,14 +6,13 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.toRoute
 import com.potatosheep.kite.core.data.repo.PostRepository
-import com.potatosheep.kite.feature.video.nav.VideoRoute
+import com.potatosheep.kite.feature.video.impl.nav.VideoRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
