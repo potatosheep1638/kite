@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.potatosheep.kite.feature.feed"
+    namespace = "com.potatosheep.kite.feature.feed.impl"
 }
 
 dependencies {

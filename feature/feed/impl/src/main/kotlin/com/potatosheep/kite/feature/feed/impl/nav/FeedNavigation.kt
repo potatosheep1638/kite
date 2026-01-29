@@ -1,9 +1,9 @@
-package com.potatosheep.kite.feature.feed.nav
+package com.potatosheep.kite.feature.feed.impl.nav
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.potatosheep.kite.core.common.enums.SortOption
-import com.potatosheep.kite.feature.feed.FeedRoute
+import com.potatosheep.kite.feature.feed.impl.FeedRoute
 
 @Composable
 fun FeedScreen(

@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.feed
+package com.potatosheep.kite.feature.feed.impl
 
 import android.util.Log
 import androidx.compose.foundation.lazy.LazyListState

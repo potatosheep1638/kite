@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.feed
+package com.potatosheep.kite.feature.feed.impl
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -53,7 +53,6 @@ import com.potatosheep.kite.core.model.MediaType
 import com.potatosheep.kite.core.model.Post
 import com.potatosheep.kite.core.ui.param.PostListPreviewParameterProvider
 import com.potatosheep.kite.core.ui.post.PostCard
-import kotlinx.coroutines.launch
 import com.potatosheep.kite.core.translation.R.string as Translation
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -50,7 +50,7 @@ dependencies {
     implementation(projects.core.markdown)
     implementation(projects.core.translation)
 
-    implementation(projects.feature.feed)
+    implementation(projects.feature.feed.impl)
     implementation(projects.feature.home)
     implementation(projects.feature.post)
     implementation(projects.feature.image)
