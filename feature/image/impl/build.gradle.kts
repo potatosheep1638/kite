@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.potatosheep.kite.feature.image"
+    namespace = "com.potatosheep.kite.feature.image.impl"
 }
 
 dependencies {
