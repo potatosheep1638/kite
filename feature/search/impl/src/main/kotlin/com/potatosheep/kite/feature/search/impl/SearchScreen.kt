@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.search
+package com.potatosheep.kite.feature.search.impl
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -428,6 +428,11 @@ internal fun SearchScreen(
                                 ) {
                                     itemsIndexed(
                                         items = searchUiState.posts,
+                                        /**
+                                         * Index is appended to the key in case Redlib returns the same post
+                                         * twice, which results in an [IllegalArgumentException] exception being
+                                         * thrown.
+                                         */
                                         /**
                                          * Index is appended to the key in case Redlib returns the same post
                                          * twice, which results in an [IllegalArgumentException] exception being

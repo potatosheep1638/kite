@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.search.nav
+package com.potatosheep.kite.feature.search.impl.nav
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.fadeIn
@@ -11,7 +11,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.potatosheep.kite.core.common.enums.SortOption
-import com.potatosheep.kite.feature.search.SearchRoute
+import com.potatosheep.kite.feature.search.impl.SearchRoute
 import kotlinx.serialization.Serializable
 
 @Serializable

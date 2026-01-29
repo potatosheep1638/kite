@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.search
+package com.potatosheep.kite.feature.search.impl
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -10,7 +10,7 @@ import com.potatosheep.kite.core.data.repo.SubredditRepository
 import com.potatosheep.kite.core.data.repo.UserConfigRepository
 import com.potatosheep.kite.core.model.Post
 import com.potatosheep.kite.core.model.Subreddit
-import com.potatosheep.kite.feature.search.nav.Search
+import com.potatosheep.kite.feature.search.impl.nav.Search
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

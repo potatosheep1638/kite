@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.potatosheep.kite.feature.search"
+    namespace = "com.potatosheep.kite.feature.search.impl"
 }
 
 dependencies {

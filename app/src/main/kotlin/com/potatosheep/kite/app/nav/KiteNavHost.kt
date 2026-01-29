@@ -15,8 +15,8 @@ import com.potatosheep.kite.feature.image.nav.navigateToImage
 import com.potatosheep.kite.feature.onboarding.impl.nav.onboardingScreen
 import com.potatosheep.kite.feature.post.impl.nav.navigateToPost
 import com.potatosheep.kite.feature.post.impl.nav.postScreen
-import com.potatosheep.kite.feature.search.nav.navigateToSearch
-import com.potatosheep.kite.feature.search.nav.searchScreen
+import com.potatosheep.kite.feature.search.impl.nav.navigateToSearch
+import com.potatosheep.kite.feature.search.impl.nav.searchScreen
 import com.potatosheep.kite.feature.settings.nav.settingsScreen
 import com.potatosheep.kite.feature.subreddit.nav.navigateToSubreddit
 import com.potatosheep.kite.feature.subreddit.nav.subredditScreen
