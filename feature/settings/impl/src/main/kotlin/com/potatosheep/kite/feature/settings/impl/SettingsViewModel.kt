@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.settings
+package com.potatosheep.kite.feature.settings.impl
 
 import android.content.Context
 import android.content.Intent

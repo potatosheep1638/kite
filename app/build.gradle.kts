@@ -58,7 +58,7 @@ dependencies {
     implementation(projects.feature.user)
     implementation(projects.feature.search.impl)
     implementation(projects.feature.video)
-    implementation(projects.feature.settings)
+    implementation(projects.feature.settings.impl)
     implementation(projects.feature.bookmark.impl)
     implementation(projects.feature.exception)
     implementation(projects.feature.onboarding.impl)
