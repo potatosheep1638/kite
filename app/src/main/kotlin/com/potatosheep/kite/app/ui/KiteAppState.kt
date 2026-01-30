@@ -13,7 +13,7 @@ fun rememberAppState(
     shouldShowOnboarding: Boolean,
 ): KiteAppState {
     val startRoute = if (shouldShowOnboarding) OnboardingNavKey else TopLevelNavKey
-    val navigationState = rememberNavigationState(startRoute, setOf(TopLevelNavKey));
+    val navigationState = rememberNavigationState(startRoute, setOf(TopLevelNavKey, OnboardingNavKey));
 
     return remember {
         KiteAppState(

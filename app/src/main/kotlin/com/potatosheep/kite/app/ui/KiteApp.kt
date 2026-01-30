@@ -1,13 +1,18 @@
 package com.potatosheep.kite.app.ui
 
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.potatosheep.kite.app.navigation.navigateToTopLevel
 import com.potatosheep.kite.app.navigation.topLevelEntry
 import com.potatosheep.kite.core.common.TopAppBarActionState
 import com.potatosheep.kite.core.common.util.LocalSnackbarHostState
@@ -39,6 +44,7 @@ fun KiteApp(
         modifier = modifier
     ) {
         val topAppBarActionState = remember { TopAppBarActionState() }
+        val context = LocalContext.current
 
         CompositionLocalProvider(
             LocalSnackbarHostState provides snackbarHostState,
@@ -47,10 +53,10 @@ fun KiteApp(
             NavDisplay(
                 entries = appState.navigationState.toEntries(entryProvider {
                     topLevelEntry(navigator)
-                    aboutEntry(navigator, "3.4.0")
+                    aboutEntry(navigator, getVersion(context))
                     bookmarkEntry(navigator)
                     imageEntry(navigator)
-                    onboardingEntry(navigator, { })
+                    onboardingEntry(navigator) { navigator.navigateToTopLevel() }
                     postEntry(navigator)
                     searchEntry(navigator)
                     settingsEntry(navigator)
@@ -62,4 +68,18 @@ fun KiteApp(
             )
         }
     }
+}
+
+private fun getVersion(context: Context): String {
+    val packageManager = context.packageManager
+    val packageName = context.packageName
+
+    val packageInfo =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
+        } else {
+            packageManager.getPackageInfo(packageName, 0)
+        }
+
+    return packageInfo.versionName ?: "null"
 }

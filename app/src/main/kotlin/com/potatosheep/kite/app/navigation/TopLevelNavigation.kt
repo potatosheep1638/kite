@@ -11,6 +11,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object TopLevelNavKey : NavKey
 
+fun Navigator.navigateToTopLevel() {
+    navigate(TopLevelNavKey)
+}
+
 fun EntryProviderScope<NavKey>.topLevelEntry(navigator: Navigator) {
     entry<TopLevelNavKey> {
         TopLevelScreen(
