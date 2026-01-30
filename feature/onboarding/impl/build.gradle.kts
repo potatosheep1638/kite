@@ -14,6 +14,5 @@ dependencies {
     implementation(projects.core.data)
     implementation(projects.core.designsystem)
     implementation(projects.core.translation)
-
-    implementation(libs.kotlinx.serialization.json)
+    implementation(projects.feature.onboarding.api)
 }

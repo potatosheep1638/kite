@@ -16,6 +16,7 @@ dependencies {
     implementation(projects.core.ui)
     implementation(projects.core.common)
     implementation(projects.core.translation)
-
-    implementation(libs.kotlinx.serialization.json)
+    implementation(projects.feature.subreddit.api)
+    implementation(projects.feature.bookmark.api)
+    implementation(projects.feature.search.api)
 }

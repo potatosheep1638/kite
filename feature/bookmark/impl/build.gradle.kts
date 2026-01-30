@@ -16,7 +16,13 @@ dependencies {
     implementation(projects.core.ui)
     implementation(projects.core.common)
     implementation(projects.core.translation)
+    implementation(projects.feature.bookmark.api)
+    implementation(projects.feature.post.api)
+    implementation(projects.feature.subreddit.api)
+    implementation(projects.feature.user.api)
+    implementation(projects.feature.image.api)
+    implementation(projects.feature.search.api)
+    implementation(projects.feature.video.api)
 
-    implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.datetime)
 }

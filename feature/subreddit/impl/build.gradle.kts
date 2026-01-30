@@ -19,9 +19,14 @@ dependencies {
     implementation(projects.core.markdown)
     implementation(projects.core.domain)
     implementation(projects.core.translation)
+    implementation(projects.feature.subreddit.api)
+    implementation(projects.feature.post.api)
+    implementation(projects.feature.user.api)
+    implementation(projects.feature.image.api)
+    implementation(projects.feature.search.api)
+    implementation(projects.feature.video.api)
 
     implementation(libs.coil)
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
-    implementation(libs.kotlinx.serialization.json)
 }

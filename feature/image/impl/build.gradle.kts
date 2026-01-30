@@ -17,9 +17,9 @@ dependencies {
     implementation(projects.core.ui)
     implementation(projects.core.common)
     implementation(projects.core.translation)
+    implementation(projects.feature.image.api)
 
     implementation(libs.coil)
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
-    implementation(libs.kotlinx.serialization.json)
 }
