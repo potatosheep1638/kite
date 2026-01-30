@@ -1,4 +1,4 @@
-package com.potatosheep.kite.app.navigation
+package com.potatosheep.kite.app.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +30,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import com.potatosheep.kite.core.common.TopAppBarActionState
 import com.potatosheep.kite.app.MenuOption
+import com.potatosheep.kite.app.navigation.TopLevelDestination
 import com.potatosheep.kite.core.common.enums.SortOption
 import com.potatosheep.kite.core.common.util.alignToRightOfParent
 import com.potatosheep.kite.core.designsystem.KiteDropdownMenu
