@@ -18,8 +18,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = ImageViewModel.Factory::class)
 class ImageViewModel @AssistedInject constructor(
     private val postRepository: PostRepository,
-    @Assisted private val imageLinks: List<String>,
-    @Assisted private val captions: List<String?>
+    @Assisted("imageLinks") imageLinks: List<String>,
+    @Assisted("captions") captions: List<String?>
 ): ViewModel() {
     private val _uiState = MutableStateFlow<ImageUiState>(ImageUiState.Loading)
     val uiState: StateFlow<ImageUiState> = _uiState
@@ -55,8 +55,8 @@ class ImageViewModel @AssistedInject constructor(
     @AssistedFactory
     interface Factory {
         fun create(
-            imageLinks: List<String>,
-            captions: List<String?>
+            @Assisted("imageLinks") imageLinks: List<String>,
+            @Assisted("captions") captions: List<String?>
         ): ImageViewModel
     }
 }

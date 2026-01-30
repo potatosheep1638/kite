@@ -3,7 +3,6 @@ package com.potatosheep.kite.feature.user.impl
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.potatosheep.kite.core.common.enums.SortOption
 import com.potatosheep.kite.core.data.repo.PostRepository
 import com.potatosheep.kite.core.data.repo.UserConfigRepository
@@ -11,7 +10,6 @@ import com.potatosheep.kite.core.data.repo.UserRepository
 import com.potatosheep.kite.core.model.Comment
 import com.potatosheep.kite.core.model.Post
 import com.potatosheep.kite.core.model.User
-import com.potatosheep.kite.feature.user.impl.navigation.UserNav
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -23,7 +21,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel(assistedFactory = UserViewModel.Factory::class)

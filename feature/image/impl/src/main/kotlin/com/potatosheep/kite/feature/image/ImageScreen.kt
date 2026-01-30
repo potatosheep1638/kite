@@ -76,6 +76,7 @@ import com.potatosheep.kite.core.designsystem.KiteTheme
 import com.potatosheep.kite.core.designsystem.LocalBackgroundColor
 import com.potatosheep.kite.core.designsystem.MediaTopAppBar
 import com.potatosheep.kite.core.ui.DynamicAsyncImage
+import com.potatosheep.kite.feature.image.impl.R
 import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.abs

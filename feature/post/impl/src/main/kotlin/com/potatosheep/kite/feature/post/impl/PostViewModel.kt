@@ -27,13 +27,13 @@ import kotlin.time.Duration.Companion.seconds
 @HiltViewModel(assistedFactory = PostViewModel.Factory::class)
 class PostViewModel @AssistedInject constructor(
     userConfigRepository: UserConfigRepository,
-    @Assisted private val postRepository: PostRepository,
-    @Assisted private val subreddit: String,
-    @Assisted private val postId: String,
-    @Assisted private val commentId: String?,
-    @Assisted private val thumbnailLink: String?,
-    @Assisted private val isShareLink: Boolean,
-    @Assisted private val findParents: Boolean,
+    private val postRepository: PostRepository,
+    @Assisted("subreddit") private val subreddit: String,
+    @Assisted("postId") private val postId: String,
+    @Assisted("commentId") private val commentId: String?,
+    @Assisted("thumbnail") private val thumbnailLink: String?,
+    @Assisted("shareLink") private val isShareLink: Boolean,
+    @Assisted("findParents") private val findParents: Boolean,
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow<PostUiState>(PostUiState.Loading)
@@ -232,12 +232,12 @@ class PostViewModel @AssistedInject constructor(
     @AssistedFactory
     interface Factory {
         fun create(
-            subreddit: String,
-            postId: String,
-            commentId: String?,
-            thumbnailLink: String?,
-            isShareLink: Boolean,
-            findParents: Boolean
+            @Assisted("subreddit") subreddit: String,
+            @Assisted("postId") postId: String,
+            @Assisted("commentId") commentId: String?,
+            @Assisted("thumbnail") thumbnailLink: String?,
+            @Assisted("shareLink") isShareLink: Boolean,
+            @Assisted("findParents") findParents: Boolean,
         ) : PostViewModel
     }
 }

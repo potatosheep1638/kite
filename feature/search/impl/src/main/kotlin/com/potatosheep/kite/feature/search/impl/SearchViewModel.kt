@@ -28,10 +28,10 @@ class SearchViewModel @AssistedInject constructor(
     private val postRepository: PostRepository,
     private val subredditRepository: SubredditRepository,
     userConfigRepository: UserConfigRepository,
-    @Assisted subredditScope: String?,
-    @Assisted sort: SortOption.Search,
-    @Assisted timeframe: SortOption.Timeframe,
-    @Assisted query: String
+    @Assisted("subredditScope") subredditScope: String?,
+    @Assisted("sort") sort: SortOption.Search,
+    @Assisted("timeframe") timeframe: SortOption.Timeframe,
+    @Assisted("query") query: String
 ) : ViewModel() {
     val sortOption = savedStateHandle.getStateFlow(SORT_OPTION, sort)
     val timeframe = savedStateHandle.getStateFlow(TIMEFRAME, timeframe)
@@ -234,10 +234,10 @@ class SearchViewModel @AssistedInject constructor(
     @AssistedFactory
     interface Factory {
         fun create(
-            subredditScope: String?,
-            sort: SortOption.Search,
-            timeframe: SortOption.Timeframe,
-            query: String
+            @Assisted("subredditScope") subredditScope: String?,
+            @Assisted("sort") sort: SortOption.Search,
+            @Assisted("timeframe") timeframe: SortOption.Timeframe,
+            @Assisted("query") query: String
         ) : SearchViewModel
     }
 }
