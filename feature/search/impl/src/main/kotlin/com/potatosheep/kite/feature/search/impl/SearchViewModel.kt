@@ -3,14 +3,15 @@ package com.potatosheep.kite.feature.search.impl
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.potatosheep.kite.core.common.enums.SortOption
 import com.potatosheep.kite.core.data.repo.PostRepository
 import com.potatosheep.kite.core.data.repo.SubredditRepository
 import com.potatosheep.kite.core.data.repo.UserConfigRepository
 import com.potatosheep.kite.core.model.Post
 import com.potatosheep.kite.core.model.Subreddit
-import com.potatosheep.kite.feature.search.impl.nav.Search
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,27 +20,23 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
-@HiltViewModel
-class SearchViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = SearchViewModel.Factory::class)
+class SearchViewModel @AssistedInject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val postRepository: PostRepository,
     private val subredditRepository: SubredditRepository,
     userConfigRepository: UserConfigRepository,
+    @Assisted subredditScope: String?,
+    @Assisted sort: SortOption.Search,
+    @Assisted timeframe: SortOption.Timeframe,
+    @Assisted query: String
 ) : ViewModel() {
-    private val _sortOption = savedStateHandle.toRoute<Search>().sort
-    val sortOption = savedStateHandle.getStateFlow(SORT_OPTION, _sortOption)
-
-    private val _timeframe = savedStateHandle.toRoute<Search>().timeframe
-    val timeframe = savedStateHandle.getStateFlow(TIMEFRAME, _timeframe)
-
-    private val _subredditScope = savedStateHandle.toRoute<Search>().subredditScope
-    val subredditScope = savedStateHandle.getStateFlow(SUBREDDIT_SCOPE, _subredditScope)
-
-    private val _query = savedStateHandle.toRoute<Search>().query
-    val query = savedStateHandle.getStateFlow(QUERY, _query)
+    val sortOption = savedStateHandle.getStateFlow(SORT_OPTION, sort)
+    val timeframe = savedStateHandle.getStateFlow(TIMEFRAME, timeframe)
+    val subredditScope = savedStateHandle.getStateFlow(SUBREDDIT_SCOPE, subredditScope)
+    val query = savedStateHandle.getStateFlow(QUERY, query)
 
     private val _searchUiState = MutableStateFlow<SearchUiState>(SearchUiState.Initial)
     val searchUiState: StateFlow<SearchUiState> = _searchUiState
@@ -79,8 +76,8 @@ class SearchViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            if (_query.isNotEmpty()) {
-                searchPostsAndSubreddits(_query)
+            if (query.isNotEmpty()) {
+                searchPostsAndSubreddits(query)
             }
         }
     }
@@ -232,6 +229,16 @@ class SearchViewModel @Inject constructor(
 
     private fun newQuery(query: String) {
         savedStateHandle[QUERY] = query
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(
+            subredditScope: String?,
+            sort: SortOption.Search,
+            timeframe: SortOption.Timeframe,
+            query: String
+        ) : SearchViewModel
     }
 }
 

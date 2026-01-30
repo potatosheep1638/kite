@@ -11,7 +11,10 @@ import com.potatosheep.kite.core.data.repo.UserRepository
 import com.potatosheep.kite.core.model.Comment
 import com.potatosheep.kite.core.model.Post
 import com.potatosheep.kite.core.model.User
-import com.potatosheep.kite.feature.user.impl.nav.UserNav
+import com.potatosheep.kite.feature.user.impl.navigation.UserNav
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,15 +26,14 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
-@HiltViewModel
-class UserViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = UserViewModel.Factory::class)
+class UserViewModel @AssistedInject constructor(
     savedStateHandle: SavedStateHandle,
     userConfigRepository: UserConfigRepository,
     private val userRepository: UserRepository,
-    private val postRepository: PostRepository
+    private val postRepository: PostRepository,
+    @Assisted private val user: String
 ) : ViewModel() {
-
-    private val user = savedStateHandle.toRoute<UserNav>().user
 
     private val _userUiState = MutableStateFlow<UserUiState>(UserUiState.Loading)
     val userUiState: StateFlow<UserUiState> = _userUiState
@@ -155,6 +157,11 @@ class UserViewModel @Inject constructor(
     }
 
     fun getPostLink(post: Post) = "${instanceUrl.value}/r/${post.subredditName}/comments/${post.id}"
+
+    @AssistedFactory
+    interface Factory {
+        fun create(user: String): UserViewModel
+    }
 }
 
 // TODO: Add failure state

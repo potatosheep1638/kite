@@ -3,7 +3,6 @@ package com.potatosheep.kite.feature.post.impl
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.potatosheep.kite.core.common.Metadata
 import com.potatosheep.kite.core.data.repo.PostRepository
 import com.potatosheep.kite.core.data.repo.UserConfigRepository
@@ -11,7 +10,9 @@ import com.potatosheep.kite.core.model.Comment
 import com.potatosheep.kite.core.model.MediaLink
 import com.potatosheep.kite.core.model.MediaType
 import com.potatosheep.kite.core.model.Post
-import com.potatosheep.kite.feature.post.impl.nav.PostRoute
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,17 +21,20 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
-@HiltViewModel
-class PostViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+// TODO: Combine all assisted inject properties into a single data class
+@HiltViewModel(assistedFactory = PostViewModel.Factory::class)
+class PostViewModel @AssistedInject constructor(
     userConfigRepository: UserConfigRepository,
-    private val postRepository: PostRepository,
+    @Assisted private val postRepository: PostRepository,
+    @Assisted private val subreddit: String,
+    @Assisted private val postId: String,
+    @Assisted private val commentId: String?,
+    @Assisted private val thumbnailLink: String?,
+    @Assisted private val isShareLink: Boolean,
+    @Assisted private val findParents: Boolean,
 ): ViewModel() {
-
-    private val postRoute = savedStateHandle.toRoute<PostRoute>()
 
     private val _uiState = MutableStateFlow<PostUiState>(PostUiState.Loading)
     val uiState: StateFlow<PostUiState> = _uiState
@@ -59,11 +63,11 @@ class PostViewModel @Inject constructor(
 
                 postRepository.getPost(
                     instanceUrl = instanceUrl.first { it.isNotBlank() },
-                    subredditName = postRoute.subreddit,
-                    postId = postRoute.postId,
-                    replyId = postRoute.commentId,
-                    isShareLink = postRoute.isShareLink,
-                    findParentComments = postRoute.findParents
+                    subredditName = subreddit,
+                    postId = postId,
+                    replyId = commentId,
+                    isShareLink = isShareLink,
+                    findParentComments = findParents
                 )
             }.onSuccess {
                 val commentVisibilityStateMap = it.second.associate { comment ->
@@ -76,7 +80,7 @@ class PostViewModel @Inject constructor(
                     it.first.copy(
                         mediaLinks = listOf(
                             MediaLink(
-                                link = postRoute.thumbnailLink ?: "",
+                                link = thumbnailLink ?: "",
                                 caption = null,
                                 mediaType = MediaType.VIDEO_THUMBNAIL
                             ),
@@ -140,7 +144,7 @@ class PostViewModel @Inject constructor(
                         mediaLinks = listOf(
                             MediaLink(
                                 mediaType = mediaType,
-                                link = this@PostViewModel.postRoute.thumbnailLink ?: "",
+                                link = this@PostViewModel.thumbnailLink ?: "",
                                 caption = null
                             ),
                             MediaLink(
@@ -224,6 +228,18 @@ class PostViewModel @Inject constructor(
     }
 
     fun getPostLink(post: Post) = "${instanceUrl.value}/r/${post.subredditName}/comments/${post.id}"
+
+    @AssistedFactory
+    interface Factory {
+        fun create(
+            subreddit: String,
+            postId: String,
+            commentId: String?,
+            thumbnailLink: String?,
+            isShareLink: Boolean,
+            findParents: Boolean
+        ) : PostViewModel
+    }
 }
 
 /**

@@ -1,7 +1,12 @@
 package com.potatosheep.kite.feature.video.api.navigation
 
 import androidx.navigation3.runtime.NavKey
+import com.potatosheep.kite.core.navigation.Navigator
 import kotlinx.serialization.Serializable
 
 @Serializable
-object VideoNavKey : NavKey
+data class VideoNavKey(val videoLink: String) : NavKey
+
+fun Navigator.navigateToVideo(videoLink: String) {
+    navigate(VideoNavKey(videoLink))
+}

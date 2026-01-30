@@ -10,6 +10,9 @@ import com.potatosheep.kite.core.data.repo.SubredditRepository
 import com.potatosheep.kite.core.data.repo.UserConfigRepository
 import com.potatosheep.kite.core.model.Post
 import com.potatosheep.kite.core.model.Subreddit
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,16 +24,14 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
-@HiltViewModel
-class SubredditViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = SubredditViewModel.Factory::class)
+class SubredditViewModel @AssistedInject constructor(
     savedStateHandle: SavedStateHandle,
     userConfigRepository: UserConfigRepository,
     private val subredditRepository: SubredditRepository,
     private val postRepository: PostRepository,
+    @Assisted private val subreddit: String
 ) : ViewModel() {
-
-    private val subreddit =
-        savedStateHandle.toRoute<com.potatosheep.kite.feature.subreddit.impl.nav.Subreddit>().subreddit
 
     private val _postUiState = MutableStateFlow<PostUiState>(PostUiState.Loading)
     val postUiState: StateFlow<PostUiState> = _postUiState
@@ -186,6 +187,11 @@ class SubredditViewModel @Inject constructor(
     }
 
     fun getPostLink(post: Post) = "${instanceUrl.value}/r/${post.subredditName}/comments/${post.id}"
+
+    @AssistedFactory
+    interface Factory {
+        fun create(subreddit: String): SubredditViewModel
+    }
 }
 
 sealed interface SubredditUiState {

@@ -10,23 +10,23 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.navigation.toRoute
 import com.potatosheep.kite.core.data.repo.PostRepository
-import com.potatosheep.kite.feature.video.impl.nav.VideoRoute
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class VideoViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = VideoViewModel.Factory::class)
+class VideoViewModel @AssistedInject constructor(
     videoPlayer: Player,
     private val savedStateHandle: SavedStateHandle,
-    private val postRepository: PostRepository
+    private val postRepository: PostRepository,
+    @Assisted private val _videoLink: String
 ) : ViewModel() {
 
-    private val _videoLink = savedStateHandle.toRoute<VideoRoute>().videoLink
     val videoLink = savedStateHandle.getStateFlow(VIDEO_LINK, _videoLink)
 
     val isHLS = savedStateHandle.getStateFlow(IS_HLS, false)
@@ -118,6 +118,11 @@ class VideoViewModel @Inject constructor(
 
     override fun onCleared() {
         releasePlayer()
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(videoLink: String): VideoViewModel
     }
 }
 
