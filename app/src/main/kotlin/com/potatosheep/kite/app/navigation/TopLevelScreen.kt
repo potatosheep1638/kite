@@ -28,7 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
-import androidx.navigation3.runtime.NavKey
 import com.potatosheep.kite.core.common.TopAppBarActionState
 import com.potatosheep.kite.app.MenuOption
 import com.potatosheep.kite.core.common.enums.SortOption
@@ -52,10 +51,6 @@ import com.potatosheep.kite.feature.settings.api.navigation.navigateToSettings
 import com.potatosheep.kite.feature.subreddit.api.navigation.navigateToSubreddit
 import com.potatosheep.kite.feature.user.api.navigation.navigateToUser
 import com.potatosheep.kite.feature.video.api.navigation.navigateToVideo
-import kotlinx.serialization.Serializable
-
-@Serializable
-data object TopLevelNavKey : NavKey
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
