@@ -1,11 +1,5 @@
-package com.potatosheep.kite.app.nav
+package com.potatosheep.kite.app.navigation
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -26,7 +20,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,18 +28,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavController
-import androidx.navigation.NavDestination
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavOptions
-import androidx.navigation.compose.composable
-import com.potatosheep.kite.app.ui.KiteAppState
+import androidx.navigation3.runtime.NavKey
 import com.potatosheep.kite.core.common.TopAppBarActionState
 import com.potatosheep.kite.app.MenuOption
 import com.potatosheep.kite.core.common.enums.SortOption
-import com.potatosheep.kite.core.common.util.LocalSnackbarHostState
-import com.potatosheep.kite.core.common.util.LocalTopAppBarActionState
 import com.potatosheep.kite.core.common.util.alignToRightOfParent
 import com.potatosheep.kite.core.designsystem.KiteDropdownMenu
 import com.potatosheep.kite.core.designsystem.KiteDropdownMenuItem
@@ -54,60 +39,32 @@ import com.potatosheep.kite.core.designsystem.KiteIcons
 import com.potatosheep.kite.core.designsystem.KiteNavigationSuiteScaffold
 import com.potatosheep.kite.core.designsystem.KiteTopAppBar
 import com.potatosheep.kite.core.designsystem.LocalBackgroundColor
+import com.potatosheep.kite.core.navigation.Navigator
+import com.potatosheep.kite.feature.about.api.navigation.navigateToAbout
 import com.potatosheep.kite.core.translation.R.string as Translation
-import com.potatosheep.kite.feature.about.impl.nav.navigateToAbout
-import com.potatosheep.kite.feature.bookmark.impl.nav.navigateToBookmark
+import com.potatosheep.kite.feature.bookmark.api.navigation.navigateToBookmark
 import com.potatosheep.kite.feature.feed.impl.nav.FeedScreen
-import com.potatosheep.kite.feature.image.nav.navigateToImage
 import com.potatosheep.kite.feature.home.impl.nav.HomeScreen
-import com.potatosheep.kite.feature.post.impl.nav.navigateToPost
-import com.potatosheep.kite.feature.search.impl.nav.navigateToSearch
-import com.potatosheep.kite.feature.settings.impl.nav.navigateToSettings
-import com.potatosheep.kite.feature.subreddit.impl.nav.navigateToSubreddit
-import com.potatosheep.kite.feature.user.impl.nav.navigateToUser
-import com.potatosheep.kite.feature.video.impl.nav.navigateToVideo
+import com.potatosheep.kite.feature.image.api.navigation.navigateToImage
+import com.potatosheep.kite.feature.post.api.navigation.navigateToPost
+import com.potatosheep.kite.feature.search.api.navigation.navigateToSearch
+import com.potatosheep.kite.feature.settings.api.navigation.navigateToSettings
+import com.potatosheep.kite.feature.subreddit.api.navigation.navigateToSubreddit
+import com.potatosheep.kite.feature.user.api.navigation.navigateToUser
+import com.potatosheep.kite.feature.video.api.navigation.navigateToVideo
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object TopLevelRoute
-
-internal fun NavController.navigateToTopLevel(navOptions: NavOptions) =
-    navigate(TopLevelRoute, navOptions)
-
-internal fun NavGraphBuilder.topLevelScreens(
-    appState: KiteAppState,
-    modifier: Modifier
-) {
-    composable<TopLevelRoute>(
-        enterTransition = { EnterTransition.None },
-        exitTransition = { fadeOut() + scaleOut() },
-        popEnterTransition = { fadeIn() + scaleIn() },
-        popExitTransition = { ExitTransition.None }
-    ) {
-        val topAppBarActionState = remember { TopAppBarActionState() }
-
-        CompositionLocalProvider(
-            LocalTopAppBarActionState provides topAppBarActionState
-        ) {
-            TopLevelScreen(
-                appState = appState,
-                snackbarHostState = LocalSnackbarHostState.current,
-                topAppBarActionState = LocalTopAppBarActionState.current,
-                modifier = modifier
-            )
-        }
-    }
-}
+data object TopLevelNavKey : NavKey
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TopLevelScreen(
-    appState: KiteAppState,
+internal fun TopLevelScreen(
+    navigator: Navigator,
     snackbarHostState: SnackbarHostState,
     topAppBarActionState: TopAppBarActionState,
     modifier: Modifier = Modifier
 ) {
-    val navController = appState.navController
     var currentTopLevelDestination by rememberSaveable { mutableStateOf(TopLevelDestination.FEED) }
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
@@ -122,7 +79,7 @@ private fun TopLevelScreen(
 
     KiteNavigationSuiteScaffold(
         navigationSuiteItems = {
-            appState.topLevelDestinations.forEach { destination ->
+            TopLevelDestination.entries.forEach { destination ->
                 val selected = currentTopLevelDestination == destination
 
                 item(
@@ -167,7 +124,7 @@ private fun TopLevelScreen(
                     optionsIcon = KiteIcons.MoreOptions,
                     optionsContentDescription = stringResource(Translation.content_desc_more_options),
                     onSearchClick = {
-                        navController.navigateToSearch(
+                        navigator.navigateToSearch(
                             SortOption.Search.RELEVANCE,
                             SortOption.Timeframe.ALL,
                             subredditScope
@@ -204,14 +161,14 @@ private fun TopLevelScreen(
 
                                             MenuOption.SETTINGS -> {
                                                 {
-                                                    navController.navigateToSettings()
+                                                    navigator.navigateToSettings()
                                                     isMenuExpanded = false
                                                 }
                                             }
 
                                             MenuOption.ABOUT -> {
                                                 {
-                                                    navController.navigateToAbout()
+                                                    navigator.navigateToAbout()
                                                     isMenuExpanded = false
                                                 }
                                             }
@@ -240,12 +197,12 @@ private fun TopLevelScreen(
                 when (currentTopLevelDestination) {
                     TopLevelDestination.FEED -> {
                         FeedScreen(
-                            onPostClick = navController::navigateToPost,
-                            onSubredditClick = navController::navigateToSubreddit,
-                            onUserClick = navController::navigateToUser,
-                            onImageClick = navController::navigateToImage,
-                            onSearchClick = navController::navigateToSearch,
-                            onVideoClick = navController::navigateToVideo,
+                            onPostClick = navigator::navigateToPost,
+                            onSubredditClick = navigator::navigateToSubreddit,
+                            onUserClick = navigator::navigateToUser,
+                            onImageClick = navigator::navigateToImage,
+                            onSearchClick = navigator::navigateToSearch,
+                            onVideoClick = navigator::navigateToVideo,
                             onFeedChange = { scope -> subredditScope = scope },
                             isTitleVisible = { visible -> isTitleVisible = visible },
                             modifier = modifier
@@ -255,9 +212,9 @@ private fun TopLevelScreen(
                     TopLevelDestination.HOME -> {
                         HomeScreen(
                             onBackClick = { currentTopLevelDestination = TopLevelDestination.FEED },
-                            onSubredditClick = navController::navigateToSubreddit,
-                            onSavedClick = navController::navigateToBookmark,
-                            onSearchClick = navController::navigateToSearch,
+                            onSubredditClick = navigator::navigateToSubreddit,
+                            onSavedClick = navigator::navigateToBookmark,
+                            onSearchClick = navigator::navigateToSearch,
                             modifier = modifier
                         )
                     }
@@ -266,8 +223,3 @@ private fun TopLevelScreen(
         }
     }
 }
-
-private fun NavDestination?.isTopLevelDestinationInHierarchy(destination: TopLevelDestination) =
-    this?.hierarchy?.any {
-        it.route?.contains(destination.name, true) ?: false
-    } ?: false

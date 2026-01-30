@@ -6,15 +6,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import com.potatosheep.kite.app.nav.KiteNavHost
-import com.potatosheep.kite.app.nav.TopLevelRoute
+import com.potatosheep.kite.app.navigation.TopLevelScreen
+import com.potatosheep.kite.core.common.TopAppBarActionState
 import com.potatosheep.kite.core.common.util.LocalSnackbarHostState
+import com.potatosheep.kite.core.common.util.LocalTopAppBarActionState
 import com.potatosheep.kite.core.designsystem.LocalBackgroundColor
-import com.potatosheep.kite.feature.onboarding.impl.nav.OnboardingRoute
+import com.potatosheep.kite.core.navigation.Navigator
 
 @Composable
 fun KiteApp(
     appState: KiteAppState,
+    navigator: Navigator,
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -23,19 +25,17 @@ fun KiteApp(
         color = LocalBackgroundColor.current,
         modifier = modifier
     ) {
-        val destination: Any = if (appState.shouldShowOnboarding) {
-            OnboardingRoute
-        } else {
-            TopLevelRoute
-        }
+        val topAppBarActionState = remember { TopAppBarActionState() }
 
         CompositionLocalProvider(
-            LocalSnackbarHostState provides snackbarHostState
+            LocalSnackbarHostState provides snackbarHostState,
+            LocalTopAppBarActionState provides topAppBarActionState
         ) {
-            KiteNavHost(
-                appState = appState,
-                startDestination = destination,
-                modifier = modifier,
+            TopLevelScreen(
+                navigator = navigator,
+                snackbarHostState = LocalSnackbarHostState.current,
+                topAppBarActionState = LocalTopAppBarActionState.current,
+                modifier = modifier
             )
         }
     }

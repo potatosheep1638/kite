@@ -1,4 +1,4 @@
-package com.potatosheep.kite.app.nav
+package com.potatosheep.kite.app.navigation
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.potatosheep.kite.core.designsystem.KiteIcons
