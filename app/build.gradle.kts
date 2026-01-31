@@ -9,7 +9,6 @@ android {
     namespace = "com.potatosheep.kite.app"
 
     defaultConfig {
-        compileSdk = 36
         applicationId = "com.potatosheep.kite"
         versionCode = 9
         versionName = "0.3.4-beta"
