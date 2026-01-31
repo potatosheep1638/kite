@@ -69,7 +69,7 @@ import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.potatosheep.kite.core.common.util.onShare
 import com.potatosheep.kite.core.designsystem.KiteTheme

@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.util.Consumer
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.potatosheep.kite.app.ui.KiteApp
 import com.potatosheep.kite.app.ui.rememberAppState
 import com.potatosheep.kite.core.designsystem.KiteTheme
