@@ -61,6 +61,10 @@ class NavigationState(
 ) {
     var topLevelRoute: NavKey by topLevelRoute
 
+    val currentSubStack: NavBackStack<NavKey>
+        get() = backStacks[topLevelRoute]
+            ?: error("Back stack for $topLevelRoute does not exist")
+
     val stacksInUse: List<NavKey>
         get() = if (topLevelRoute == startRoute) {
             listOf(startRoute)
@@ -68,7 +72,11 @@ class NavigationState(
             listOf(startRoute, topLevelRoute)
         }
 
-    val currentKey: NavKey by derivedStateOf { backStacks.keys.last() }
+    val currentKey: NavKey by derivedStateOf { currentSubStack.last() }
+
+    fun isTopLevelKey(): Boolean {
+        return currentKey == topLevelRoute
+    }
 }
 
 /**

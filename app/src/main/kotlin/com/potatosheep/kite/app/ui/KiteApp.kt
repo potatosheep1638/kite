@@ -52,7 +52,7 @@ fun KiteApp(
         ) {
             NavDisplay(
                 entries = appState.navigationState.toEntries(entryProvider {
-                    topLevelEntry(navigator)
+                    topLevelEntry(navigator, appState.navigationState.isTopLevelKey())
                     aboutEntry(navigator, getVersion(context))
                     bookmarkEntry(navigator)
                     imageEntry(navigator)

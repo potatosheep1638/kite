@@ -20,6 +20,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +29,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.potatosheep.kite.core.common.TopAppBarActionState
 import com.potatosheep.kite.app.MenuOption
 import com.potatosheep.kite.app.navigation.TopLevelDestination
@@ -43,6 +46,9 @@ import com.potatosheep.kite.core.navigation.Navigator
 import com.potatosheep.kite.feature.about.api.navigation.navigateToAbout
 import com.potatosheep.kite.core.translation.R.string as Translation
 import com.potatosheep.kite.feature.bookmark.api.navigation.navigateToBookmark
+import com.potatosheep.kite.feature.feed.impl.FeedUiState
+import com.potatosheep.kite.feature.feed.impl.FeedViewModel
+import com.potatosheep.kite.feature.feed.impl.RefreshScope
 import com.potatosheep.kite.feature.feed.impl.nav.FeedScreen
 import com.potatosheep.kite.feature.home.impl.nav.HomeScreen
 import com.potatosheep.kite.feature.image.api.navigation.navigateToImage
@@ -53,10 +59,37 @@ import com.potatosheep.kite.feature.subreddit.api.navigation.navigateToSubreddit
 import com.potatosheep.kite.feature.user.api.navigation.navigateToUser
 import com.potatosheep.kite.feature.video.api.navigation.navigateToVideo
 
+@Composable
+internal fun TopLevelScreen(
+    navigator: Navigator,
+    isTopLevel: Boolean,
+    snackbarHostState: SnackbarHostState,
+    topAppBarActionState: TopAppBarActionState,
+    modifier: Modifier = Modifier,
+    viewModel: FeedViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.feedUiState.collectAsStateWithLifecycle()
+    val refreshScope by viewModel.shouldRefresh.collectAsStateWithLifecycle()
+
+    TopLevelScreen(
+        navigator = navigator,
+        isTopLevel = isTopLevel,
+        feedUiState = uiState,
+        refreshScope = refreshScope,
+        loadFrontPage = viewModel::loadFrontPage,
+        snackbarHostState = snackbarHostState,
+        topAppBarActionState = topAppBarActionState,
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun TopLevelScreen(
     navigator: Navigator,
+    isTopLevel: Boolean,
+    feedUiState: FeedUiState,
+    refreshScope: RefreshScope,
+    loadFrontPage: () -> Unit,
     snackbarHostState: SnackbarHostState,
     topAppBarActionState: TopAppBarActionState,
     modifier: Modifier = Modifier
@@ -71,6 +104,12 @@ internal fun TopLevelScreen(
 
     if (currentTopLevelDestination == TopLevelDestination.HOME) {
         isTitleVisible = false
+    }
+
+    LaunchedEffect(isTopLevel, refreshScope) {
+        if (isTopLevel && refreshScope == RefreshScope.GLOBAL) {
+            loadFrontPage()
+        }
     }
 
     KiteNavigationSuiteScaffold(
