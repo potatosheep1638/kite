@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.kite.android.library)
     alias(libs.plugins.kite.android.compose)
-    alias(libs.plugins.kite.android.feature)
+    alias(libs.plugins.kite.android.feature.impl)
 }
 
 android {

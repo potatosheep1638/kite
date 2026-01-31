@@ -48,12 +48,6 @@ gradlePlugin {
             implementationClass = "AndroidApplicationConventionPlugin"
         }
 
-        // TODO: Remove this
-        register("androidFeature") {
-            id = "kite.android.feature"
-            implementationClass = "AndroidFeatureConventionPlugin"
-        }
-
         register("androidFeatureApi") {
             id = libs.plugins.kite.android.feature.api.get().pluginId
             implementationClass = "AndroidFeatureApiConventionPlugin"
