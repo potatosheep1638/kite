@@ -151,15 +151,6 @@ internal fun FeedScreen(
 
             isTitleVisible(isTitleInView)
 
-            if (shouldLoadMorePosts) {
-                loadSortedPosts(
-                    feedUiState.sort,
-                    feedUiState.timeframe,
-                    listOf(feedUiState.currentFeed.uri),
-                    true
-                )
-            }
-
             LaunchedEffect(feedUiState.followedSubreddits) {
                 shouldDisableFollowedFeed = feedUiState.followedSubreddits.isEmpty()
 
@@ -204,6 +195,15 @@ internal fun FeedScreen(
                 }
 
                 is PostListUiState.Success -> {
+                    if (shouldLoadMorePosts) {
+                        loadSortedPosts(
+                            feedUiState.sort,
+                            feedUiState.timeframe,
+                            listOf(feedUiState.currentFeed.uri),
+                            true
+                        )
+                    }
+
                     LaunchedEffect(shouldScrollToTop) {
                         if (shouldScrollToTop) {
                             feedUiState.listState.requestScrollToItem(0)
