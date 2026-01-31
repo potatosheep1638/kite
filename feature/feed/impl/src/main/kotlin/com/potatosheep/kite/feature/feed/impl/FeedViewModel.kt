@@ -160,18 +160,21 @@ class FeedViewModel @Inject constructor(
     fun loadFrontPage() {
         viewModelScope.launch {
             if (feedUiState.value is FeedUiState.Success) {
+                Log.d("FeedViewModel", "Loading front page")
                 _postListUiState.value = PostListUiState.Loading
 
                 val feedUiState = (feedUiState.value as FeedUiState.Success)
 
                 runCatching {
-                    val redirect = if (feedUiState.currentFeed != Feed.FOLLOWED) {
+                    val redirect = if (feedUiState.currentFeed != Feed.FOLLOWED &&
+                        feedUiState.followedSubreddits.isEmpty()) {
                         "r/${feedUiState.currentFeed.uri}"
                     } else {
                         ""
                     }
 
                     updateUiState(
+                        feed = if (feedUiState.followedSubreddits.isNotEmpty()) Feed.FOLLOWED else null,
                         sort = SortOption.Post.HOT,
                         timeframe = SortOption.Timeframe.DAY
                     )

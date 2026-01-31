@@ -167,11 +167,7 @@ internal fun FeedScreen(
                         }
                     }
 
-                    RefreshScope.GLOBAL -> {
-                        loadFrontPage()
-                    }
-
-                    RefreshScope.NO_REFRESH -> Unit
+                    else -> Unit
                 }
             }
 

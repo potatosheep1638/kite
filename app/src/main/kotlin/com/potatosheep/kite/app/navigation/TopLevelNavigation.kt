@@ -15,10 +15,11 @@ fun Navigator.navigateToTopLevel() {
     navigate(TopLevelNavKey)
 }
 
-fun EntryProviderScope<NavKey>.topLevelEntry(navigator: Navigator) {
+fun EntryProviderScope<NavKey>.topLevelEntry(navigator: Navigator, isTopLevel: Boolean) {
     entry<TopLevelNavKey> {
         TopLevelScreen(
             navigator = navigator,
+            isTopLevel = isTopLevel,
             snackbarHostState = LocalSnackbarHostState.current,
             topAppBarActionState = LocalTopAppBarActionState.current,
         )
