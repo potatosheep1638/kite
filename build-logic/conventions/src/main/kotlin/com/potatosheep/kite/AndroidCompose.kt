@@ -2,11 +2,7 @@ package com.potatosheep.kite
 
 import com.android.build.gradle.BaseExtension
 import org.gradle.api.Project
-import org.gradle.api.provider.Provider
-import org.gradle.kotlin.dsl.assign
-import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
-import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
 
 internal fun Project.configureAndroidCompose(
     commonExtension: BaseExtension
@@ -20,9 +16,11 @@ internal fun Project.configureAndroidCompose(
             val bom = libs.findLibrary("androidx-compose-bom").get()
             add("implementation", platform(bom))
             add("implementation", libs.findLibrary("androidx-compose-material3").get())
-            add("implementation", libs.findLibrary("androidx-hilt-navigation-compose").get())
             add("implementation", libs.findLibrary("androidx-ui-tooling-preview-android").get())
-            add("implementation", libs.findLibrary("androidx.navigation.compose").get())
+            add("implementation", libs.findLibrary("androidx-navigation3-runtime").get())
+            add("implementation", libs.findLibrary("androidx-navigation3-ui").get())
+            add("implementation", libs.findLibrary("androidx-lifecycle-viewmodel-navigation3").get())
+            add("implementation", libs.findLibrary("androidx-hilt-lifecycle-viewModelCompose").get())
             add("debugImplementation", libs.findLibrary("androidx-compose-ui-tooling").get())
         }
     }

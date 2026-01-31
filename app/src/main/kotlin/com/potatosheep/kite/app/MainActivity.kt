@@ -23,18 +23,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.util.Consumer
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.potatosheep.kite.app.ui.KiteApp
 import com.potatosheep.kite.app.ui.rememberAppState
 import com.potatosheep.kite.core.designsystem.KiteTheme
+import com.potatosheep.kite.core.navigation.Navigator
 import com.potatosheep.kite.feature.exception.ExceptionRoute
-import com.potatosheep.kite.feature.image.nav.navigateToImage
-import com.potatosheep.kite.feature.post.nav.navigateToPost
-import com.potatosheep.kite.feature.subreddit.nav.navigateToSubreddit
+import com.potatosheep.kite.feature.image.api.navigation.navigateToImage
+import com.potatosheep.kite.feature.post.api.navigation.navigateToPost
+import com.potatosheep.kite.feature.subreddit.api.navigation.navigateToSubreddit
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -106,19 +107,24 @@ class MainActivity : ComponentActivity() {
                     shouldShowOnboarding = uiState.shouldShowOnboarding
                 )
 
+                val navigator = remember { Navigator(appState.navigationState) }
+
                 KiteTheme {
-                    KiteApp(appState = appState)
+                    KiteApp(
+                        appState = appState,
+                        navigator = navigator
+                    )
                 }
 
                 if (uiState.isColdBoot) {
-                    intentResolver(appState.navController, intent)
+                    intentResolver(navigator, intent)
                     viewModel.isBooted()
                 }
 
                 // Allow intents to work when the app is running.
                 DisposableEffect(Unit) {
                     val listener = Consumer<Intent> { intent ->
-                        intentResolver(appState.navController, intent)
+                        intentResolver(navigator, intent)
                     }
 
                     addOnNewIntentListener(listener)
@@ -129,7 +135,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun intentResolver(navController: NavController, intent: Intent? = null) {
+    private fun intentResolver(navigator: Navigator, intent: Intent? = null) {
 
         val uri = intent?.data
         val uriString = intent?.data.toString()
@@ -137,7 +143,7 @@ class MainActivity : ComponentActivity() {
         if (uri != null) {
             when {
                 uriString.contains("/r/\\w+/comments/\\w+/comment".toRegex()) -> {
-                    navController.navigateToPost(
+                    navigator.navigateToPost(
                         subreddit = uri.pathSegments[1],
                         postId = uri.pathSegments[3],
                         commentId = uri.pathSegments[5]
@@ -145,7 +151,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 uriString.contains("/r/\\w+/comments/\\w+".toRegex()) -> {
-                    navController.navigateToPost(
+                    navigator.navigateToPost(
                         subreddit = uri.pathSegments[1],
                         postId = uri.pathSegments[3],
                         commentId = null
@@ -153,7 +159,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 uriString.contains("/r/\\w+/s/\\w+".toRegex()) -> {
-                    navController.navigateToPost(
+                    navigator.navigateToPost(
                         subreddit = uri.pathSegments[1],
                         postId = uri.pathSegments[3],
                         commentId = null,
@@ -162,13 +168,13 @@ class MainActivity : ComponentActivity() {
                 }
 
                 uriString.contains("/r/\\w+".toRegex()) -> {
-                    navController.navigateToSubreddit(
+                    navigator.navigateToSubreddit(
                         subreddit = uri.pathSegments.last()
                     )
                 }
 
                 uriString.contains("\\.jpg|\\.jpeg|\\.png|\\.gif".toRegex()) -> {
-                    navController.navigateToImage(
+                    navigator.navigateToImage(
                         imageLinks = listOf(uri.query!!.substringAfter("imageLinks=")),
                         captions = listOf(null)
                     )

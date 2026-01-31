@@ -1,0 +1,25 @@
+plugins {
+    alias(libs.plugins.kite.android.library)
+    alias(libs.plugins.kite.android.compose)
+    alias(libs.plugins.kite.android.feature.impl)
+    alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.jetbrains.kotlin.parcelize)
+}
+
+android {
+    namespace = "com.potatosheep.kite.feature.image.impl"
+}
+
+dependencies {
+    implementation(projects.core.model)
+    implementation(projects.core.data)
+    implementation(projects.core.designsystem)
+    implementation(projects.core.ui)
+    implementation(projects.core.common)
+    implementation(projects.core.translation)
+    implementation(projects.feature.image.api)
+
+    implementation(libs.coil)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
+}
