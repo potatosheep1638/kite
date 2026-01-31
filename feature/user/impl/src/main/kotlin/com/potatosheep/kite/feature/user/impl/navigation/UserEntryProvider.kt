@@ -3,6 +3,7 @@ package com.potatosheep.kite.feature.user.impl.navigation
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import com.potatosheep.kite.core.designsystem.defaultTransitionSpec
 import com.potatosheep.kite.core.navigation.Navigator
 import com.potatosheep.kite.feature.image.api.navigation.navigateToImage
 import com.potatosheep.kite.feature.post.api.navigation.navigateToPost
@@ -15,7 +16,7 @@ import com.potatosheep.kite.feature.user.impl.UserViewModel.Factory
 import com.potatosheep.kite.feature.video.api.navigation.navigateToVideo
 
 fun EntryProviderScope<NavKey>.userEntry(navigator: Navigator) {
-    entry<UserNavKey> { key ->
+    entry<UserNavKey>(metadata = defaultTransitionSpec()) { key ->
         UserRoute(
             onBackClick = { navigator.goBack() },
             onPostClick = navigator::navigateToPost,

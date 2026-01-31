@@ -2,6 +2,7 @@ package com.potatosheep.kite.feature.bookmark.impl.navigation
 
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import com.potatosheep.kite.core.designsystem.defaultTransitionSpec
 import com.potatosheep.kite.core.navigation.Navigator
 import com.potatosheep.kite.feature.bookmark.api.navigation.BookmarkNavKey
 import com.potatosheep.kite.feature.bookmark.impl.BookmarkRoute
@@ -13,7 +14,7 @@ import com.potatosheep.kite.feature.user.api.navigation.navigateToUser
 import com.potatosheep.kite.feature.video.api.navigation.navigateToVideo
 
 fun EntryProviderScope<NavKey>.bookmarkEntry(navigator: Navigator) {
-    entry<BookmarkNavKey> {
+    entry<BookmarkNavKey>(metadata = defaultTransitionSpec()) {
         BookmarkRoute(
             onBackClick = { navigator.goBack() },
             onPostClick = navigator::navigateToPost,
