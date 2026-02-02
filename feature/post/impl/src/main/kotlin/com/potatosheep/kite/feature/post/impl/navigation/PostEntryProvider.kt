@@ -11,7 +11,7 @@ import com.potatosheep.kite.feature.post.api.navigation.navigateToPost
 import com.potatosheep.kite.feature.post.impl.PostRoute
 import com.potatosheep.kite.feature.post.impl.PostViewModel
 import com.potatosheep.kite.feature.post.impl.PostViewModel.Factory
-import com.potatosheep.kite.feature.search.api.navigation.navigateToSearch
+import com.potatosheep.kite.feature.searchresult.api.navigation.navigateToSearch
 import com.potatosheep.kite.feature.subreddit.api.navigation.navigateToSubreddit
 import com.potatosheep.kite.feature.user.api.navigation.navigateToUser
 import com.potatosheep.kite.feature.video.api.navigation.navigateToVideo

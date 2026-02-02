@@ -1,28 +1,34 @@
-package com.potatosheep.kite.feature.bookmark.impl.navigation
+package com.potatosheep.kite.feature.searchresult.impl.navigation
 
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.potatosheep.kite.core.designsystem.defaultTransitionSpec
 import com.potatosheep.kite.core.navigation.Navigator
-import com.potatosheep.kite.feature.bookmark.api.navigation.BookmarkNavKey
-import com.potatosheep.kite.feature.bookmark.impl.BookmarkRoute
 import com.potatosheep.kite.feature.image.api.navigation.navigateToImage
 import com.potatosheep.kite.feature.post.api.navigation.navigateToPost
+import com.potatosheep.kite.feature.searchresult.api.navigation.SearchNavKey
 import com.potatosheep.kite.feature.searchresult.api.navigation.navigateToSearch
+import com.potatosheep.kite.feature.searchresult.impl.SearchRoute
+import com.potatosheep.kite.feature.searchresult.impl.SearchViewModel
+import com.potatosheep.kite.feature.searchresult.impl.SearchViewModel.Factory
 import com.potatosheep.kite.feature.subreddit.api.navigation.navigateToSubreddit
 import com.potatosheep.kite.feature.user.api.navigation.navigateToUser
 import com.potatosheep.kite.feature.video.api.navigation.navigateToVideo
 
-fun EntryProviderScope<NavKey>.bookmarkEntry(navigator: Navigator) {
-    entry<BookmarkNavKey>(metadata = defaultTransitionSpec()) {
-        BookmarkRoute(
+fun EntryProviderScope<NavKey>.searchEntry(navigator: Navigator) {
+    entry<SearchNavKey>(metadata = defaultTransitionSpec()) { key ->
+        SearchRoute(
             onBackClick = { navigator.goBack() },
             onPostClick = navigator::navigateToPost,
             onSubredditClick = navigator::navigateToSubreddit,
             onUserClick = navigator::navigateToUser,
             onImageClick = navigator::navigateToImage,
-            onSearchClick = navigator::navigateToSearch,
             onVideoClick = navigator::navigateToVideo,
+            onSearchClick = navigator::navigateToSearch,
+            viewModel = hiltViewModel<SearchViewModel, Factory> {
+                it.create(key.subredditScope, key.sort, key.timeframe, key.query)
+            }
         )
     }
 }

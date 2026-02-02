@@ -53,7 +53,7 @@ import com.potatosheep.kite.feature.feed.impl.nav.FeedScreen
 import com.potatosheep.kite.feature.home.impl.nav.HomeScreen
 import com.potatosheep.kite.feature.image.api.navigation.navigateToImage
 import com.potatosheep.kite.feature.post.api.navigation.navigateToPost
-import com.potatosheep.kite.feature.search.api.navigation.navigateToSearch
+import com.potatosheep.kite.feature.searchresult.api.navigation.navigateToSearch
 import com.potatosheep.kite.feature.settings.api.navigation.navigateToSettings
 import com.potatosheep.kite.feature.subreddit.api.navigation.navigateToSubreddit
 import com.potatosheep.kite.feature.user.api.navigation.navigateToUser

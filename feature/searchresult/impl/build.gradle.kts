@@ -6,17 +6,16 @@ plugins {
 }
 
 android {
-    namespace = "com.potatosheep.kite.feature.post.impl"
+    namespace = "com.potatosheep.kite.feature.searchresult.impl"
 }
 
 dependencies {
-    implementation(projects.core.model)
     implementation(projects.core.data)
+    implementation(projects.core.common)
+    implementation(projects.core.model)
     implementation(projects.core.designsystem)
     implementation(projects.core.ui)
     implementation(projects.core.domain)
-    implementation(projects.core.common)
-    implementation(projects.core.markdown)
     implementation(projects.core.translation)
     implementation(projects.feature.post.api)
     implementation(projects.feature.subreddit.api)
@@ -28,5 +27,4 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
-    implementation(libs.kotlinx.datetime)
 }
