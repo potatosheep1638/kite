@@ -6,7 +6,7 @@ import com.potatosheep.kite.core.navigation.Navigator
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SearchNavKey(
+data class SearchResultNavKey(
     val subredditScope: String?,
     val sort: SortOption.Search,
     val timeframe: SortOption.Timeframe,
@@ -19,5 +19,5 @@ fun Navigator.navigateToSearch(
     subredditScope: String? = null,
     query: String = "",
 ) {
-    navigate(SearchNavKey(subredditScope, sort, timeframe, query))
+    navigate(SearchResultNavKey(subredditScope, sort, timeframe, query))
 }

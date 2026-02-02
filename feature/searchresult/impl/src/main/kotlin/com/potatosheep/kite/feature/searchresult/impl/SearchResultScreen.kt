@@ -110,7 +110,7 @@ import kotlinx.coroutines.launch
 import com.potatosheep.kite.core.translation.R.string as Translation
 
 @Composable
-fun SearchRoute(
+fun SearchResultRoute(
     onBackClick: () -> Unit,
     onPostClick: (String, String, String?, String?, Boolean) -> Unit,
     onSubredditClick: (String) -> Unit,
@@ -119,7 +119,7 @@ fun SearchRoute(
     onVideoClick: (String) -> Unit,
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: SearchViewModel = hiltViewModel()
+    viewModel: SearchResultViewModel = hiltViewModel()
 ) {
     val sortOption by viewModel.sortOption.collectAsStateWithLifecycle()
     val timeframe by viewModel.timeframe.collectAsStateWithLifecycle()
@@ -132,7 +132,7 @@ fun SearchRoute(
     val blurNsfw by viewModel.blurNsfw.collectAsStateWithLifecycle()
     val blurSpoiler by viewModel.blurSpoiler.collectAsStateWithLifecycle()
 
-    SearchScreen(
+    SearchResultScreen(
         searchUiState = searchUiState,
         subredditListingUiState = subredditListingUiState,
         sortOption = sortOption,
@@ -164,7 +164,7 @@ fun SearchRoute(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-internal fun SearchScreen(
+internal fun SearchResultScreen(
     searchUiState: SearchUiState,
     subredditListingUiState: SubredditListingUiState,
     sortOption: SortOption.Search,
@@ -914,7 +914,7 @@ private fun calculateIndicatorOffset(
 
 @PreviewLightDark
 @Composable
-private fun SearchScreenPreview(
+private fun SearchResultScreenPreview(
     @PreviewParameter(PostListPreviewParameterProvider::class)
     posts: List<Post>
 ) {
@@ -939,7 +939,7 @@ private fun SearchScreenPreview(
 
     KiteTheme {
         Surface {
-            SearchScreen(
+            SearchResultScreen(
                 searchUiState = SearchUiState.Success(
                     posts = posts,
                     subreddits = subreddits

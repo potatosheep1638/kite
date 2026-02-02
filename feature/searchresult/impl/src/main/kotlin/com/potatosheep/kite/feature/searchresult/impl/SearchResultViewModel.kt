@@ -22,8 +22,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
 
-@HiltViewModel(assistedFactory = SearchViewModel.Factory::class)
-class SearchViewModel @AssistedInject constructor(
+@HiltViewModel(assistedFactory = SearchResultViewModel.Factory::class)
+class SearchResultViewModel @AssistedInject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val postRepository: PostRepository,
     private val subredditRepository: SubredditRepository,
@@ -238,7 +238,7 @@ class SearchViewModel @AssistedInject constructor(
             @Assisted("sort") sort: SortOption.Search,
             @Assisted("timeframe") timeframe: SortOption.Timeframe,
             @Assisted("query") query: String
-        ) : SearchViewModel
+        ) : SearchResultViewModel
     }
 }
 
