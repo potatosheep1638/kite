@@ -62,6 +62,8 @@ dependencies {
     implementation(projects.feature.subreddit.api)
     implementation(projects.feature.user.impl)
     implementation(projects.feature.user.api)
+    implementation(projects.feature.search.impl)
+    implementation(projects.feature.search.api)
     implementation(projects.feature.searchresult.impl)
     implementation(projects.feature.searchresult.api)
     implementation(projects.feature.video.impl)
