@@ -13,7 +13,7 @@ data class SearchResultNavKey(
     val query: String
 ) : NavKey
 
-fun Navigator.navigateToSearch(
+fun Navigator.navigateToSearchResult(
     sort: SortOption.Search = SortOption.Search.RELEVANCE,
     timeframe: SortOption.Timeframe = SortOption.Timeframe.ALL,
     subredditScope: String? = null,

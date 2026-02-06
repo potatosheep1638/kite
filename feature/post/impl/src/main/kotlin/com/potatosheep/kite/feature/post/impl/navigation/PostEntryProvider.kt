@@ -11,7 +11,7 @@ import com.potatosheep.kite.feature.post.api.navigation.navigateToPost
 import com.potatosheep.kite.feature.post.impl.PostRoute
 import com.potatosheep.kite.feature.post.impl.PostViewModel
 import com.potatosheep.kite.feature.post.impl.PostViewModel.Factory
-import com.potatosheep.kite.feature.searchresult.api.navigation.navigateToSearch
+import com.potatosheep.kite.feature.searchresult.api.navigation.navigateToSearchResult
 import com.potatosheep.kite.feature.subreddit.api.navigation.navigateToSubreddit
 import com.potatosheep.kite.feature.user.api.navigation.navigateToUser
 import com.potatosheep.kite.feature.video.api.navigation.navigateToVideo
@@ -25,7 +25,7 @@ fun EntryProviderScope<NavKey>.postEntry(navigator: Navigator) {
             onUserClick = navigator::navigateToUser,
             onImageClick = navigator::navigateToImage,
             onMoreRepliesClick = navigator::navigateToPost,
-            onFlairClick = navigator::navigateToSearch,
+            onFlairClick = navigator::navigateToSearchResult,
             onVideoClick = navigator::navigateToVideo,
             onBackClick = { navigator.goBack() },
             viewModel = hiltViewModel<PostViewModel, Factory> {

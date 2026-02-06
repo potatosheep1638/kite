@@ -53,7 +53,7 @@ import com.potatosheep.kite.feature.feed.impl.nav.FeedScreen
 import com.potatosheep.kite.feature.home.impl.nav.HomeScreen
 import com.potatosheep.kite.feature.image.api.navigation.navigateToImage
 import com.potatosheep.kite.feature.post.api.navigation.navigateToPost
-import com.potatosheep.kite.feature.searchresult.api.navigation.navigateToSearch
+import com.potatosheep.kite.feature.searchresult.api.navigation.navigateToSearchResult
 import com.potatosheep.kite.feature.settings.api.navigation.navigateToSettings
 import com.potatosheep.kite.feature.subreddit.api.navigation.navigateToSubreddit
 import com.potatosheep.kite.feature.user.api.navigation.navigateToUser
@@ -159,7 +159,7 @@ internal fun TopLevelScreen(
                     optionsIcon = KiteIcons.MoreOptions,
                     optionsContentDescription = stringResource(Translation.content_desc_more_options),
                     onSearchClick = {
-                        navigator.navigateToSearch(
+                        navigator.navigateToSearchResult(
                             SortOption.Search.RELEVANCE,
                             SortOption.Timeframe.ALL,
                             subredditScope
@@ -236,7 +236,7 @@ internal fun TopLevelScreen(
                             onSubredditClick = navigator::navigateToSubreddit,
                             onUserClick = navigator::navigateToUser,
                             onImageClick = navigator::navigateToImage,
-                            onSearchClick = navigator::navigateToSearch,
+                            onSearchClick = navigator::navigateToSearchResult,
                             onVideoClick = navigator::navigateToVideo,
                             onFeedChange = { scope -> subredditScope = scope },
                             isTitleVisible = { visible -> isTitleVisible = visible },
@@ -249,7 +249,7 @@ internal fun TopLevelScreen(
                             onBackClick = { currentTopLevelDestination = TopLevelDestination.FEED },
                             onSubredditClick = navigator::navigateToSubreddit,
                             onSavedClick = navigator::navigateToBookmark,
-                            onSearchClick = navigator::navigateToSearch,
+                            onSearchClick = navigator::navigateToSearchResult,
                             modifier = modifier
                         )
                     }
