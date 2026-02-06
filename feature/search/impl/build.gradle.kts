@@ -16,4 +16,5 @@ dependencies {
     implementation(projects.core.translation)
     implementation(projects.feature.search.api)
     implementation(projects.feature.searchresult.api)
+    implementation(projects.feature.post.api)
 }
