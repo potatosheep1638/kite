@@ -103,6 +103,7 @@ import com.potatosheep.kite.core.designsystem.NoResultsMsg
 import com.potatosheep.kite.core.model.MediaType
 import com.potatosheep.kite.core.model.Post
 import com.potatosheep.kite.core.model.Subreddit
+import com.potatosheep.kite.core.ui.SortChip
 import com.potatosheep.kite.core.ui.SubredditRow
 import com.potatosheep.kite.core.ui.param.PostListPreviewParameterProvider
 import com.potatosheep.kite.core.ui.post.PostCard
@@ -370,7 +371,7 @@ internal fun SearchResultScreen(
                     containerColor = Color.Transparent,
                 ),
             ) {
-                PostSorter(
+                SortChip(
                     onClick = { showBottomSheet = true },
                     currentSortOption = currentSortOption,
                     currentSortTimeframe = currentSortTimeframe,
@@ -752,48 +753,6 @@ private fun SubredditSearchResultCard(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun PostSorter(
-    onClick: () -> Unit,
-    currentSortOption: SortOption.Search,
-    currentSortTimeframe: SortOption.Timeframe,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier
-    ) {
-        FilterChip(
-            onClick = onClick,
-            label = {
-                Text(
-                    text = "${stringResource(currentSortOption.label)} ${
-                        if (currentSortOption != SortOption.Search.NEW)
-                            " •  ${stringResource(currentSortTimeframe.label)}"
-                        else
-                            ""
-                    }",
-                    style = MaterialTheme.typography.labelLarge
-                )
-            },
-            selected = true,
-            leadingIcon = {
-                Icon(
-                    imageVector = KiteIcons.Check,
-                    contentDescription = stringResource(currentSortOption.label),
-                    modifier = Modifier.size(16.dp)
-                )
-            },
-            trailingIcon = {
-                Icon(
-                    imageVector = KiteIcons.DropdownAlt,
-                    contentDescription = stringResource(Translation.content_desc_sort)
-                )
-            },
-            modifier = Modifier.padding(end = 6.dp)
-        )
     }
 }
 
