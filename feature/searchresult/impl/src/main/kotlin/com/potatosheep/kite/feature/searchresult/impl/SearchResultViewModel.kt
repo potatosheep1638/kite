@@ -61,7 +61,7 @@ class SearchResultViewModel @AssistedInject constructor(
         .apply {
             viewModelScope.launch {
                 this@apply.collectLatest { state ->
-                    if (state is SearchResultUiState.Success && query.isNotEmpty()) {
+                    if (state is SearchResultUiState.Success) {
                         searchPostsAndSubreddits(query)
                     }
                 }
@@ -73,7 +73,7 @@ class SearchResultViewModel @AssistedInject constructor(
             _postListUiState.value = PostListUiState.Loading
 
             val currentSearchResultUiState = searchResultUiState.value
-            if (query.isNotBlank() && currentSearchResultUiState is SearchResultUiState.Success) {
+            if (query.isNotEmpty() && currentSearchResultUiState is SearchResultUiState.Success) {
                 runCatching {
                     postRepository.searchPostsAndSubreddits(
                         instanceUrl = currentSearchResultUiState.instance,
