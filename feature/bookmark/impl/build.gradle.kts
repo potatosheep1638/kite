@@ -21,7 +21,7 @@ dependencies {
     implementation(projects.feature.subreddit.api)
     implementation(projects.feature.user.api)
     implementation(projects.feature.image.api)
-    implementation(projects.feature.searchresult.api)
+    implementation(projects.feature.search.api)
     implementation(projects.feature.video.api)
 
     implementation(libs.kotlinx.datetime)
