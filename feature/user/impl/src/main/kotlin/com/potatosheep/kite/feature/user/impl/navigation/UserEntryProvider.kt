@@ -7,7 +7,7 @@ import com.potatosheep.kite.core.designsystem.defaultTransitionSpec
 import com.potatosheep.kite.core.navigation.Navigator
 import com.potatosheep.kite.feature.image.api.navigation.navigateToImage
 import com.potatosheep.kite.feature.post.api.navigation.navigateToPost
-import com.potatosheep.kite.feature.searchresult.api.navigation.navigateToSearchResult
+import com.potatosheep.kite.feature.search.api.navigation.navigateToSearch
 import com.potatosheep.kite.feature.subreddit.api.navigation.navigateToSubreddit
 import com.potatosheep.kite.feature.user.api.navigation.UserNavKey
 import com.potatosheep.kite.feature.user.impl.UserRoute
@@ -22,8 +22,8 @@ fun EntryProviderScope<NavKey>.userEntry(navigator: Navigator) {
             onPostClick = navigator::navigateToPost,
             onSubredditClick = navigator::navigateToSubreddit,
             onImageClick = navigator::navigateToImage,
-            onSearchClick = navigator::navigateToSearchResult,
-            onFlairClick = navigator::navigateToSearchResult,
+            onSearchClick = navigator::navigateToSearch,
+            onFlairClick = navigator::navigateToSearch,
             onVideoClick = navigator::navigateToVideo,
             viewModel = hiltViewModel<UserViewModel, Factory> {
                 it.create(key.user)

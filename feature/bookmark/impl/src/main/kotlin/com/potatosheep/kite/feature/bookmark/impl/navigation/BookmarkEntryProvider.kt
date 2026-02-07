@@ -8,7 +8,7 @@ import com.potatosheep.kite.feature.bookmark.api.navigation.BookmarkNavKey
 import com.potatosheep.kite.feature.bookmark.impl.BookmarkRoute
 import com.potatosheep.kite.feature.image.api.navigation.navigateToImage
 import com.potatosheep.kite.feature.post.api.navigation.navigateToPost
-import com.potatosheep.kite.feature.searchresult.api.navigation.navigateToSearchResult
+import com.potatosheep.kite.feature.search.api.navigation.navigateToSearch
 import com.potatosheep.kite.feature.subreddit.api.navigation.navigateToSubreddit
 import com.potatosheep.kite.feature.user.api.navigation.navigateToUser
 import com.potatosheep.kite.feature.video.api.navigation.navigateToVideo
@@ -21,7 +21,7 @@ fun EntryProviderScope<NavKey>.bookmarkEntry(navigator: Navigator) {
             onSubredditClick = navigator::navigateToSubreddit,
             onUserClick = navigator::navigateToUser,
             onImageClick = navigator::navigateToImage,
-            onSearchClick = navigator::navigateToSearchResult,
+            onSearchClick = navigator::navigateToSearch,
             onVideoClick = navigator::navigateToVideo,
         )
     }

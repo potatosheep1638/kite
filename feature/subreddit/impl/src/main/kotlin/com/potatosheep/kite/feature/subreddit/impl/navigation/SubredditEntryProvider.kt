@@ -7,7 +7,7 @@ import com.potatosheep.kite.core.designsystem.defaultTransitionSpec
 import com.potatosheep.kite.core.navigation.Navigator
 import com.potatosheep.kite.feature.image.api.navigation.navigateToImage
 import com.potatosheep.kite.feature.post.api.navigation.navigateToPost
-import com.potatosheep.kite.feature.searchresult.api.navigation.navigateToSearchResult
+import com.potatosheep.kite.feature.search.api.navigation.navigateToSearch
 import com.potatosheep.kite.feature.subreddit.api.navigation.SubredditNavKey
 import com.potatosheep.kite.feature.subreddit.impl.SubredditRoute
 import com.potatosheep.kite.feature.subreddit.impl.SubredditViewModel
@@ -21,7 +21,7 @@ fun EntryProviderScope<NavKey>.subredditEntry(navigator: Navigator) {
             onBackClick = { navigator.goBack() },
             onPostClick = navigator::navigateToPost,
             onImageClick = navigator::navigateToImage,
-            onSearchClick = navigator::navigateToSearchResult,
+            onSearchClick = navigator::navigateToSearch,
             onUserClick = navigator::navigateToUser,
             onVideoClick = navigator::navigateToVideo,
             viewModel = hiltViewModel<SubredditViewModel, Factory> {
