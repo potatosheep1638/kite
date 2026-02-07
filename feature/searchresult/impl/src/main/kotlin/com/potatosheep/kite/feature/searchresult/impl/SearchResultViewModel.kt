@@ -16,7 +16,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -33,114 +33,95 @@ class SearchResultViewModel @AssistedInject constructor(
     @Assisted("timeframe") timeframe: SortOption.Timeframe,
     @Assisted("query") query: String
 ) : ViewModel() {
-    val sortOption = savedStateHandle.getStateFlow(SORT_OPTION, sort)
-    val timeframe = savedStateHandle.getStateFlow(TIMEFRAME, timeframe)
-    val subredditScope = savedStateHandle.getStateFlow(SUBREDDIT_SCOPE, subredditScope)
-    val query = savedStateHandle.getStateFlow(QUERY, query)
 
-    private val _searchUiState = MutableStateFlow<SearchUiState>(SearchUiState.Initial)
-    val searchUiState: StateFlow<SearchUiState> = _searchUiState
+    private val _postListUiState = MutableStateFlow<PostListUiState>(PostListUiState.Loading)
+    val postListUiState: StateFlow<PostListUiState> = _postListUiState
 
     private val _subredditListingUiState =
         MutableStateFlow<SubredditListingUiState>(SubredditListingUiState.NoResult)
     val subredditListingUiState: StateFlow<SubredditListingUiState> = _subredditListingUiState
 
-    val blurNsfw = userConfigRepository.userConfig
-        .map { it.blurNsfw }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-            initialValue = true
-        )
-
-    val blurSpoiler = userConfigRepository.userConfig
-        .map { it.blurSpoiler }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-            initialValue = true
-        )
-
-    private val instanceUrl = userConfigRepository.userConfig
+    val searchResultUiState = userConfigRepository.userConfig
         .map {
-            if (it.shouldUseCustomInstance)
-                it.customInstance
-            else
-                it.instance
+            SearchResultUiState.Success(
+                query = query,
+                subredditScope = subredditScope,
+                sortOption = sort,
+                timeframe = timeframe,
+                instance = if (it.shouldUseCustomInstance) it.customInstance else it.instance,
+                blurNsfw = it.blurNsfw,
+                blurSpoiler = it.blurSpoiler
+            )
         }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-            initialValue = ""
+            initialValue = SearchResultUiState.Loading
         )
-
-    init {
-        viewModelScope.launch {
-            if (query.isNotEmpty()) {
-                searchPostsAndSubreddits(query)
+        .apply {
+            viewModelScope.launch {
+                this@apply.collectLatest { state ->
+                    if (state is SearchResultUiState.Success && query.isNotEmpty()) {
+                        searchPostsAndSubreddits(query)
+                    }
+                }
             }
         }
-    }
 
     fun searchPostsAndSubreddits(query: String) {
         viewModelScope.launch {
-            newQuery(query)
-            _searchUiState.value = SearchUiState.Loading
+            _postListUiState.value = PostListUiState.Loading
 
-            if (query.isNotBlank()) {
+            val currentSearchResultUiState = searchResultUiState.value
+            if (query.isNotBlank() && currentSearchResultUiState is SearchResultUiState.Success) {
                 runCatching {
                     postRepository.searchPostsAndSubreddits(
-                        instanceUrl = instanceUrl.value
-                            .ifBlank {
-                                instanceUrl.first {
-                                    it.isNotBlank()
-                                }
-                            },
+                        instanceUrl = currentSearchResultUiState.instance,
                         query = query,
-                        sort = savedStateHandle.get<SortOption.Search>(SORT_OPTION)!!.uri,
-                        timeframe = savedStateHandle.get<SortOption.Timeframe>(TIMEFRAME)!!.uri,
-                        subredditName = savedStateHandle[SUBREDDIT_SCOPE]
+                        sort = currentSearchResultUiState.sortOption.uri,
+                        timeframe = currentSearchResultUiState.timeframe.uri,
+                        subredditName = currentSearchResultUiState.subredditScope
                     )
                 }.onSuccess {
                     if (it.second.isNotEmpty()) {
                         _subredditListingUiState.value = SubredditListingUiState.Success
                     }
 
-                    _searchUiState.value = SearchUiState.Success(
+                    _postListUiState.value = PostListUiState.Success(
                         posts = it.first,
                         subreddits = it.second
                     )
                 }.onFailure {
-                    _searchUiState.value = SearchUiState.Error(
+                    _postListUiState.value = PostListUiState.Error(
                         msg = it.message.toString()
                     )
                 }
             } else {
-                _searchUiState.value = SearchUiState.EmptyQuery
+                _postListUiState.value = PostListUiState.EmptyQuery
             }
         }
     }
 
     fun loadMoreSubreddits(query: String) {
         viewModelScope.launch {
-            newQuery(query)
+            val currentPostListUiState = _postListUiState.value
+            val currentSearchResultUiState = searchResultUiState.value
 
-            if (_searchUiState.value is SearchUiState.Success) {
+            if (currentPostListUiState is PostListUiState.Success &&
+                currentSearchResultUiState is SearchResultUiState.Success) {
                 _subredditListingUiState.value = SubredditListingUiState.Loading
 
-                val posts = (_searchUiState.value as SearchUiState.Success).posts
-
                 runCatching {
-                    subredditRepository.searchSubreddits(instanceUrl.value, query)
+                    subredditRepository.searchSubreddits(currentSearchResultUiState.instance, query)
                 }.onSuccess {
                     _subredditListingUiState.value = SubredditListingUiState.Success
 
-                    _searchUiState.value = SearchUiState.Success(
-                        posts = posts,
+                    _postListUiState.value = PostListUiState.Success(
+                        posts = currentPostListUiState.posts,
                         subreddits = it
                     )
                 }.onFailure {
-                    _searchUiState.value = SearchUiState.Error(it.message.toString())
+                    _postListUiState.value = PostListUiState.Error(it.message.toString())
                 }
             }
         }
@@ -153,46 +134,43 @@ class SearchResultViewModel @AssistedInject constructor(
         sortTimeframe: SortOption.Timeframe
     ) {
         viewModelScope.launch {
-            newQuery(query)
+            val currentPostListUiState = _postListUiState.value
+            val currentSearchResultUiState = searchResultUiState.value
 
-            if (_searchUiState.value is SearchUiState.Success) {
-                val posts = (_searchUiState.value as SearchUiState.Success).posts.toMutableList()
-                val subreddits = (_searchUiState.value as SearchUiState.Success).subreddits
+            if (currentPostListUiState is PostListUiState.Success &&
+                currentSearchResultUiState is SearchResultUiState.Success) {
+                val posts = currentPostListUiState.posts.toMutableList()
 
                 runCatching {
                     postRepository.searchPostsAndSubreddits(
-                        instanceUrl = instanceUrl.value,
+                        instanceUrl = currentSearchResultUiState.instance,
                         query = query,
                         sort = sortOption.uri,
                         timeframe = sortTimeframe.uri,
                         after = posts.last().id,
-                        subredditName = savedStateHandle[SUBREDDIT_SCOPE]
+                        subredditName = currentSearchResultUiState.subredditScope
                     )
                 }.onSuccess {
                     posts.addAll(it.first)
 
-                    _searchUiState.value = SearchUiState.Success(
+                    _postListUiState.value = PostListUiState.Success(
                         posts = posts,
-                        subreddits = subreddits
+                        subreddits = currentPostListUiState.subreddits
                     )
                 }
             }
         }
     }
 
-    fun changeSubredditScope(subredditName: String?) {
-        savedStateHandle[SUBREDDIT_SCOPE] = subredditName
-    }
+    fun getPostLink(post: Post): String {
+        val currentSearchResultUiState = searchResultUiState.value
+        val instance = if (currentSearchResultUiState is SearchResultUiState.Success)
+            currentSearchResultUiState.instance
+        else
+            ""
 
-    fun changeSortOption(
-        sort: SortOption.Search? = null,
-        timeframe: SortOption.Timeframe? = null
-    ) {
-        if (sort != null) savedStateHandle[SORT_OPTION] = sort
-        if (timeframe != null) savedStateHandle[TIMEFRAME] = timeframe
+        return "${instance}/r/${post.subredditName}/comments/${post.id}"
     }
-
-    fun getPostLink(post: Post) = "${instanceUrl.value}/r/${post.subredditName}/comments/${post.id}"
 
     suspend fun checkIfPostExists(post: Post): Boolean =
         postRepository.checkIfPostHasRecord(post.id) > 0
@@ -209,28 +187,6 @@ class SearchResultViewModel @AssistedInject constructor(
         }
     }
 
-    fun checkIfValidUrl(query: String): Boolean {
-        return when {
-            query.matches(POST_PATTERN.toRegex()) -> {
-                newQuery(query)
-                true
-            }
-
-            query.matches(POST_SHARE_PATTERN.toRegex()) -> {
-                newQuery(query)
-                true
-            }
-
-            else -> {
-                false
-            }
-        }
-    }
-
-    private fun newQuery(query: String) {
-        savedStateHandle[QUERY] = query
-    }
-
     @AssistedFactory
     interface Factory {
         fun create(
@@ -238,25 +194,37 @@ class SearchResultViewModel @AssistedInject constructor(
             @Assisted("sort") sort: SortOption.Search,
             @Assisted("timeframe") timeframe: SortOption.Timeframe,
             @Assisted("query") query: String
-        ) : SearchResultViewModel
+        ): SearchResultViewModel
     }
 }
 
-sealed interface SearchUiState {
-    data object Initial : SearchUiState
+sealed interface SearchResultUiState {
+    data object Loading : SearchResultUiState
 
-    data object Loading : SearchUiState
+    data class Success(
+        val query: String,
+        val subredditScope: String?,
+        val sortOption: SortOption.Search,
+        val timeframe: SortOption.Timeframe,
+        val instance: String,
+        val blurNsfw: Boolean,
+        val blurSpoiler: Boolean
+    ) : SearchResultUiState
+}
 
-    data object EmptyQuery : SearchUiState
+sealed interface PostListUiState {
+    data object Loading : PostListUiState
+
+    data object EmptyQuery : PostListUiState
 
     data class Error(
         val msg: String,
-    ) : SearchUiState
+    ) : PostListUiState
 
     data class Success(
         val posts: List<Post>,
         val subreddits: List<Subreddit>
-    ) : SearchUiState
+    ) : PostListUiState
 }
 
 sealed interface SubredditListingUiState {
@@ -266,11 +234,3 @@ sealed interface SubredditListingUiState {
 
     data object Success : SubredditListingUiState
 }
-
-private const val SORT_OPTION = "sortOption"
-private const val TIMEFRAME = "timeframe"
-private const val SUBREDDIT_SCOPE = "subredditScope"
-private const val QUERY = "query"
-
-private const val POST_PATTERN = "https://.*/r/.*/comments/.*/?(.*/.*)?"
-private const val POST_SHARE_PATTERN = "https://.*/r/.*/s/.*/?(.*/.*)?"

@@ -12,9 +12,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -39,10 +38,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -54,7 +50,6 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -69,13 +64,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -92,7 +83,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.potatosheep.kite.core.common.enums.SortOption
 import com.potatosheep.kite.core.common.util.onShare
 import com.potatosheep.kite.core.designsystem.ErrorMsg
-import com.potatosheep.kite.core.designsystem.KiteBottomSheet
 import com.potatosheep.kite.core.designsystem.KiteFonts
 import com.potatosheep.kite.core.designsystem.KiteIcons
 import com.potatosheep.kite.core.designsystem.KiteLoadingIndicator
@@ -103,7 +93,6 @@ import com.potatosheep.kite.core.designsystem.NoResultsMsg
 import com.potatosheep.kite.core.model.MediaType
 import com.potatosheep.kite.core.model.Post
 import com.potatosheep.kite.core.model.Subreddit
-import com.potatosheep.kite.core.ui.SortChip
 import com.potatosheep.kite.core.ui.SubredditRow
 import com.potatosheep.kite.core.ui.param.PostListPreviewParameterProvider
 import com.potatosheep.kite.core.ui.post.PostCard
@@ -122,26 +111,14 @@ fun SearchResultRoute(
     modifier: Modifier = Modifier,
     viewModel: SearchResultViewModel = hiltViewModel()
 ) {
-    val sortOption by viewModel.sortOption.collectAsStateWithLifecycle()
-    val timeframe by viewModel.timeframe.collectAsStateWithLifecycle()
-    val subredditScope by viewModel.subredditScope.collectAsStateWithLifecycle()
-    val query by viewModel.query.collectAsStateWithLifecycle()
-
-    val searchUiState by viewModel.searchUiState.collectAsStateWithLifecycle()
+    val searchUiState by viewModel.postListUiState.collectAsStateWithLifecycle()
     val subredditListingUiState by viewModel.subredditListingUiState.collectAsStateWithLifecycle()
-
-    val blurNsfw by viewModel.blurNsfw.collectAsStateWithLifecycle()
-    val blurSpoiler by viewModel.blurSpoiler.collectAsStateWithLifecycle()
+    val searchResultUiState by viewModel.searchResultUiState.collectAsStateWithLifecycle()
 
     SearchResultScreen(
-        searchUiState = searchUiState,
+        postListUiState = searchUiState,
         subredditListingUiState = subredditListingUiState,
-        sortOption = sortOption,
-        timeframe = timeframe,
-        subredditScope = subredditScope,
-        query = query,
-        blurNsfw = blurNsfw,
-        blurSpoiler = blurSpoiler,
+        searchResultUiState = searchResultUiState,
         onBackClick = onBackClick,
         onPostClick = onPostClick,
         onSubredditClick = onSubredditClick,
@@ -149,31 +126,23 @@ fun SearchResultRoute(
         onImageClick = onImageClick,
         onVideoClick = onVideoClick,
         onSearchClick = onSearchClick,
-        changeSortOption =  viewModel::changeSortOption,
-        changeSubredditScope = viewModel::changeSubredditScope,
         searchPostsAndSubreddits = viewModel::searchPostsAndSubreddits,
         loadMorePosts = viewModel::loadMorePosts,
         loadMoreSubreddits = viewModel::loadMoreSubreddits,
         checkPostBookmarked = viewModel::checkIfPostExists,
         bookmarkPost = viewModel::bookmarkPost,
         removePostBookmark = viewModel::removePostBookmark,
-        checkIfValidUrl = viewModel::checkIfValidUrl,
         getPostLink = viewModel::getPostLink,
         modifier = modifier,
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SearchResultScreen(
-    searchUiState: SearchUiState,
+    postListUiState: PostListUiState,
     subredditListingUiState: SubredditListingUiState,
-    sortOption: SortOption.Search,
-    timeframe: SortOption.Timeframe,
-    subredditScope: String?,
-    query: String,
-    blurNsfw: Boolean,
-    blurSpoiler: Boolean,
+    searchResultUiState: SearchResultUiState,
     onBackClick: () -> Unit,
     onPostClick: (String, String, String?, String?, Boolean) -> Unit,
     onSubredditClick: (String) -> Unit,
@@ -182,18 +151,15 @@ internal fun SearchResultScreen(
     onVideoClick: (String) -> Unit,
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     searchPostsAndSubreddits: (String) -> Unit,
-    changeSubredditScope: (String?) -> Unit,
-    changeSortOption: (SortOption.Search, SortOption.Timeframe) -> Unit,
     loadMorePosts: (String, SortOption.Search, SortOption.Timeframe) -> Unit,
     loadMoreSubreddits: (String) -> Unit,
     checkPostBookmarked: suspend (Post) -> Boolean,
     bookmarkPost: (Post) -> Unit,
     removePostBookmark: (Post) -> Unit,
-    checkIfValidUrl: (String) -> Boolean,
     getPostLink: (Post) -> String,
     modifier: Modifier = Modifier
 ) {
-    val isLoading = searchUiState is SearchUiState.Loading
+    val isLoading = postListUiState is PostListUiState.Loading
     val context = LocalContext.current
 
     val clipboardManager = LocalClipboardManager.current
@@ -204,13 +170,8 @@ internal fun SearchResultScreen(
         else
             MaterialTheme.colorScheme.surfaceContainerLowest
 
-    val sheetState = rememberModalBottomSheetState()
     val focusRequester = remember { FocusRequester() }
-    val keyboard = LocalSoftwareKeyboardController.current
 
-    var showBottomSheet by remember { mutableStateOf(false) }
-    var currentSortOption by remember { mutableStateOf(sortOption) }
-    var currentSortTimeframe by remember { mutableStateOf(timeframe) }
     val coroutineScope = rememberCoroutineScope()
 
     val listState = rememberLazyListState()
@@ -220,163 +181,61 @@ internal fun SearchResultScreen(
         }
     }
 
-    var isSearchBarFocused by remember { mutableStateOf(false) }
-    var isSearchBarExpanded by remember { mutableStateOf(isSearchBarFocused) }
-    var hasRequestedFocus by rememberSaveable { mutableStateOf(false) }
-    val focusManager = LocalFocusManager.current
-
-    var lastSubredditScope by remember { mutableStateOf("") }
-    var newSubredditScope by remember { mutableStateOf(subredditScope) }
-
-    // Variable that determines if the 'onSearch' lambda has been called.
-    var isSearchClicked by remember { mutableStateOf(false) }
-
-    if (shouldLoadMorePosts) {
-        loadMorePosts(query, currentSortOption, currentSortTimeframe)
-    }
-
-    LaunchedEffect(Unit) {
-        if (!hasRequestedFocus) {
-            focusRequester.requestFocus()
-            hasRequestedFocus = true
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        if (query.isNotEmpty()) {
-            isSearchBarExpanded = false
-            focusManager.clearFocus()
-        }
-    }
-
-    if (!isSearchBarFocused && !isSearchClicked) {
-        if (lastSubredditScope.isNotEmpty())
-            newSubredditScope = lastSubredditScope
-    }
-
     Scaffold(
         modifier = modifier,
         topBar = {
-            KiteSearchBar(
-                query = query,
-                backIcon = KiteIcons.Back,
-                onBackClick = onBackClick,
-                onSearch = {
-                    focusManager.clearFocus(true)
-                    isSearchBarExpanded = isSearchBarFocused
-
-                    if (checkIfValidUrl(it)) {
-                        val pathSegments = it.split("/")
-
-                        when (pathSegments.size) {
-                            7, 8 -> {
-                                onPostClick(
-                                    pathSegments[4],
-                                    pathSegments[6],
-                                    null,
-                                    null,
-                                    it.contains("/s/")
-                                )
-                            }
-
-                            9, 10 -> {
-                                onPostClick(
-                                    pathSegments[4],
-                                    pathSegments[6],
-                                    pathSegments[8],
-                                    null,
-                                    false
-                                )
-                            }
-
-                            else -> Unit
-                        }
-                    } else {
-                        if (searchUiState is SearchUiState.Initial) {
-                            lastSubredditScope = ""
-                            changeSubredditScope(newSubredditScope)
-                            changeSortOption(currentSortOption, currentSortTimeframe)
-
-                            searchPostsAndSubreddits(it)
-
-                            coroutineScope.launch {
-                                listState.requestScrollToItem(0)
-                            }
-                        } else {
-                            isSearchClicked = true
-                            onSearchClick(
-                                currentSortOption,
-                                currentSortTimeframe,
-                                newSubredditScope,
-                                it
+            Box(Modifier.clickable {
+                if (searchResultUiState is SearchResultUiState.Success) {
+                    onSearchClick(
+                        searchResultUiState.sortOption,
+                        searchResultUiState.timeframe,
+                        searchResultUiState.subredditScope,
+                        searchResultUiState.query
+                    )
+                }
+            }) {
+                KiteSearchBar(
+                    query = if (searchResultUiState is SearchResultUiState.Success)
+                        searchResultUiState.query else "",
+                    backIcon = KiteIcons.Back,
+                    onBackClick = onBackClick,
+                    onSearch = {},
+                    expanded = false,
+                    onExpandedChange = {},
+                    enabled = false,
+                    leadingComposable = {
+                        val subredditScope = if (searchResultUiState is SearchResultUiState.Success)
+                            searchResultUiState.subredditScope ?: "" else ""
+                        AnimatedVisibility(
+                            visible = subredditScope.isNotEmpty(),
+                            enter = scaleIn(),
+                            exit = scaleOut()
+                        ) {
+                            InputChip(
+                                selected = false,
+                                onClick = {},
+                                label = {
+                                    Text(
+                                        text = subredditScope,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.labelLarge
+                                    )
+                                },
+                                modifier = Modifier.padding(end = 12.dp),
                             )
                         }
-                    }
-                },
-                expanded = isSearchBarExpanded,
-                onExpandedChange = { isSearchBarExpanded = it },
-                modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .onFocusChanged { isSearchBarFocused = it.isFocused },
-                leadingComposable = {
-                    AnimatedVisibility(
-                        visible = !newSubredditScope.isNullOrEmpty(),
-                        enter = scaleIn(),
-                        exit = scaleOut()
-                    ) {
-                        InputChip(
-                            selected = false,
-                            onClick = {},
-                            label = {
-                                Text(
-                                    text = newSubredditScope ?: lastSubredditScope,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    style = MaterialTheme.typography.labelLarge
-                                )
-                            },
-                            modifier = Modifier.padding(end = 12.dp),
-                            trailingIcon = {
-                                IconButton(
-                                    onClick = {
-                                        focusRequester.requestFocus()
-
-                                        if (!subredditScope.isNullOrEmpty()) {
-                                            lastSubredditScope = subredditScope
-                                        }
-
-                                        newSubredditScope = null
-                                    },
-                                    modifier = Modifier.size(16.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = KiteIcons.Clear,
-                                        contentDescription = "Remove scope",
-                                    )
-                                }
-                            }
-                        )
-                    }
-                },
-                onClear = {
-                    if (!isSearchBarFocused) {
-                        focusRequester.requestFocus()
-                        isSearchBarExpanded = true
-                    }
-                },
-                inputFieldColors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedContainerColor = Color.Transparent
-                ),
-                colors = SearchBarDefaults.colors(
-                    containerColor = Color.Transparent,
-                ),
-            ) {
-                SortChip(
-                    onClick = { showBottomSheet = true },
-                    currentSortOption = currentSortOption,
-                    currentSortTimeframe = currentSortTimeframe,
-                    modifier = Modifier.padding(horizontal = 12.dp)
-                )
+                    },
+                    inputFieldColors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedContainerColor = Color.Transparent,
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    ),
+                    colors = SearchBarDefaults.colors(
+                        containerColor = Color.Transparent,
+                    ),
+                ) {}
             }
         },
         containerColor = LocalBackgroundColor.current,
@@ -399,254 +258,204 @@ internal fun SearchResultScreen(
                 thickness = Dp.Hairline,
                 color = MaterialTheme.colorScheme.onSurface
             )*/
+            when (searchResultUiState) {
+                SearchResultUiState.Loading -> Unit
+                is SearchResultUiState.Success -> {
 
-            when (searchUiState) {
-                SearchUiState.Initial -> Unit
-                SearchUiState.Loading -> Unit
-                SearchUiState.EmptyQuery -> Unit
-                is SearchUiState.Error -> {
-                    ErrorMsg(
-                        msg = searchUiState.msg,
-                        onRetry = {
-                            searchPostsAndSubreddits(query)
-                        },
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(6.dp)
-                    )
-                }
+                    when (postListUiState) {
+                        PostListUiState.Loading -> Unit
+                        PostListUiState.EmptyQuery -> Unit
+                        is PostListUiState.Error -> {
+                            ErrorMsg(
+                                msg = postListUiState.msg,
+                                onRetry = {
+                                    searchPostsAndSubreddits(searchResultUiState.query)
+                                },
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(6.dp)
+                            )
+                        }
 
-                is SearchUiState.Success -> {
-                    KiteTabRow(
-                        tabs = listOf(
-                            stringResource(Translation.posts),
-                            stringResource(Translation.subreddits)
-                        ),
-                        screens = listOf(
-                            {
-                                LazyColumn(
-                                    state = listState
-                                ) {
-                                    itemsIndexed(
-                                        items = searchUiState.posts,
-                                        /**
-                                         * Index is appended to the key in case Redlib returns the same post
-                                         * twice, which results in an [IllegalArgumentException] exception being
-                                         * thrown.
-                                         */
-                                        /**
-                                         * Index is appended to the key in case Redlib returns the same post
-                                         * twice, which results in an [IllegalArgumentException] exception being
-                                         * thrown.
-                                         */
-                                        key = { index, post -> "${index}/${post.subredditName}/${post.id}" }
-                                    ) { _, post ->
-                                        val onPostClickFun = {
-                                            onPostClick(
-                                                post.subredditName,
-                                                post.id,
-                                                null,
-                                                when {
-                                                    post.mediaLinks.isEmpty() -> null
+                        is PostListUiState.Success -> {
+                            KiteTabRow(
+                                tabs = listOf(
+                                    stringResource(Translation.posts),
+                                    stringResource(Translation.subreddits)
+                                ),
+                                screens = listOf(
+                                    {
+                                        LazyColumn(
+                                            state = listState
+                                        ) {
+                                            itemsIndexed(
+                                                items = postListUiState.posts,
+                                                /**
+                                                 * Index is appended to the key in case Redlib returns the same post
+                                                 * twice, which results in an [IllegalArgumentException] exception being
+                                                 * thrown.
+                                                 */
+                                                key = { index, post -> "${index}/${post.subredditName}/${post.id}" }
+                                            ) { _, post ->
+                                                val onPostClickFun = {
+                                                    onPostClick(
+                                                        post.subredditName,
+                                                        post.id,
+                                                        null,
+                                                        when {
+                                                            post.mediaLinks.isEmpty() -> null
 
-                                                    post.mediaLinks[0].mediaType == MediaType.GALLERY_THUMBNAIL ||
-                                                            post.mediaLinks[0].mediaType == MediaType.ARTICLE_THUMBNAIL ||
-                                                            post.mediaLinks[0].mediaType == MediaType.VIDEO_THUMBNAIL -> {
+                                                            post.mediaLinks[0].mediaType == MediaType.GALLERY_THUMBNAIL ||
+                                                                    post.mediaLinks[0].mediaType == MediaType.ARTICLE_THUMBNAIL ||
+                                                                    post.mediaLinks[0].mediaType == MediaType.VIDEO_THUMBNAIL -> {
 
-                                                        post.mediaLinks[0].link
+                                                                post.mediaLinks[0].link
+                                                            }
+
+                                                            else -> null
+                                                        },
+                                                        false
+                                                    )
+                                                }
+
+                                                val onFlairClickFun: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit =
+                                                    { _, _, _, newQuery ->
+                                                        onSearchClick(
+                                                            SortOption.Search.RELEVANCE,
+                                                            SortOption.Timeframe.ALL,
+                                                            post.subredditName,
+                                                            newQuery
+                                                        )
                                                     }
 
-                                                    else -> null
-                                                },
-                                                false
-                                            )
-                                        }
+                                                var isBookmarked by remember { mutableStateOf(false) }
+                                                var isChecking by remember { mutableStateOf(true) }
 
-                                        val onFlairClickFun: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit =
-                                            { _, _, _, newQuery ->
-                                                onSearchClick(
-                                                    SortOption.Search.RELEVANCE,
-                                                    SortOption.Timeframe.ALL,
-                                                    post.subredditName,
-                                                    newQuery
-                                                )
-                                            }
+                                                LaunchedEffect(Unit) {
+                                                    isBookmarked = checkPostBookmarked(post)
+                                                    isChecking = false
+                                                }
 
-                                        var isBookmarked by remember { mutableStateOf(false) }
-                                        var isChecking by remember { mutableStateOf(true) }
+                                                PostCard(
+                                                    post = post,
+                                                    onClick = onPostClickFun,
+                                                    onLongClick = {
+                                                        clipboardManager.setText(
+                                                            AnnotatedString(
+                                                                post.title
+                                                            )
+                                                        )
+                                                    },
+                                                    onSubredditClick = onSubredditClick,
+                                                    onUserClick = onUserClick,
+                                                    onFlairClick = onFlairClickFun,
+                                                    onImageClick = onImageClick,
+                                                    onVideoClick = onVideoClick,
+                                                    onShareClick = {
+                                                        onShare(
+                                                            getPostLink(post),
+                                                            context
+                                                        )
+                                                    },
+                                                    onBookmarkClick = {
+                                                        if (isBookmarked && !isChecking) {
+                                                            removePostBookmark(post)
+                                                        } else if (!isChecking) {
+                                                            bookmarkPost(post)
+                                                        }
 
-                                        LaunchedEffect(Unit) {
-                                            isBookmarked = checkPostBookmarked(post)
-                                            isChecking = false
-                                        }
-
-                                        PostCard(
-                                            post = post,
-                                            onClick = onPostClickFun,
-                                            onLongClick = {
-                                                clipboardManager.setText(
-                                                    AnnotatedString(
-                                                        post.title
+                                                        isBookmarked = !isBookmarked
+                                                    },
+                                                    modifier = Modifier.padding(
+                                                        horizontal = 12.dp,
+                                                        vertical = 6.dp
+                                                    ),
+                                                    showText = false,
+                                                    isBookmarked = isBookmarked,
+                                                    onSubredditLongClick = {
+                                                        onSearchClick(
+                                                            searchResultUiState.sortOption,
+                                                            searchResultUiState.timeframe,
+                                                            post.subredditName,
+                                                            searchResultUiState.query
+                                                        )
+                                                    },
+                                                    blurImage = (searchResultUiState.blurNsfw && post.isNsfw) ||
+                                                            (searchResultUiState.blurSpoiler && post.isSpoiler),
+                                                    colors = CardDefaults.cardColors(
+                                                        containerColor = contentContainerColour
                                                     )
                                                 )
-                                            },
-                                            onSubredditClick = onSubredditClick,
-                                            onUserClick = onUserClick,
-                                            onFlairClick = onFlairClickFun,
-                                            onImageClick = onImageClick,
-                                            onVideoClick = onVideoClick,
-                                            onShareClick = {
-                                                onShare(
-                                                    getPostLink(post),
-                                                    context
-                                                )
-                                            },
-                                            onBookmarkClick = {
-                                                if (isBookmarked && !isChecking) {
-                                                    removePostBookmark(post)
-                                                } else if (!isChecking) {
-                                                    bookmarkPost(post)
-                                                }
+                                            }
+                                        }
 
-                                                isBookmarked = !isBookmarked
-                                            },
-                                            modifier = Modifier.padding(
-                                                horizontal = 12.dp,
-                                                vertical = 6.dp
-                                            ),
-                                            showText = false,
-                                            isBookmarked = isBookmarked,
-                                            onSubredditLongClick = {
-                                                newSubredditScope = it
-                                                focusRequester.requestFocus()
-                                                isSearchBarExpanded = true
-                                            },
-                                            blurImage = (blurNsfw && post.isNsfw) ||
-                                                    (blurSpoiler && post.isSpoiler),
-                                            colors = CardDefaults.cardColors(
-                                                containerColor = contentContainerColour
+                                        if (shouldLoadMorePosts) {
+                                            loadMorePosts(
+                                                searchResultUiState.query,
+                                                searchResultUiState.sortOption,
+                                                searchResultUiState.timeframe
                                             )
-                                        )
+                                        }
+                                    },
+                                    {
+                                        Column(Modifier.fillMaxSize()) {
+                                            if (subredditListingUiState is SubredditListingUiState.Success
+                                                || subredditListingUiState is SubredditListingUiState.Loading
+                                            ) {
+                                                SubredditSearchResultCard(
+                                                    subredditListingUiState = subredditListingUiState,
+                                                    subreddits = postListUiState.subreddits,
+                                                    onSubredditClick = onSubredditClick,
+                                                    addSubredditScope = {
+                                                        onSearchClick(
+                                                            searchResultUiState.sortOption,
+                                                            searchResultUiState.timeframe,
+                                                            it,
+                                                            searchResultUiState.query
+                                                        )
+                                                    },
+                                                    onSeeMoreClick = { expanded ->
+                                                        if (postListUiState.subreddits.size < 4) {
+                                                            loadMoreSubreddits(searchResultUiState.query)
+                                                        } else if (!expanded) {
+                                                            coroutineScope.launch {
+                                                                listState.requestScrollToItem(0)
+                                                            }
+                                                        }
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    showAddScopeButton = true,
+                                                    onSubredditScopeChanged = { focusRequester.requestFocus() }
+                                                )
+                                            } else if (subredditListingUiState is SubredditListingUiState.NoResult) {
+                                                NoResultsMsg(
+                                                    title = stringResource(Translation.no_result),
+                                                    subtitle = stringResource(Translation.no_result_subreddit_subtitle),
+                                                    modifier = Modifier.fillMaxSize()
+                                                )
+                                            }
+                                        }
                                     }
-                                }
-                            },
-                            {
-                                Column(Modifier.fillMaxSize()) {
-                                    if (subredditListingUiState is SubredditListingUiState.Success
-                                        || subredditListingUiState is SubredditListingUiState.Loading
-                                    ) {
-                                        SubredditSearchResultCard(
-                                            subredditListingUiState = subredditListingUiState,
-                                            subreddits = searchUiState.subreddits,
-                                            onSubredditClick = onSubredditClick,
-                                            addSubredditScope = { newSubredditScope = it },
-                                            onSeeMoreClick = { expanded ->
-                                                if (searchUiState.subreddits.size < 4) {
-                                                    loadMoreSubreddits(query)
-                                                } else if (!expanded) {
-                                                    coroutineScope.launch {
-                                                        listState.requestScrollToItem(0)
-                                                    }
-                                                }
-                                            },
-                                            modifier = Modifier.fillMaxWidth(),
-                                            showAddScopeButton = subredditScope.isNullOrEmpty(),
-                                            onSubredditScopeChanged = { focusRequester.requestFocus() }
-                                        )
-                                    } else if (subredditListingUiState is SubredditListingUiState.NoResult) {
-                                        NoResultsMsg(
-                                            title = stringResource(Translation.no_result),
-                                            subtitle = stringResource(Translation.no_result_subreddit_subtitle),
-                                            modifier = Modifier.fillMaxSize()
-                                        )
-                                    }
-                                }
-                            }
-                        ),
-                        modifier = Modifier.padding(vertical = 6.dp)
-                    )
+                                ),
+                                modifier = Modifier.padding(vertical = 6.dp)
+                            )
+                        }
+                    }
                 }
             }
 
             if (isLoading) KiteLoadingIndicator(Modifier.fillMaxSize())
 
-            if ((searchUiState is SearchUiState.Success &&
-                        searchUiState.posts.isEmpty() &&
-                        searchUiState.subreddits.isEmpty()) ||
-                searchUiState is SearchUiState.EmptyQuery
+            if ((postListUiState is PostListUiState.Success &&
+                        postListUiState.posts.isEmpty() &&
+                        postListUiState.subreddits.isEmpty()) ||
+                postListUiState is PostListUiState.EmptyQuery
             ) {
                 NoResultsMsg(
                     title = stringResource(Translation.no_result),
                     subtitle = stringResource(Translation.no_result_subtitle),
                     modifier = Modifier.fillMaxSize()
                 )
-            }
-        }
-
-        KiteBottomSheet(
-            showBottomSheet = showBottomSheet,
-            sheetState = sheetState,
-            onDismissRequest = {
-                showBottomSheet = false
-                keyboard?.show()
-            },
-        ) {
-            Text(
-                text = "Sort options",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            FlowRow(Modifier.padding(bottom = 12.dp)) {
-
-                SortOption.Search.entries.forEach { option ->
-                    val selected = option == currentSortOption
-
-                    FilterChip(
-                        selected = selected,
-                        onClick = {
-                            if (currentSortOption != option) {
-                                currentSortOption = option
-                            }
-                        },
-                        label = {
-                            Text(
-                                text = stringResource(option.label),
-                                style = MaterialTheme.typography.labelLarge
-                            )
-                        },
-                        modifier = Modifier.padding(horizontal = 6.dp)
-                    )
-                }
-
-                if (currentSortOption != SortOption.Search.NEW) {
-                    HorizontalDivider(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp),
-                        thickness = Dp.Hairline
-                    )
-
-                    SortOption.Timeframe.entries.forEach { timeframe ->
-                        val selected = timeframe == currentSortTimeframe
-
-                        FilterChip(
-                            selected = selected,
-                            onClick = {
-                                if (currentSortTimeframe != timeframe) {
-                                    currentSortTimeframe = timeframe
-                                }
-                            },
-                            label = {
-                                Text(
-                                    text = stringResource(timeframe.label),
-                                    style = MaterialTheme.typography.labelLarge
-                                )
-                            },
-                            modifier = Modifier.padding(horizontal = 6.dp)
-                        )
-                    }
-                }
             }
         }
     }
@@ -899,17 +708,20 @@ private fun SearchResultScreenPreview(
     KiteTheme {
         Surface {
             SearchResultScreen(
-                searchUiState = SearchUiState.Success(
+                postListUiState = PostListUiState.Success(
                     posts = posts,
                     subreddits = subreddits
                 ),
                 subredditListingUiState = SubredditListingUiState.Success,
-                sortOption = SortOption.Search.RELEVANCE,
-                timeframe = SortOption.Timeframe.ALL,
-                subredditScope = "r/testsub",
-                query = "",
-                blurNsfw = false,
-                blurSpoiler = false,
+                searchResultUiState = SearchResultUiState.Success(
+                    sortOption = SortOption.Search.RELEVANCE,
+                    timeframe = SortOption.Timeframe.ALL,
+                    subredditScope = "r/testsub",
+                    query = "test",
+                    instance = "",
+                    blurNsfw = false,
+                    blurSpoiler = false,
+                ),
                 onBackClick = {},
                 onPostClick = { _, _, _, _, _ -> },
                 onSubredditClick = {},
@@ -918,14 +730,11 @@ private fun SearchResultScreenPreview(
                 onVideoClick = {},
                 onSearchClick = { _, _, _, _ -> },
                 searchPostsAndSubreddits = {},
-                changeSubredditScope = {},
-                changeSortOption = { _, _ -> },
                 loadMorePosts = { _, _, _ -> },
                 loadMoreSubreddits = {},
                 checkPostBookmarked = { _ -> false },
                 bookmarkPost = {},
                 removePostBookmark = {},
-                checkIfValidUrl = { _ -> false },
                 getPostLink = { "" },
             )
         }
