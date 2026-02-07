@@ -18,5 +18,5 @@ dependencies {
     implementation(projects.core.translation)
     implementation(projects.feature.subreddit.api)
     implementation(projects.feature.bookmark.api)
-    implementation(projects.feature.search.api)
+    implementation(projects.feature.searchresult.api)
 }

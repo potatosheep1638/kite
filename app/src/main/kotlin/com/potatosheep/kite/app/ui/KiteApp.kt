@@ -26,6 +26,7 @@ import com.potatosheep.kite.feature.image.navigation.imageEntry
 import com.potatosheep.kite.feature.onboarding.impl.navigation.onboardingEntry
 import com.potatosheep.kite.feature.post.impl.navigation.postEntry
 import com.potatosheep.kite.feature.search.impl.navigation.searchEntry
+import com.potatosheep.kite.feature.searchresult.impl.navigation.searchResultEntry
 import com.potatosheep.kite.feature.settings.impl.navigation.settingsEntry
 import com.potatosheep.kite.feature.subreddit.impl.navigation.subredditEntry
 import com.potatosheep.kite.feature.user.impl.navigation.userEntry
@@ -59,6 +60,7 @@ fun KiteApp(
                     onboardingEntry(navigator) { navigator.navigateToTopLevel() }
                     postEntry(navigator)
                     searchEntry(navigator)
+                    searchResultEntry(navigator)
                     settingsEntry(navigator)
                     subredditEntry(navigator)
                     userEntry(navigator)

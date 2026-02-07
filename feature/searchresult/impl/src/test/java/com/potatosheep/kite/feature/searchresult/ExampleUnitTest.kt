@@ -1,4 +1,4 @@
-package com.potatosheep.kite.feature.search
+package com.potatosheep.kite.feature.searchresult
 
 import org.junit.Test
 

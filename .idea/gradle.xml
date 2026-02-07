@@ -68,6 +68,9 @@
             <option value="$PROJECT_DIR$/feature/search" />
             <option value="$PROJECT_DIR$/feature/search/api" />
             <option value="$PROJECT_DIR$/feature/search/impl" />
+            <option value="$PROJECT_DIR$/feature/searchresult" />
+            <option value="$PROJECT_DIR$/feature/searchresult/api" />
+            <option value="$PROJECT_DIR$/feature/searchresult/impl" />
             <option value="$PROJECT_DIR$/feature/settings" />
             <option value="$PROJECT_DIR$/feature/settings/api" />
             <option value="$PROJECT_DIR$/feature/settings/impl" />
