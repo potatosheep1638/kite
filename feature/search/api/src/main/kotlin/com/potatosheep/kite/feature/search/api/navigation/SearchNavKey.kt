@@ -2,6 +2,7 @@ package com.potatosheep.kite.feature.search.api.navigation
 
 import androidx.navigation3.runtime.NavKey
 import com.potatosheep.kite.core.common.enums.SortOption
+import com.potatosheep.kite.core.navigation.NavOption
 import com.potatosheep.kite.core.navigation.Navigator
 import kotlinx.serialization.Serializable
 
@@ -18,6 +19,10 @@ fun Navigator.navigateToSearch(
     timeframe: SortOption.Timeframe = SortOption.Timeframe.ALL,
     subredditScope: String? = null,
     query: String = "",
+    popPrevious: Boolean = false
 ) {
-    navigate(SearchNavKey(subredditScope, sort, timeframe, query))
+    navigate(
+        SearchNavKey(subredditScope, sort, timeframe, query),
+        if (popPrevious) NavOption.DESTROY_PREV_NAV else NavOption.DEFAULT
+    )
 }

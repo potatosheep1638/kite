@@ -107,7 +107,7 @@ fun SearchResultRoute(
     onUserClick: (String) -> Unit,
     onImageClick: (List<String>, List<String?>) -> Unit,
     onVideoClick: (String) -> Unit,
-    onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
+    onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String, Boolean) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SearchResultViewModel = hiltViewModel()
 ) {
@@ -149,7 +149,7 @@ internal fun SearchResultScreen(
     onUserClick: (String) -> Unit,
     onImageClick: (List<String>, List<String?>) -> Unit,
     onVideoClick: (String) -> Unit,
-    onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
+    onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String, Boolean) -> Unit,
     searchPostsAndSubreddits: (String) -> Unit,
     loadMorePosts: (String, SortOption.Search, SortOption.Timeframe) -> Unit,
     loadMoreSubreddits: (String) -> Unit,
@@ -190,7 +190,11 @@ internal fun SearchResultScreen(
                         searchResultUiState.sortOption,
                         searchResultUiState.timeframe,
                         searchResultUiState.subredditScope,
-                        searchResultUiState.query
+                        searchResultUiState.query,
+                        (postListUiState is PostListUiState.Success &&
+                                postListUiState.posts.isEmpty() &&
+                                postListUiState.subreddits.isEmpty()) ||
+                                postListUiState is PostListUiState.EmptyQuery
                     )
                 }
             }) {
@@ -324,7 +328,8 @@ internal fun SearchResultScreen(
                                                             SortOption.Search.RELEVANCE,
                                                             SortOption.Timeframe.ALL,
                                                             post.subredditName,
-                                                            newQuery
+                                                            newQuery,
+                                                            false
                                                         )
                                                     }
 
@@ -377,7 +382,8 @@ internal fun SearchResultScreen(
                                                             searchResultUiState.sortOption,
                                                             searchResultUiState.timeframe,
                                                             post.subredditName,
-                                                            searchResultUiState.query
+                                                            searchResultUiState.query,
+                                                            false
                                                         )
                                                     },
                                                     blurImage = (searchResultUiState.blurNsfw && post.isNsfw) ||
@@ -411,7 +417,8 @@ internal fun SearchResultScreen(
                                                             searchResultUiState.sortOption,
                                                             searchResultUiState.timeframe,
                                                             it,
-                                                            searchResultUiState.query
+                                                            searchResultUiState.query,
+                                                            false
                                                         )
                                                     },
                                                     onSeeMoreClick = { expanded ->
@@ -728,7 +735,7 @@ private fun SearchResultScreenPreview(
                 onUserClick = {},
                 onImageClick = { _, _ -> },
                 onVideoClick = {},
-                onSearchClick = { _, _, _, _ -> },
+                onSearchClick = { _, _, _, _, _ -> },
                 searchPostsAndSubreddits = {},
                 loadMorePosts = { _, _, _ -> },
                 loadMoreSubreddits = {},
