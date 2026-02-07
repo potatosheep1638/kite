@@ -166,8 +166,9 @@ fun KiteSearchBar(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     leadingComposable: (@Composable () -> Unit)? = null,
-    onClear: () -> Unit = {},
+    onClear: (() -> Unit)? = null,
     onQueryChange: (String) -> Unit = {},
     backIconContentDescription: String = stringResource(Translation.back),
     inputFieldColors: TextFieldColors = TextFieldDefaults.colors(),
@@ -195,6 +196,7 @@ fun KiteSearchBar(
                 expanded = expanded,
                 onExpandedChange = onExpandedChange,
                 modifier = Modifier.fillMaxWidth(),
+                enabled = enabled,
                 placeholder = {
                     Text(
                         text = "Search...",
@@ -226,7 +228,7 @@ fun KiteSearchBar(
                     }
                 },
                 trailingIcon = {
-                    if (inputQuery.isNotBlank()) {
+                    if (inputQuery.isNotBlank() && onClear != null) {
                         IconButton(
                             onClick = {
                                 inputQuery = ""
