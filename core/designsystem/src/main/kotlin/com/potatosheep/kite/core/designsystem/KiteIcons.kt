@@ -28,6 +28,7 @@ import com.potatosheep.kite.core.designsystem.vectors.FileDownload
 import com.potatosheep.kite.core.designsystem.vectors.Link
 import com.potatosheep.kite.core.designsystem.vectors.OutlineBook
 import com.potatosheep.kite.core.designsystem.vectors.OutlineFeed
+import com.potatosheep.kite.core.designsystem.vectors.OutlinePublic
 import com.potatosheep.kite.core.designsystem.vectors.RoundFeed
 import com.potatosheep.kite.core.designsystem.vectors.Sort
 import com.potatosheep.kite.core.designsystem.vectors.UnfoldMore
@@ -80,4 +81,5 @@ object KiteIcons {
     val Download = Icons.Rounded.FileDownload
     val Bookmark = Icons.Outlined.Bookmark
     val Bookmarked = Icons.Rounded.Bookmark
+    val Web = Icons.Outlined.OutlinePublic
 }
