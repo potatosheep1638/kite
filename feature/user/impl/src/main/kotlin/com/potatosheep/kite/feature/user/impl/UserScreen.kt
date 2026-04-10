@@ -43,6 +43,7 @@ fun UserRoute(
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?) -> Unit,
     onFlairClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onVideoClick: (String) -> Unit,
+    onWebViewClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: UserViewModel = hiltViewModel()
 ) {
@@ -66,6 +67,7 @@ fun UserRoute(
         onSearchClick = onSearchClick,
         onFlairClick = onFlairClick,
         onVideoClick = onVideoClick,
+        onWebViewClick = onWebViewClick,
         loadUser = viewModel::loadUser,
         checkPostBookmarked = viewModel::checkIfPostExists,
         bookmarkPost = viewModel::bookmarkPost,
@@ -91,6 +93,7 @@ internal fun UserScreen(
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?) -> Unit,
     onFlairClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onVideoClick: (String) -> Unit,
+    onWebViewClick: () -> Unit,
     loadUser: () -> Unit,
     checkPostBookmarked: suspend (Post) -> Boolean,
     bookmarkPost: (Post) -> Unit,
@@ -149,6 +152,7 @@ internal fun UserScreen(
                         onRetry = {
                             loadUser()
                         },
+                        onWebView = onWebViewClick,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(6.dp)

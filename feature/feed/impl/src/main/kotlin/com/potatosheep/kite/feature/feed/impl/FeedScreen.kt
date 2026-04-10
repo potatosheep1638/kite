@@ -64,6 +64,7 @@ fun FeedRoute(
     onImageClick: (List<String>, List<String?>) -> Unit,
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onVideoClick: (String) -> Unit,
+    onWebViewClick: () -> Unit,
     onFeedChange: (String?) -> Unit,
     isTitleVisible: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -84,6 +85,7 @@ fun FeedRoute(
         onUserClick = onUserClick,
         onSearchClick = onSearchClick,
         onVideoClick = onVideoClick,
+        onWebViewClick = onWebViewClick,
         onFeedChange = onFeedChange,
         isTitleVisible = isTitleVisible,
         loadSortedPosts = viewModel::loadSortedPosts,
@@ -111,6 +113,7 @@ internal fun FeedScreen(
     onUserClick: (String) -> Unit,
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onVideoClick: (String) -> Unit,
+    onWebViewClick: () -> Unit,
     onFeedChange: (String?) -> Unit,
     isTitleVisible: (Boolean) -> Unit,
     loadSortedPosts: (SortOption.Post, SortOption.Timeframe, List<String>, Boolean) -> Unit,
@@ -184,6 +187,7 @@ internal fun FeedScreen(
                                 false
                             )
                         },
+                        onWebView = onWebViewClick,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(6.dp)
@@ -651,6 +655,7 @@ fun HomeFeedScreenPreview(
                 onUserClick = {},
                 onSearchClick = { _, _, _, _ -> },
                 onVideoClick = {},
+                onWebViewClick = {},
                 onFeedChange = {},
                 isTitleVisible = {},
                 loadSortedPosts = { _, _, _, _ -> },

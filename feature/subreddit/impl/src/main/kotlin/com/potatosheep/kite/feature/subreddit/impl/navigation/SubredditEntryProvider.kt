@@ -14,6 +14,7 @@ import com.potatosheep.kite.feature.subreddit.impl.SubredditViewModel
 import com.potatosheep.kite.feature.subreddit.impl.SubredditViewModel.Factory
 import com.potatosheep.kite.feature.user.api.navigation.navigateToUser
 import com.potatosheep.kite.feature.video.api.navigation.navigateToVideo
+import com.potatosheep.kite.feature.webview.api.navigation.navigateToWebView
 
 fun EntryProviderScope<NavKey>.subredditEntry(navigator: Navigator) {
     entry<SubredditNavKey>(metadata = defaultTransitionSpec()) { key ->
@@ -24,6 +25,7 @@ fun EntryProviderScope<NavKey>.subredditEntry(navigator: Navigator) {
             onSearchClick = navigator::navigateToSearch,
             onUserClick = navigator::navigateToUser,
             onVideoClick = navigator::navigateToVideo,
+            onWebViewClick = navigator::navigateToWebView,
             viewModel = hiltViewModel<SubredditViewModel, Factory> {
                 it.create(key.subreddit)
             }

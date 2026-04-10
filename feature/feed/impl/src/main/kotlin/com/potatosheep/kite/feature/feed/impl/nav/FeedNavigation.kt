@@ -13,6 +13,7 @@ fun FeedScreen(
     onImageClick: (List<String>, List<String?>) -> Unit,
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onVideoClick: (String) -> Unit,
+    onWebViewClick: () -> Unit,
     onFeedChange: (String?) -> Unit,
     isTitleVisible: (Boolean) -> Unit,
     modifier: Modifier = Modifier
@@ -24,6 +25,7 @@ fun FeedScreen(
         onImageClick = onImageClick,
         onSearchClick = onSearchClick,
         onVideoClick = onVideoClick,
+        onWebViewClick = onWebViewClick,
         onFeedChange = onFeedChange,
         isTitleVisible = isTitleVisible,
         modifier = modifier,

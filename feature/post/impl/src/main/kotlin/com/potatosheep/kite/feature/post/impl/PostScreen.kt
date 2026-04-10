@@ -94,6 +94,7 @@ fun PostRoute(
     onMoreRepliesClick: (String, String, String?, String?, Boolean, Boolean) -> Unit,
     onFlairClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onVideoClick: (String) -> Unit,
+    onWebViewClick: () -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PostViewModel = hiltViewModel()
@@ -113,6 +114,7 @@ fun PostRoute(
         onMoreRepliesClick = onMoreRepliesClick,
         onFlairClick = onFlairClick,
         onVideoClick = onVideoClick,
+        onWebViewClick = onWebViewClick,
         onBackClick = onBackClick,
         loadPost = viewModel::loadPost,
         checkPostBookmarked = viewModel::checkIfPostExists,
@@ -134,6 +136,7 @@ internal fun PostScreen(
     onMoreRepliesClick: (String, String, String?, String?, Boolean, Boolean) -> Unit,
     onFlairClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onVideoClick: (String) -> Unit,
+    onWebViewClick: () -> Unit,
     onBackClick: () -> Unit,
     loadPost: () -> Unit,
     checkPostBookmarked: suspend (Post) -> Boolean,
@@ -190,6 +193,7 @@ internal fun PostScreen(
                         onRetry = {
                             loadPost()
                         },
+                        onWebView = onWebViewClick,
                         modifier = Modifier
                             .background(contentContainerColour)
                             .fillMaxSize()
@@ -548,6 +552,7 @@ private fun PostScreenPreview(
             onMoreRepliesClick = { _, _, _, _, _, _ -> },
             onFlairClick = { _, _, _, _ -> },
             onVideoClick = {},
+            onWebViewClick = {},
             onBackClick = {},
             loadPost = {},
             checkPostBookmarked = { _ -> false },

@@ -15,6 +15,7 @@ import com.potatosheep.kite.feature.search.api.navigation.navigateToSearch
 import com.potatosheep.kite.feature.subreddit.api.navigation.navigateToSubreddit
 import com.potatosheep.kite.feature.user.api.navigation.navigateToUser
 import com.potatosheep.kite.feature.video.api.navigation.navigateToVideo
+import com.potatosheep.kite.feature.webview.api.navigation.navigateToWebView
 
 fun EntryProviderScope<NavKey>.postEntry(navigator: Navigator) {
     entry<PostNavKey>(
@@ -27,6 +28,7 @@ fun EntryProviderScope<NavKey>.postEntry(navigator: Navigator) {
             onMoreRepliesClick = navigator::navigateToPost,
             onFlairClick = navigator::navigateToSearch,
             onVideoClick = navigator::navigateToVideo,
+            onWebViewClick = navigator::navigateToWebView,
             onBackClick = { navigator.goBack() },
             viewModel = hiltViewModel<PostViewModel, Factory> {
                 it.create(
