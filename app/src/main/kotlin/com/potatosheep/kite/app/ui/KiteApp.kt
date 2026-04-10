@@ -31,6 +31,7 @@ import com.potatosheep.kite.feature.settings.impl.navigation.settingsEntry
 import com.potatosheep.kite.feature.subreddit.impl.navigation.subredditEntry
 import com.potatosheep.kite.feature.user.impl.navigation.userEntry
 import com.potatosheep.kite.feature.video.impl.navigation.videoEntry
+import com.potatosheep.kite.feature.webview.impl.navigation.webViewEntry
 
 @Composable
 fun KiteApp(
@@ -65,6 +66,7 @@ fun KiteApp(
                     subredditEntry(navigator)
                     userEntry(navigator)
                     videoEntry(navigator)
+                    webViewEntry(navigator)
                 }),
                 onBack = { navigator.goBack() }
             )
