@@ -77,6 +77,8 @@ dependencies {
     implementation(projects.feature.onboarding.api)
     implementation(projects.feature.about.impl)
     implementation(projects.feature.about.api)
+    implementation(projects.feature.webview.impl)
+    implementation(projects.feature.webview.api)
 
     implementation(libs.androidx.material3.adaptive.navigation.suite.android)
     implementation(libs.kotlinx.serialization.json)
