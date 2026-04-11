@@ -180,12 +180,13 @@ internal fun FeedScreen(
                     ErrorMsg(
                         msg = postListUiState.msg,
                         onRetry = {
-                            loadSortedPosts(
+                            /*loadSortedPosts(
                                 feedUiState.sort,
                                 feedUiState.timeframe,
                                 listOf(feedUiState.currentFeed.uri),
                                 false
-                            )
+                            )*/
+                            loadFrontPage()
                         },
                         onWebView = onWebViewClick,
                         modifier = Modifier

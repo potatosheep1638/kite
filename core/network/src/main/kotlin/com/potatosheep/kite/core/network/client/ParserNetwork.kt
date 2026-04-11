@@ -47,6 +47,12 @@ internal class ParserNetwork @Inject constructor(
         withContext(defaultDispatcher) {
             val showNsfwParam = if (showNsfw) "on" else "off"
 
+            // The 'pre-flight' request
+            val preRequest = Request.Builder()
+                .url(instanceUrl)
+                .build()
+
+            // The actual request
             val request = Request.Builder()
                 .url("${instanceUrl}/settings/restore/?use_hls=on" +
                         "&show_nsfw=$showNsfwParam" +
@@ -60,6 +66,8 @@ internal class ParserNetwork @Inject constructor(
             var html: Document
 
             withContext(ioDispatcher) {
+                client.newCall(preRequest).execute() // work-around for anubis & go-away challenges
+
                 client.newCall(request).execute().use { response ->
                     html = response.parseHtml()
                 }

@@ -2,9 +2,9 @@ package com.potatosheep.kite.feature.webview.impl
 
 import android.content.Context
 import android.view.ViewGroup
-import android.webkit.CookieManager
 import android.webkit.WebSettings
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -87,7 +87,7 @@ internal fun WebViewScreen(
             when (webViewUiState) {
                 WebViewUiState.Loading -> Unit
                 is WebViewUiState.Success -> {
-                    WebView(webViewUiState.instance)
+                    WebView(webViewUiState.instance, webViewUiState.webViewClient)
                 }
             }
         }
@@ -95,7 +95,7 @@ internal fun WebViewScreen(
 }
 
 @Composable
-fun WebView(url: String){
+fun WebView(url: String, mWebViewClient: WebViewClient){
     val context = LocalContext.current
 
     AndroidView(factory = {
@@ -120,9 +120,9 @@ fun WebView(url: String){
                 setSupportZoom(true)
                 builtInZoomControls = true
                 displayZoomControls = false
-            }
 
-            CookieManager.getInstance().acceptThirdPartyCookies(this)
+                webViewClient = mWebViewClient
+            }
         }
     }, update = {
         it.loadUrl(url)
