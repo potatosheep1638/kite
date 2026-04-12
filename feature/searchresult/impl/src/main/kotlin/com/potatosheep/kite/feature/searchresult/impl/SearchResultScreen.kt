@@ -108,6 +108,7 @@ fun SearchResultRoute(
     onImageClick: (List<String>, List<String?>) -> Unit,
     onVideoClick: (String) -> Unit,
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String, Boolean) -> Unit,
+    onWebViewClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SearchResultViewModel = hiltViewModel()
 ) {
@@ -126,6 +127,7 @@ fun SearchResultRoute(
         onImageClick = onImageClick,
         onVideoClick = onVideoClick,
         onSearchClick = onSearchClick,
+        onWebViewClick = onWebViewClick,
         searchPostsAndSubreddits = viewModel::searchPostsAndSubreddits,
         loadMorePosts = viewModel::loadMorePosts,
         loadMoreSubreddits = viewModel::loadMoreSubreddits,
@@ -150,6 +152,7 @@ internal fun SearchResultScreen(
     onImageClick: (List<String>, List<String?>) -> Unit,
     onVideoClick: (String) -> Unit,
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String, Boolean) -> Unit,
+    onWebViewClick: () -> Unit,
     searchPostsAndSubreddits: (String) -> Unit,
     loadMorePosts: (String, SortOption.Search, SortOption.Timeframe) -> Unit,
     loadMoreSubreddits: (String) -> Unit,
@@ -275,6 +278,7 @@ internal fun SearchResultScreen(
                                 onRetry = {
                                     searchPostsAndSubreddits(searchResultUiState.query)
                                 },
+                                onWebView = onWebViewClick,
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(6.dp)
@@ -736,6 +740,7 @@ private fun SearchResultScreenPreview(
                 onImageClick = { _, _ -> },
                 onVideoClick = {},
                 onSearchClick = { _, _, _, _, _ -> },
+                onWebViewClick = {},
                 searchPostsAndSubreddits = {},
                 loadMorePosts = { _, _, _ -> },
                 loadMoreSubreddits = {},

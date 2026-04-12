@@ -25,6 +25,7 @@ dependencies {
     implementation(projects.feature.image.api)
     implementation(projects.feature.search.api)
     implementation(projects.feature.video.api)
+    implementation(projects.feature.webview.api)
 
     implementation(libs.coil)
     implementation(libs.coil.compose)

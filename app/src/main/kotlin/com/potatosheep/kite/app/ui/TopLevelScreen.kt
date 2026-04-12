@@ -58,6 +58,7 @@ import com.potatosheep.kite.feature.settings.api.navigation.navigateToSettings
 import com.potatosheep.kite.feature.subreddit.api.navigation.navigateToSubreddit
 import com.potatosheep.kite.feature.user.api.navigation.navigateToUser
 import com.potatosheep.kite.feature.video.api.navigation.navigateToVideo
+import com.potatosheep.kite.feature.webview.api.navigation.navigateToWebView
 
 @Composable
 internal fun TopLevelScreen(
@@ -89,7 +90,7 @@ internal fun TopLevelScreen(
     isTopLevel: Boolean,
     feedUiState: FeedUiState,
     refreshScope: RefreshScope,
-    loadFrontPage: () -> Unit,
+    loadFrontPage: (Boolean) -> Unit,
     snackbarHostState: SnackbarHostState,
     topAppBarActionState: TopAppBarActionState,
     modifier: Modifier = Modifier
@@ -108,7 +109,7 @@ internal fun TopLevelScreen(
 
     LaunchedEffect(isTopLevel, refreshScope) {
         if (isTopLevel && refreshScope == RefreshScope.GLOBAL) {
-            loadFrontPage()
+            loadFrontPage(false)
         }
     }
 
@@ -238,6 +239,7 @@ internal fun TopLevelScreen(
                             onImageClick = navigator::navigateToImage,
                             onSearchClick = navigator::navigateToSearch,
                             onVideoClick = navigator::navigateToVideo,
+                            onWebViewClick = navigator::navigateToWebView,
                             onFeedChange = { scope -> subredditScope = scope },
                             isTitleVisible = { visible -> isTitleVisible = visible },
                             modifier = modifier

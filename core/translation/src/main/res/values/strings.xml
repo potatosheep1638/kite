@@ -85,6 +85,7 @@
     <string name="sort_options">Sort options</string>
     <string name="download">Download</string>
     <string name="filename">Filename</string>
+    <string name="web_view">WebView</string>
 
     <!--Messages-->
     <string name="no_result">Nothing found</string>

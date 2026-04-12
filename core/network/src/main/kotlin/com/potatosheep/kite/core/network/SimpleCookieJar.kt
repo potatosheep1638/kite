@@ -1,5 +1,6 @@
 package com.potatosheep.kite.core.network
 
+import android.webkit.CookieManager
 import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
@@ -7,33 +8,25 @@ import javax.inject.Singleton
 
 
 @Singleton
-class SimpleCookieJar(cache: List<Cookie>) : CookieJar {
-    private val cache = cache.toMutableList()
+class SimpleCookieJar : CookieJar {
+    private val webViewCookieManager = CookieManager.getInstance();
 
     @Synchronized
     override fun loadForRequest(url: HttpUrl): List<Cookie> {
-        val validCookies = mutableListOf<Cookie>()
+        val validCookies = webViewCookieManager.getCookie(url.toString())
 
-        cache.forEach { cookie ->
-            if (cookie.matches(url)) {
-                validCookies.add(cookie)
-            }
+        return if (!validCookies.isNullOrEmpty()) {
+            val cookie = validCookies.split(";").mapNotNull { Cookie.parse(url, it) }
+            cookie
+        } else {
+            emptyList()
         }
-
-        return validCookies
     }
 
     @Synchronized
     override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
-        val cookiesToRemove = mutableListOf<Cookie>()
+        val urlString = url.toString()
 
-        cache.forEach { cookie ->
-            if (cookie.matches(url)) {
-                cookiesToRemove.add(cookie)
-            }
-        }
-
-        cache.removeAll(cookiesToRemove)
-        cache.addAll(cookies)
+        cookies.forEach { webViewCookieManager.setCookie(urlString, it.toString()) }
     }
 }

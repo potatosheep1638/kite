@@ -64,6 +64,7 @@ fun FeedRoute(
     onImageClick: (List<String>, List<String?>) -> Unit,
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onVideoClick: (String) -> Unit,
+    onWebViewClick: () -> Unit,
     onFeedChange: (String?) -> Unit,
     isTitleVisible: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -84,6 +85,7 @@ fun FeedRoute(
         onUserClick = onUserClick,
         onSearchClick = onSearchClick,
         onVideoClick = onVideoClick,
+        onWebViewClick = onWebViewClick,
         onFeedChange = onFeedChange,
         isTitleVisible = isTitleVisible,
         loadSortedPosts = viewModel::loadSortedPosts,
@@ -111,10 +113,11 @@ internal fun FeedScreen(
     onUserClick: (String) -> Unit,
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onVideoClick: (String) -> Unit,
+    onWebViewClick: () -> Unit,
     onFeedChange: (String?) -> Unit,
     isTitleVisible: (Boolean) -> Unit,
     loadSortedPosts: (SortOption.Post, SortOption.Timeframe, List<String>, Boolean) -> Unit,
-    loadFrontPage: () -> Unit,
+    loadFrontPage: (Boolean) -> Unit,
     updateFeedSettings: (Feed?, SortOption.Post?, SortOption.Timeframe?) -> Unit,
     checkPostBookmarked: suspend (Post) -> Boolean,
     bookmarkPost: (Post) -> Unit,
@@ -163,7 +166,7 @@ internal fun FeedScreen(
                 when (shouldRefresh) {
                     RefreshScope.FOLLOWED_ONLY -> {
                         if (feedUiState.currentFeed == Feed.FOLLOWED) {
-                            loadFrontPage()
+                            loadFrontPage(false)
                         }
                     }
 
@@ -177,13 +180,15 @@ internal fun FeedScreen(
                     ErrorMsg(
                         msg = postListUiState.msg,
                         onRetry = {
-                            loadSortedPosts(
+                            /*loadSortedPosts(
                                 feedUiState.sort,
                                 feedUiState.timeframe,
                                 listOf(feedUiState.currentFeed.uri),
                                 false
-                            )
+                            )*/
+                            loadFrontPage(true)
                         },
+                        onWebView = onWebViewClick,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(6.dp)
@@ -385,7 +390,7 @@ internal fun FeedScreen(
                     )
 
                     if (shouldRefresh != RefreshScope.NO_REFRESH) {
-                        loadFrontPage();
+                        loadFrontPage(false);
                     } else {
                         loadSortedPosts(
                             feedUiState.sort,
@@ -651,6 +656,7 @@ fun HomeFeedScreenPreview(
                 onUserClick = {},
                 onSearchClick = { _, _, _, _ -> },
                 onVideoClick = {},
+                onWebViewClick = {},
                 onFeedChange = {},
                 isTitleVisible = {},
                 loadSortedPosts = { _, _, _, _ -> },

@@ -2,10 +2,14 @@ package com.potatosheep.kite.core.designsystem
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -22,7 +26,8 @@ import com.potatosheep.kite.core.translation.R.string as Translation
 fun ErrorMsg(
     msg: String,
     onRetry: () -> Unit,
-    modifier: Modifier = Modifier
+    onWebView: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier,
@@ -46,17 +51,31 @@ fun ErrorMsg(
             style = MaterialTheme.typography.bodyLarge
         )
 
-        Button(
-            onClick = onRetry,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(top = 12.dp)
+        Row(Modifier
+            .align(Alignment.CenterHorizontally)
+            .padding(top = 12.dp)
         ) {
-            Text(
-                text = stringResource(Translation.retry),
-                color = MaterialTheme.colorScheme.onPrimary,
-                style = MaterialTheme.typography.labelLarge
-            )
+            Button(
+                onClick = onRetry,
+                modifier = Modifier.padding(horizontal = 6.dp)
+            ) {
+                Text(
+                    text = stringResource(Translation.retry),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
+
+            IconButton(
+                onClick = onWebView,
+                modifier = Modifier.padding(horizontal = 6.dp),
+            ) {
+                Icon(
+                    imageVector = KiteIcons.Web,
+                    contentDescription = stringResource(Translation.web_view),
+                    modifier = Modifier.size(36.dp)
+                )
+            }
         }
     }
 }
@@ -101,6 +120,7 @@ private fun ErrorMsgPreview() {
             ) {
                 ErrorMsg(
                     "No item in collection matching predicate",
+                    {},
                     {},
                     Modifier.fillMaxSize()
                 )

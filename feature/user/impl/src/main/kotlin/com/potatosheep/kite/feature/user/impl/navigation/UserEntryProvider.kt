@@ -14,6 +14,7 @@ import com.potatosheep.kite.feature.user.impl.UserRoute
 import com.potatosheep.kite.feature.user.impl.UserViewModel
 import com.potatosheep.kite.feature.user.impl.UserViewModel.Factory
 import com.potatosheep.kite.feature.video.api.navigation.navigateToVideo
+import com.potatosheep.kite.feature.webview.api.navigation.navigateToWebView
 
 fun EntryProviderScope<NavKey>.userEntry(navigator: Navigator) {
     entry<UserNavKey>(metadata = defaultTransitionSpec()) { key ->
@@ -25,6 +26,7 @@ fun EntryProviderScope<NavKey>.userEntry(navigator: Navigator) {
             onSearchClick = navigator::navigateToSearch,
             onFlairClick = navigator::navigateToSearch,
             onVideoClick = navigator::navigateToVideo,
+            onWebViewClick = navigator::navigateToWebView,
             viewModel = hiltViewModel<UserViewModel, Factory> {
                 it.create(key.user)
             }

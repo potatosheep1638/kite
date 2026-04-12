@@ -43,6 +43,7 @@ fun SubredditRoute(
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onUserClick: (String) -> Unit,
     onVideoClick: (String) -> Unit,
+    onWebViewClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SubredditViewModel = hiltViewModel()
 ) {
@@ -64,6 +65,7 @@ fun SubredditRoute(
         onSearchClick = onSearchClick,
         onUserClick = onUserClick,
         onVideoClick = onVideoClick,
+        onWebViewClick = onWebViewClick,
         loadSubreddit = viewModel::loadSubreddit,
         loadSortedPosts = viewModel::loadSortedPosts,
         loadMorePosts = viewModel::loadMorePosts,
@@ -90,6 +92,7 @@ internal fun SubredditScreen(
     onSearchClick: (SortOption.Search, SortOption.Timeframe, String?, String) -> Unit,
     onUserClick: (String) -> Unit,
     onVideoClick: (String) -> Unit,
+    onWebViewClick: () -> Unit,
     loadSubreddit: () -> Unit,
     loadSortedPosts: (SortOption.Post, SortOption.Timeframe) -> Unit,
     loadMorePosts: (SortOption.Post, SortOption.Timeframe) -> Unit,
@@ -116,6 +119,7 @@ internal fun SubredditScreen(
                         onRetry = {
                             loadSubreddit()
                         },
+                        onWebView = onWebViewClick,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(6.dp)

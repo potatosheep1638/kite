@@ -15,6 +15,7 @@ import com.potatosheep.kite.feature.searchresult.impl.SearchResultViewModel.Fact
 import com.potatosheep.kite.feature.subreddit.api.navigation.navigateToSubreddit
 import com.potatosheep.kite.feature.user.api.navigation.navigateToUser
 import com.potatosheep.kite.feature.video.api.navigation.navigateToVideo
+import com.potatosheep.kite.feature.webview.api.navigation.navigateToWebView
 
 fun EntryProviderScope<NavKey>.searchResultEntry(navigator: Navigator) {
     entry<SearchResultNavKey>(metadata = defaultTransitionSpec()) { key ->
@@ -26,6 +27,7 @@ fun EntryProviderScope<NavKey>.searchResultEntry(navigator: Navigator) {
             onImageClick = navigator::navigateToImage,
             onVideoClick = navigator::navigateToVideo,
             onSearchClick = navigator::navigateToSearch,
+            onWebViewClick = navigator::navigateToWebView,
             viewModel = hiltViewModel<SearchResultViewModel, Factory> {
                 it.create(key.subredditScope, key.sort, key.timeframe, key.query)
             }

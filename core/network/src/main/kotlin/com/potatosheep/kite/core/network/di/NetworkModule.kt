@@ -2,6 +2,7 @@ package com.potatosheep.kite.core.network.di
 
 import android.content.Context
 import android.os.Build.VERSION.SDK_INT
+import android.webkit.WebViewClient
 import coil3.ImageLoader
 import coil3.gif.AnimatedImageDecoder
 import coil3.gif.GifDecoder
@@ -10,6 +11,7 @@ import coil3.request.crossfade
 import com.potatosheep.kite.core.markdown.converter.MarkdownConverter
 import com.potatosheep.kite.core.network.NetworkDataSource
 import com.potatosheep.kite.core.network.SimpleCookieJar
+import com.potatosheep.kite.core.network.client.KiteWebViewClient
 import com.potatosheep.kite.core.network.client.ParserNetwork
 import com.potatosheep.kite.core.network.parser.Parser
 import dagger.Binds
@@ -18,8 +20,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import okhttp3.Cache
-import okhttp3.CacheControl
 import okhttp3.Call
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
@@ -32,12 +32,15 @@ internal interface NetworkModule {
     fun binds(networkService: ParserNetwork): NetworkDataSource
 
     companion object {
+        @Provides
+        fun providesWebViewClient(okHttpCallFactory: dagger.Lazy<Call.Factory>): WebViewClient =
+            KiteWebViewClient(okHttpCallFactory.get())
 
         @Provides
         @Singleton
         fun okHttpCallFactory(@ApplicationContext application: Context): Call.Factory =
             OkHttpClient.Builder()
-                .cookieJar(SimpleCookieJar(emptyList()))
+                .cookieJar(SimpleCookieJar())
                 .connectTimeout(0, TimeUnit.MILLISECONDS)
                 .readTimeout(0, TimeUnit.MILLISECONDS)
                 .build()
