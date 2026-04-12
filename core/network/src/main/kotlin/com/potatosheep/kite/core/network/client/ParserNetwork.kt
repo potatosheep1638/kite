@@ -42,15 +42,19 @@ internal class ParserNetwork @Inject constructor(
         sort: String,
         subreddits: List<String>,
         redirect: String,
-        showNsfw: Boolean
+        showNsfw: Boolean,
+        sendPreFlight: Boolean
     ): List<NetworkPost> =
         withContext(defaultDispatcher) {
             val showNsfwParam = if (showNsfw) "on" else "off"
+            lateinit var preRequest: Request
 
             // The 'pre-flight' request
-            val preRequest = Request.Builder()
-                .url(instanceUrl)
-                .build()
+            if (sendPreFlight) {
+                preRequest = Request.Builder()
+                    .url(instanceUrl)
+                    .build()
+            }
 
             // The actual request
             val request = Request.Builder()
@@ -66,7 +70,10 @@ internal class ParserNetwork @Inject constructor(
             var html: Document
 
             withContext(ioDispatcher) {
-                client.newCall(preRequest).execute() // work-around for anubis & go-away challenges
+                if (sendPreFlight) {
+                    // work-around for anubis & go-away challenges
+                    client.newCall(preRequest).execute()
+                }
 
                 client.newCall(request).execute().use { response ->
                     html = response.parseHtml()

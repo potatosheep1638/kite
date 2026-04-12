@@ -90,7 +90,7 @@ internal fun TopLevelScreen(
     isTopLevel: Boolean,
     feedUiState: FeedUiState,
     refreshScope: RefreshScope,
-    loadFrontPage: () -> Unit,
+    loadFrontPage: (Boolean) -> Unit,
     snackbarHostState: SnackbarHostState,
     topAppBarActionState: TopAppBarActionState,
     modifier: Modifier = Modifier
@@ -109,7 +109,7 @@ internal fun TopLevelScreen(
 
     LaunchedEffect(isTopLevel, refreshScope) {
         if (isTopLevel && refreshScope == RefreshScope.GLOBAL) {
-            loadFrontPage()
+            loadFrontPage(false)
         }
     }
 

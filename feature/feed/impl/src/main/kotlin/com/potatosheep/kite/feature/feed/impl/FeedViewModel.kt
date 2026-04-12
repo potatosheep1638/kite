@@ -157,7 +157,7 @@ class FeedViewModel @Inject constructor(
     }
 
     @Synchronized
-    fun loadFrontPage() {
+    fun loadFrontPage(sendPreFlight: Boolean) {
         viewModelScope.launch {
             if (feedUiState.value is FeedUiState.Success) {
                 Log.d("FeedViewModel", "Loading front page")
@@ -184,7 +184,8 @@ class FeedViewModel @Inject constructor(
                         redirect = redirect,
                         sort = SortOption.Post.HOT.uri,
                         subreddits = feedUiState.followedSubreddits,
-                        showNsfw = feedUiState.showNsfw
+                        showNsfw = feedUiState.showNsfw,
+                        sendPreFlight = sendPreFlight
                     )
                 }.onSuccess {
                     _shouldRefresh.value = RefreshScope.NO_REFRESH

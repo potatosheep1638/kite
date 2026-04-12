@@ -117,7 +117,7 @@ internal fun FeedScreen(
     onFeedChange: (String?) -> Unit,
     isTitleVisible: (Boolean) -> Unit,
     loadSortedPosts: (SortOption.Post, SortOption.Timeframe, List<String>, Boolean) -> Unit,
-    loadFrontPage: () -> Unit,
+    loadFrontPage: (Boolean) -> Unit,
     updateFeedSettings: (Feed?, SortOption.Post?, SortOption.Timeframe?) -> Unit,
     checkPostBookmarked: suspend (Post) -> Boolean,
     bookmarkPost: (Post) -> Unit,
@@ -166,7 +166,7 @@ internal fun FeedScreen(
                 when (shouldRefresh) {
                     RefreshScope.FOLLOWED_ONLY -> {
                         if (feedUiState.currentFeed == Feed.FOLLOWED) {
-                            loadFrontPage()
+                            loadFrontPage(false)
                         }
                     }
 
@@ -186,7 +186,7 @@ internal fun FeedScreen(
                                 listOf(feedUiState.currentFeed.uri),
                                 false
                             )*/
-                            loadFrontPage()
+                            loadFrontPage(true)
                         },
                         onWebView = onWebViewClick,
                         modifier = Modifier
@@ -390,7 +390,7 @@ internal fun FeedScreen(
                     )
 
                     if (shouldRefresh != RefreshScope.NO_REFRESH) {
-                        loadFrontPage();
+                        loadFrontPage(false);
                     } else {
                         loadSortedPosts(
                             feedUiState.sort,
