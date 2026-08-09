@@ -59,7 +59,7 @@ class FeedViewModel @Inject constructor(
         _lazyListState,
     ) { subreddits, config, options, listState ->
         FeedUiState.Success(
-            instanceUrl = config.instance,
+            instanceUrl = if (config.shouldUseCustomInstance) config.customInstance else config.instance,
             followedSubreddits = subreddits.map { it.subredditName },
             showNsfw = config.showNsfw,
             blurNsfw = config.blurNsfw,
@@ -94,7 +94,7 @@ class FeedViewModel @Inject constructor(
                             _shouldRefresh.value = RefreshScope.GLOBAL
                         }
 
-                        isInstanceSame && !containsPreviousSubscriptions -> {
+                        isInstanceSame -> {
                             _shouldRefresh.value = RefreshScope.FOLLOWED_ONLY
                         }
 
