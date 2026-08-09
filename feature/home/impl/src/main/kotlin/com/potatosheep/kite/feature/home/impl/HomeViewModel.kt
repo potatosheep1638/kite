@@ -21,7 +21,12 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     val subredditListUiState = combine(
-        userConfigRepository.userConfig.map { it.instance },
+        userConfigRepository.userConfig.map {
+            if (it.shouldUseCustomInstance)
+                it.customInstance
+            else
+                it.instance
+        },
         subredditRepository.getFollowedSubreddits(),
     ) { instance, subreddits ->
         SubredditListUiState.Success(
