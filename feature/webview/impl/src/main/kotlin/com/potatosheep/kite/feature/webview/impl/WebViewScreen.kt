@@ -111,7 +111,7 @@ fun WebView(url: String, mWebViewClient: WebViewClient){
                 useWideViewPort = true
                 loadWithOverviewMode = true
                 cacheMode = WebSettings.LOAD_DEFAULT
-                userAgentString = getInferredUserAgent(context)
+                userAgentString = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Mobile Safari/537.36"
 
                 // Handle popups properly
                 setSupportMultipleWindows(true)
