@@ -18,7 +18,12 @@ class WebViewViewModel @Inject constructor(
 ) : ViewModel() {
 
     val webViewUiState: StateFlow<WebViewUiState> = userConfigRepository.userConfig
-        .map { WebViewUiState.Success(it.instance, webViewClient) }
+        .map { WebViewUiState.Success(
+            if (it.shouldUseCustomInstance)
+                it.customInstance
+            else
+                it.instance,
+            webViewClient) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
