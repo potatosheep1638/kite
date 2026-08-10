@@ -7,10 +7,8 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import okhttp3.Call
-import okhttp3.FormBody
 import okhttp3.Headers
 import okhttp3.Request
-import okhttp3.internal.toHeaderList
 
 class KiteWebViewClient(private val client: Call.Factory, private val cloudflareHeaders: CloudflareHeaders): WebViewClient() {
     private var isCloudflare = false
@@ -56,10 +54,6 @@ class KiteWebViewClient(private val client: Call.Factory, private val cloudflare
      */
     private fun interceptRequestWithHeaders(request: WebResourceRequest): WebResourceResponse? {
         val url = request.url.toString()
-        Log.d("WebViewClient", request.url.toString())
-
-        Log.d("WebViewClient", "HERE!")
-        Log.d("WebViewClient", request.method)
 
         // Build an OkHttp request
         val okHttpRequest = Request.Builder()
@@ -72,14 +66,10 @@ class KiteWebViewClient(private val client: Call.Factory, private val cloudflare
             .build()
 
         return try {
-            Log.d("WebViewClient", request.requestHeaders.toString())
-            Log.d("WebViewClient", okHttpRequest.headers.toHeaderList().toString())
             val response = client.newCall(okHttpRequest).execute()
 
             val mimeType = response.header("Content-Type")?.split(";")?.firstOrNull() ?: "text/html"
             val encoding = response.header("Content-Encoding") ?: "utf-8"
-
-            Log.d("WebViewClient", response.code.toString())
 
             WebResourceResponse(
                 mimeType,
