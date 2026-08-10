@@ -11,6 +11,7 @@ import coil3.request.crossfade
 import com.potatosheep.kite.core.markdown.converter.MarkdownConverter
 import com.potatosheep.kite.core.network.NetworkDataSource
 import com.potatosheep.kite.core.network.SimpleCookieJar
+import com.potatosheep.kite.core.network.client.CloudflareHeaders
 import com.potatosheep.kite.core.network.client.KiteWebViewClient
 import com.potatosheep.kite.core.network.client.ParserNetwork
 import com.potatosheep.kite.core.network.parser.Parser
@@ -21,6 +22,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Call
+import okhttp3.Headers
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
@@ -33,8 +35,15 @@ internal interface NetworkModule {
 
     companion object {
         @Provides
-        fun providesWebViewClient(okHttpCallFactory: dagger.Lazy<Call.Factory>): WebViewClient =
-            KiteWebViewClient(okHttpCallFactory.get())
+        @Singleton
+        fun cloudflareHeaders(): CloudflareHeaders = CloudflareHeaders(Headers.Builder().build())
+
+        @Provides
+        fun providesWebViewClient(
+            okHttpCallFactory: dagger.Lazy<Call.Factory>,
+            cloudflareHeaders: CloudflareHeaders
+        ): WebViewClient =
+            KiteWebViewClient(okHttpCallFactory.get(), cloudflareHeaders)
 
         @Provides
         @Singleton
