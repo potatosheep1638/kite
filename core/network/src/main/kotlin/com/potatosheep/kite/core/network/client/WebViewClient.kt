@@ -9,6 +9,7 @@ import android.webkit.WebViewClient
 import okhttp3.Call
 import okhttp3.Headers
 import okhttp3.Request
+import okhttp3.internal.toHeaderList
 
 class KiteWebViewClient(private val client: Call.Factory, private val cloudflareHeaders: CloudflareHeaders): WebViewClient() {
     private var isCloudflare = false
@@ -28,14 +29,22 @@ class KiteWebViewClient(private val client: Call.Factory, private val cloudflare
             url.contains("cdn-cgi") || url.contains("cloudflare"))
             isCloudflare =  true
 
-        if (isCloudflare) {
-            val headerBuilder = Headers.Builder()
-            request.requestHeaders.entries.forEach {
+        val headerBuilder = Headers.Builder()
+        request.requestHeaders.entries.forEach {
+            if (it.key != "sec-ch-ua")
                 headerBuilder.add(it.key, it.value)
-            }
+            else
+                headerBuilder.add("sec-ch-ua", "\"Not=A?Brand\";v=\"99\",\"Google Chrome\";v=\"151\",\"Chromium\";v=\"151\"")
+        }
+        if (isCloudflare) {
             headers = headerBuilder.build()
             return super.shouldInterceptRequest(view, request)
         }
+
+        headers = headerBuilder
+            //.add("Accept-Encoding", "gzip, deflate, br, zstd")
+            .add("Accept-Language", "en-US;q=0.5")
+            .build()
 
         return interceptRequestWithHeaders(request)
     }
@@ -49,8 +58,6 @@ class KiteWebViewClient(private val client: Call.Factory, private val cloudflare
      * The purpose of this function is to make the request sent to instances match that of one
      * made by an OkHttp client in order to ensure that passing a challenge set by Anubis or go-away
      * in the WebView also passes it for the OkHttp client.
-     *
-     * Have not yet tested how it handles Cloudflare; may need more work in that regard.
      */
     private fun interceptRequestWithHeaders(request: WebResourceRequest): WebResourceResponse? {
         val url = request.url.toString()
