@@ -29,6 +29,7 @@ internal class ParserNetwork @Inject constructor(
     okHttpCallFactory: dagger.Lazy<Call.Factory>,
     parser: dagger.Lazy<Parser>,
     moshi: dagger.Lazy<Moshi>,
+    private val cloudflareHeaders: CloudflareHeaders,
     @Dispatcher(KiteDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     @Dispatcher(KiteDispatchers.Default) private val defaultDispatcher: CoroutineDispatcher
 ) : NetworkDataSource {
@@ -65,6 +66,7 @@ internal class ParserNetwork @Inject constructor(
                         "&post_sort=$sort" +
                         "&redirect=$redirect"
                 )
+                .headers(cloudflareHeaders.headers)
                 .build()
 
             var html: Document
@@ -112,6 +114,7 @@ internal class ParserNetwork @Inject constructor(
                         }
                     }
                 )
+                .headers(cloudflareHeaders.headers)
                 .build()
 
             var html: Document
@@ -213,6 +216,7 @@ internal class ParserNetwork @Inject constructor(
                     }
                 }
             )
+            .headers(cloudflareHeaders.headers)
             .build()
 
         var html: Document
@@ -240,6 +244,7 @@ internal class ParserNetwork @Inject constructor(
     ): List<NetworkSubreddit> = withContext(defaultDispatcher) {
         val request = Request.Builder()
             .url("${instanceUrl}/search?q=${query}&type=sr_user")
+            .headers(cloudflareHeaders.headers)
             .build()
 
         var html: Document
@@ -261,6 +266,7 @@ internal class ParserNetwork @Inject constructor(
         withContext(defaultDispatcher) {
             val request = Request.Builder()
                 .url("${instanceUrl}/r/${subredditName}/comments/${postId}")
+                .headers(cloudflareHeaders.headers)
                 .build()
 
             var html: Document
@@ -282,6 +288,7 @@ internal class ParserNetwork @Inject constructor(
 
             val request = Request.Builder()
                 .url("${instanceUrl}/r/${subredditName}")
+                .headers(cloudflareHeaders.headers)
                 .build()
 
             var html: Document
@@ -305,6 +312,7 @@ internal class ParserNetwork @Inject constructor(
 
         val request = Request.Builder()
             .url("${instanceUrl}/r/${subredditName}/wiki/index")
+            .headers(cloudflareHeaders.headers)
             .build()
 
         var html: Document
@@ -326,6 +334,7 @@ internal class ParserNetwork @Inject constructor(
 
             val request = Request.Builder()
                 .url("${instanceUrl}/user/${userName}/overview?sort=hot")
+                .headers(cloudflareHeaders.headers)
                 .build()
 
             var html: Document
@@ -359,6 +368,7 @@ internal class ParserNetwork @Inject constructor(
 
         val request = Request.Builder()
             .url(url)
+            .headers(cloudflareHeaders.headers)
             .build()
 
         var html: Document
@@ -382,6 +392,7 @@ internal class ParserNetwork @Inject constructor(
         val url = "https://raw.githubusercontent.com/redlib-org/redlib-instances/refs/heads/main/instances.json"
         val request = Request.Builder()
             .url(url)
+            .headers(cloudflareHeaders.headers)
             .build()
 
         val type = Types.newParameterizedType(List::class.java, NetworkInstance::class.java)

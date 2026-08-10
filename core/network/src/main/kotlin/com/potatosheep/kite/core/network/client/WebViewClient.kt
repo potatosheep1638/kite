@@ -12,14 +12,40 @@ import okhttp3.Headers
 import okhttp3.Request
 import okhttp3.internal.toHeaderList
 
-class KiteWebViewClient(private val client: Call.Factory): WebViewClient() {
+class KiteWebViewClient(private val client: Call.Factory, private val cloudflareHeaders: CloudflareHeaders): WebViewClient() {
     private var isCloudflare = false
+    private lateinit var headers: Headers
     private val webViewCookieManager = CookieManager.getInstance();
 
     override fun shouldInterceptRequest(
         view: WebView,
         request: WebResourceRequest
-    ): WebResourceResponse? = interceptRequestWithHeaders(request)
+    ): WebResourceResponse? {
+        val url = request.url.toString()
+        headers = Headers.Builder().build()
+
+        // Check if site is protected by cloudflare
+        val cookie = webViewCookieManager.getCookie(url)
+        if ((!cookie.isNullOrEmpty() && cookie.contains("cf_clearance")) ||
+            url.contains("cdn-cgi") || url.contains("cloudflare"))
+            isCloudflare =  true
+
+        if (isCloudflare) {
+            val headerBuilder = Headers.Builder()
+            request.requestHeaders.entries.forEach {
+                headerBuilder.add(it.key, it.value)
+            }
+            headers = headerBuilder.build()
+            return super.shouldInterceptRequest(view, request)
+        }
+
+        return interceptRequestWithHeaders(request)
+    }
+
+    override fun onPageFinished(view: WebView?, url: String?) {
+        super.onPageFinished(view, url)
+        cloudflareHeaders.headers = headers
+    }
 
     /*
      * The purpose of this function is to make the request sent to instances match that of one
@@ -32,75 +58,28 @@ class KiteWebViewClient(private val client: Call.Factory): WebViewClient() {
         val url = request.url.toString()
         Log.d("WebViewClient", request.url.toString())
 
-        // Check if site is protected by cloudflare
-        if (webViewCookieManager.getCookie(url).contains("cf_clearance")) {
-            isCloudflare =  true
-        }
+        Log.d("WebViewClient", "HERE!")
+        Log.d("WebViewClient", request.method)
 
         // Build an OkHttp request
-        val okHttpRequest = if (isCloudflare) {
-            Log.d("WebViewClient", "HERE!")
-            val builder = Request.Builder().url(url)
-
-            val headers = Headers.Builder()
-                .add("Accept", "*/*")
-                .add("Accept-Encoding", "gzip, deflate, br, zstd")
-                .add("Accept-Language", "en-US,en;q=0.5")
-                .add("Connection", "keep-alive")
-                .add("Content-Type", "text/plain;charset=UTF-8")
-                .add("Origin", request.requestHeaders.get("Origin") ?: "")
-                .add("Referer", request.requestHeaders.get("Referer") ?: "")
-                .add("Sec-Fetch-Dest", "empty")
-                .add("Sec-Fetch-Mode", "cors")
-                .add("Sec-Fetch-Site", "same-origin")
-                .add("Sec-GPC", "1")
-                .add("TE", "trailers")
-                .add("User-Agent", request.requestHeaders.get("User-Agent") ?: "")
-
-            if (request.method == "POST") {
-                val formBody = FormBody.Builder().build()
-
-                builder
-                    .headers(
-                        headers
-                            .add("cf-chl-ra", request.requestHeaders.get("cf-chl-ra") ?: "")
-                            .add("cf-chl", request.requestHeaders.get("cf-chl") ?: "")
-                            .build()
-                    )
-                    .method(
-                        request.method,
-                        formBody
-                    )
-            } else {
-                builder
-                    .headers(headers.build())
-                    .method(
-                        request.method,
-                        null
-                    )
-            }
-
-            builder.build()
-        } else {
-            Request.Builder()
-                .url(url)
-                .method(
-                    request.method,
-                    null
-                )
-                .build()
-        }
+        val okHttpRequest = Request.Builder()
+            .url(url)
+            .headers(headers)
+            .method(
+                request.method,
+                null
+            )
+            .build()
 
         return try {
             Log.d("WebViewClient", request.requestHeaders.toString())
-            if (request.method == "POST")
-                Log.d("WebViewClient", "POST")
-
             Log.d("WebViewClient", okHttpRequest.headers.toHeaderList().toString())
             val response = client.newCall(okHttpRequest).execute()
 
             val mimeType = response.header("Content-Type")?.split(";")?.firstOrNull() ?: "text/html"
             val encoding = response.header("Content-Encoding") ?: "utf-8"
+
+            Log.d("WebViewClient", response.code.toString())
 
             WebResourceResponse(
                 mimeType,
