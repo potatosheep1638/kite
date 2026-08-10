@@ -169,6 +169,7 @@ internal class ParserNetwork @Inject constructor(
                         }
                     }
                 )
+                .headers(cloudflareHeaders.headers)
                 .build()
 
             var html: Document
