@@ -38,7 +38,6 @@ class KiteWebViewClient(private val client: Call.Factory, private val cloudflare
         }
 
         headers = headerBuilder
-            //.add("Accept-Encoding", "gzip, deflate, br, zstd")
             .add("Accept-Language", "en-US;q=0.5")
             .build()
 
@@ -48,6 +47,7 @@ class KiteWebViewClient(private val client: Call.Factory, private val cloudflare
     override fun onPageFinished(view: WebView?, url: String?) {
         super.onPageFinished(view, url)
         cloudflareHeaders.headers = headers
+        Log.d(this.javaClass.simpleName, "$headers")
     }
 
     /*
@@ -70,6 +70,7 @@ class KiteWebViewClient(private val client: Call.Factory, private val cloudflare
 
         return try {
             val response = client.newCall(okHttpRequest).execute()
+            cloudflareHeaders.headers = headers
 
             val mimeType = response.header("Content-Type")?.split(";")?.firstOrNull() ?: "text/html"
             val encoding = response.header("Content-Encoding") ?: "utf-8"
