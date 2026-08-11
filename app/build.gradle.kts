@@ -10,8 +10,8 @@ android {
 
     defaultConfig {
         applicationId = "com.potatosheep.kite"
-        versionCode = 13
-        versionName = "0.5.2"
+        versionCode = 14
+        versionName = "0.6.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
