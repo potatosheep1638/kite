@@ -56,8 +56,13 @@ internal fun extractPostListingMediaLinks(
         return if (span != null && span.text() == "gallery") {
             val thumbnail = element.select("a")
                 .first { it.hasClass("post_thumbnail") }
-                .select("image")
-                .attr("href")
+                .let { el: Element ->
+                    if (el.select("image").isEmpty()) {
+                        el.select("img").attr("src")
+                    } else {
+                        el.select("image").attr("href")
+                    }
+                }
 
             val postLink = element.select("a")
                 .first { it.hasClass("post_thumbnail") }
@@ -86,8 +91,13 @@ internal fun extractPostListingMediaLinks(
 
             val thumbnail = element.select("a")
                 .first { it.hasClass("post_thumbnail") }
-                .select("image")
-                .attr("href")
+                .let { el: Element ->
+                    if (el.select("image").isEmpty()) {
+                        el.select("img").attr("src")
+                    } else {
+                        el.select("image").attr("href")
+                    }
+                }
 
             listOf(
                 NetworkMediaLink(
