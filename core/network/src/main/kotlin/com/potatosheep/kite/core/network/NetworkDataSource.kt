@@ -98,4 +98,6 @@ interface NetworkDataSource {
     ): List<Any>
 
     suspend fun getInstances(): List<String>
+
+    suspend fun getHeaders(): Map<String, String>
 }

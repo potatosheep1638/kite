@@ -86,6 +86,8 @@ interface PostRepository {
         uri: Uri,
         context: Context
     )
+
+    suspend fun getHeaders(): Map<String, String>
 }
 
 internal class DefaultPostRepository @Inject constructor(
@@ -273,6 +275,10 @@ internal class DefaultPostRepository @Inject constructor(
 
         ContextCompat.startForegroundService(context, intent)
     }
+
+    // Might consider moving this to a separate repository, since strictly speaking, this method
+    // has nothing to do with posts
+    override suspend fun getHeaders(): Map<String, String> = networkDataSource.getHeaders()
 }
 
 private fun String.extractUrlId(): String {

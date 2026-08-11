@@ -19,6 +19,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import okhttp3.Call
 import okhttp3.Request
+import okhttp3.internal.toHeaderList
 import org.json.JSONObject
 import org.jsoup.nodes.Document
 import javax.inject.Inject
@@ -420,4 +421,7 @@ internal class ParserNetwork @Inject constructor(
             it.url
         }
     }
+
+    override suspend fun getHeaders(): Map<String, String> =
+        cloudflareHeaders.headers.toMultimap().mapValues { it.value.joinToString() }
 }
