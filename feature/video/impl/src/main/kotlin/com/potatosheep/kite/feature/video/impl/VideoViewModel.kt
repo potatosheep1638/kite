@@ -3,13 +3,18 @@ package com.potatosheep.kite.feature.video.impl
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.hls.HlsMediaSource
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import com.potatosheep.kite.core.data.repo.PostRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -18,17 +23,18 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import okhttp3.Call
 
 @HiltViewModel(assistedFactory = VideoViewModel.Factory::class)
 class VideoViewModel @AssistedInject constructor(
     videoPlayer: Player,
+    okHttpCallFactory: dagger.Lazy<Call.Factory>,
     private val savedStateHandle: SavedStateHandle,
     private val postRepository: PostRepository,
     @Assisted private val _videoLink: String
 ) : ViewModel() {
-
+    private val client = okHttpCallFactory.get()
     val videoLink = savedStateHandle.getStateFlow(VIDEO_LINK, _videoLink)
-
     val isHLS = savedStateHandle.getStateFlow(IS_HLS, false)
 
     private val _player = MutableStateFlow(videoPlayer)
@@ -37,25 +43,38 @@ class VideoViewModel @AssistedInject constructor(
     private val _uiState = MutableStateFlow<VideoUiState>(VideoUiState.Loading)
     val uiState: StateFlow<VideoUiState> = _uiState
 
+    @OptIn(UnstableApi::class)
     fun relaunchPlayer(context: Context) {
         viewModelScope.launch {
             // Log.i("VideoViewModel", _videoLink)
             savedStateHandle[IS_HLS] = checkVideoHLS()
 
+            // TODO: Consider moving ExoPlayer configuration to a separate class and module
+            val headers = postRepository.getHeaders()
+            val okHttpDataSource = OkHttpDataSource.Factory(client)
+                .setUserAgent(headers["user-agent"])
+            Log.d("VideoViewModel", "$headers")
+
+            val mediaSource = if (isHLS.value)
+                HlsMediaSource.Factory(okHttpDataSource)
+                    .createMediaSource(
+                        MediaItem.Builder()
+                            .setUri(_videoLink)
+                            .setMimeType(MimeTypes.APPLICATION_M3U8)
+                            .build()
+                    )
+            else
+                ProgressiveMediaSource.Factory(okHttpDataSource)
+                    .createMediaSource(
+                        MediaItem.Builder()
+                            .setUri(_videoLink)
+                            .setMimeType(MimeTypes.VIDEO_MP4)
+                            .build()
+                    )
+
             _player.value = ExoPlayer.Builder(context).build().apply {
                 playWhenReady = true
-                setMediaItem(
-                    MediaItem.Builder()
-                        .setUri(_videoLink)
-                        .setMimeType(
-                            if (isHLS.value)
-                                MimeTypes.APPLICATION_M3U8
-                            else
-                                MimeTypes.VIDEO_MP4
-                        )
-                        .build()
-                )
-
+                setMediaSource(mediaSource)
 
                 addListener(object : Player.Listener {
                     override fun onPlaybackStateChanged(playbackState: Int) {

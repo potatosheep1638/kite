@@ -6,6 +6,7 @@ import android.webkit.WebViewClient
 import coil3.ImageLoader
 import coil3.gif.AnimatedImageDecoder
 import coil3.gif.GifDecoder
+import coil3.network.httpHeaders
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.crossfade
 import com.potatosheep.kite.core.markdown.converter.MarkdownConverter
@@ -64,6 +65,7 @@ internal interface NetworkModule {
         @Singleton
         fun imageLoader(
             okHttpCallFactory: dagger.Lazy<Call.Factory>,
+            cloudflareHeaders: CloudflareHeaders,
             @ApplicationContext application: Context
         ): ImageLoader = ImageLoader.Builder(application)
             .crossfade(true)
@@ -73,6 +75,22 @@ internal interface NetworkModule {
                         okHttpCallFactory.get()
                     }
                 ))
+
+                add { chain ->
+                    val headers = chain.request.httpHeaders.newBuilder()
+                    cloudflareHeaders.headers.forEach {
+                        if (it.first == "User-Agent")
+                            headers[it.first] = it.second
+                        else if (it.first != "Origin" && it.first != "Referer")
+                            headers.add(it.first, it.second)
+                    }
+
+                    val request = chain.request.newBuilder()
+                        .httpHeaders(headers.build())
+                        .build()
+
+                    chain.withRequest(request).proceed()
+                }
 
                 if (SDK_INT >= 28) {
                     add(AnimatedImageDecoder.Factory()  )
