@@ -9,3 +9,11 @@ class RedlibErrorException : Exception {
 
     constructor(message: String, cause: Throwable) : super(message, cause)
 }
+
+/**
+ * An [Exception] that indicates that the Redlib instance is protected by Cloudflare or a PoW solution.
+ */
+class ChallengeException : Exception {
+    constructor(message: String) : super(message)
+    constructor(message: String, cause: Throwable) : super(message, cause)
+}
