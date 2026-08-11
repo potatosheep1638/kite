@@ -9,7 +9,6 @@ import android.webkit.WebViewClient
 import okhttp3.Call
 import okhttp3.Headers
 import okhttp3.Request
-import okhttp3.internal.toHeaderList
 
 class KiteWebViewClient(private val client: Call.Factory, private val cloudflareHeaders: CloudflareHeaders): WebViewClient() {
     private var isCloudflare = false
@@ -31,10 +30,7 @@ class KiteWebViewClient(private val client: Call.Factory, private val cloudflare
 
         val headerBuilder = Headers.Builder()
         request.requestHeaders.entries.forEach {
-            if (it.key != "sec-ch-ua")
-                headerBuilder.add(it.key, it.value)
-            else
-                headerBuilder.add("sec-ch-ua", "\"Not=A?Brand\";v=\"99\",\"Google Chrome\";v=\"151\",\"Chromium\";v=\"151\"")
+            headerBuilder.add(it.key, it.value)
         }
         if (isCloudflare) {
             headers = headerBuilder.build()
