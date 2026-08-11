@@ -1,5 +1,6 @@
 package com.potatosheep.kite.core.network.client
 
+import com.potatosheep.kite.core.common.ChallengeException
 import com.potatosheep.kite.core.common.Dispatcher
 import com.potatosheep.kite.core.common.KiteDispatchers
 import com.potatosheep.kite.core.network.NetworkDataSource
@@ -18,8 +19,8 @@ import com.squareup.moshi.Types
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import okhttp3.Call
+import okhttp3.Headers
 import okhttp3.Request
-import okhttp3.internal.toHeaderList
 import org.json.JSONObject
 import org.jsoup.nodes.Document
 import javax.inject.Inject
@@ -71,6 +72,7 @@ internal class ParserNetwork @Inject constructor(
                 .build()
 
             var html: Document
+            var headers: Headers
 
             withContext(ioDispatcher) {
                 if (sendPreFlight) {
@@ -79,10 +81,12 @@ internal class ParserNetwork @Inject constructor(
                 }
 
                 client.newCall(request).execute().use { response ->
+                    headers = response.headers
                     html = response.parseHtml()
                 }
             }
 
+            checkCloudflare(headers)
             return@withContext parser.parsePostList(html, instanceUrl)
         }
 
@@ -120,14 +124,17 @@ internal class ParserNetwork @Inject constructor(
 
             var html: Document
             var path: String
+            var headers: Headers
 
             withContext(ioDispatcher) {
                 client.newCall(request).execute().use { response ->
                     html = response.parseHtml()
                     path = response.request.url.encodedPath
+                    headers = response.headers
                 }
             }
 
+            checkCloudflare(headers)
             val post = parser.parsePost(html, instanceUrl)
             val comments = parser.parseComments(html, instanceUrl)
 
@@ -174,13 +181,16 @@ internal class ParserNetwork @Inject constructor(
                 .build()
 
             var html: Document
+            var headers: Headers
 
             withContext(ioDispatcher) {
                 client.newCall(request).execute().use { response ->
                     html = response.parseHtml()
+                    headers = response.headers
                 }
             }
 
+            checkCloudflare(headers)
             return@withContext parser.parsePostList(html, instanceUrl)
         }
 
@@ -222,13 +232,16 @@ internal class ParserNetwork @Inject constructor(
             .build()
 
         var html: Document
+        var headers: Headers
 
         withContext(ioDispatcher) {
             client.newCall(request).execute().use { response ->
                 html = response.parseHtml()
+                headers = response.headers
             }
         }
 
+        checkCloudflare(headers)
         val posts = parser.parseSearchResult(html, instanceUrl)
 
         val subreddits =
@@ -250,13 +263,16 @@ internal class ParserNetwork @Inject constructor(
             .build()
 
         var html: Document
+        var headers: Headers
 
         withContext(ioDispatcher) {
             client.newCall(request).execute().use { response ->
                 html = response.parseHtml()
+                headers = response.headers
             }
         }
 
+        checkCloudflare(headers)
         return@withContext parser.parseSearchSubreddits(html, instanceUrl)
     }
 
@@ -294,13 +310,16 @@ internal class ParserNetwork @Inject constructor(
                 .build()
 
             var html: Document
+            var headers: Headers
 
             withContext(ioDispatcher) {
                 client.newCall(request).execute().use { response ->
                     html = response.parseHtml()
+                    headers = response.headers
                 }
             }
 
+            checkCloudflare(headers)
             val subredditMeta = parser.parseSubreddit(html, instanceUrl)
             val subredditPosts = parser.parsePostList(html, instanceUrl)
 
@@ -340,13 +359,16 @@ internal class ParserNetwork @Inject constructor(
                 .build()
 
             var html: Document
+            var headers: Headers
 
             withContext(ioDispatcher) {
                 client.newCall(request).execute().use { response ->
                     html = response.parseHtml()
+                    headers = response.headers
                 }
             }
 
+            checkCloudflare(headers)
             val user = parser.parseUser(html, instanceUrl)
             val postsAndComments = parser.parseUserPostsAndComments(
                 html = html,
@@ -374,13 +396,16 @@ internal class ParserNetwork @Inject constructor(
             .build()
 
         var html: Document
+        var headers: Headers
 
         withContext(ioDispatcher) {
             client.newCall(request).execute().use { response ->
                 html = response.parseHtml()
+                headers = response.headers
             }
         }
 
+        checkCloudflare(headers)
         val postsAndComments = parser.parseUserPostsAndComments(
             html = html,
             userName = userName,
@@ -424,4 +449,10 @@ internal class ParserNetwork @Inject constructor(
 
     override suspend fun getHeaders(): Map<String, String> =
         cloudflareHeaders.headers.toMultimap().mapValues { it.value.joinToString() }
+}
+
+private fun checkCloudflare(headers: Headers) {
+    if (headers["cf-mitigated"] != null) {
+        throw ChallengeException("Instance is protected by Cloudflare. Solve the challenge in the WebView (globe icon)")
+    }
 }

@@ -1,5 +1,6 @@
 package com.potatosheep.kite.core.network.parser
 
+import com.potatosheep.kite.core.common.ChallengeException
 import com.potatosheep.kite.core.common.RedlibErrorException
 import com.potatosheep.kite.core.common.Metadata
 import com.potatosheep.kite.core.markdown.converter.MarkdownConverter
@@ -22,6 +23,10 @@ internal class Parser(
     private val markdownConverter: MarkdownConverter
 ) {
     fun parsePostList(html: Document, instanceUrl: String): List<NetworkPost> {
+        
+        if (anubisCheck(html)) {
+            throw ChallengeException(ANUBIS_EXCEPTION_MSG)
+        }
 
         val error = extractErrorMessage(html, instanceUrl)
         if (!error.isNullOrBlank()) {
@@ -61,6 +66,10 @@ internal class Parser(
     }
 
     fun parsePost(html: Document, instanceUrl: String): NetworkPost {
+        if (anubisCheck(html)) {
+            throw ChallengeException(ANUBIS_EXCEPTION_MSG)
+        }
+        
         val error = extractErrorMessage(html, instanceUrl)
         if (!error.isNullOrBlank()) {
             throw RedlibErrorException(error)
@@ -85,6 +94,10 @@ internal class Parser(
     }
 
     fun parseComments(html: Document, instanceUrl: String): List<NetworkComment> {
+        if (anubisCheck(html)) {
+            throw ChallengeException(ANUBIS_EXCEPTION_MSG)
+        }
+        
         val error = extractErrorMessage(html, instanceUrl)
         if (!error.isNullOrBlank()) {
             throw RedlibErrorException(error)
@@ -166,6 +179,10 @@ internal class Parser(
     }
 
     fun parseSubreddit(html: Document, instanceUrl: String): NetworkSubreddit {
+        if (anubisCheck(html)) {
+            throw ChallengeException(ANUBIS_EXCEPTION_MSG)
+        }
+        
         val error = extractErrorMessage(html, instanceUrl)
         if (!error.isNullOrBlank()) {
             throw RedlibErrorException(error)
@@ -182,6 +199,10 @@ internal class Parser(
     }
 
     fun parseSubredditWiki(html: Document, instanceUrl: String): NetworkSubredditWiki {
+        if (anubisCheck(html)) {
+            throw ChallengeException(ANUBIS_EXCEPTION_MSG)
+        }
+        
         val error = extractErrorMessage(html, instanceUrl)
         if (!error.isNullOrBlank()) {
             throw RedlibErrorException(error)
@@ -193,6 +214,10 @@ internal class Parser(
     }
 
     fun parseUser(html: Document, instanceUrl: String): NetworkUser {
+        if (anubisCheck(html)) {
+            throw ChallengeException(ANUBIS_EXCEPTION_MSG)
+        }
+        
         val error = extractErrorMessage(html, instanceUrl)
         if (!error.isNullOrBlank()) {
             throw RedlibErrorException(error)
@@ -211,6 +236,10 @@ internal class Parser(
         userName: String,
         instanceUrl: String
     ): List<Any> {
+        if (anubisCheck(html)) {
+            throw ChallengeException(ANUBIS_EXCEPTION_MSG)
+        }
+        
         val error = extractErrorMessage(html, instanceUrl)
         if (!error.isNullOrBlank()) {
             throw RedlibErrorException(error)
@@ -270,6 +299,10 @@ internal class Parser(
     }
 
     fun parseSearchResult(html: Document, instanceUrl: String): List<NetworkPost> {
+        if (anubisCheck(html)) {
+            throw ChallengeException(ANUBIS_EXCEPTION_MSG)
+        }
+        
         val error = extractErrorMessage(html, instanceUrl)
         if (!error.isNullOrBlank()) {
             throw RedlibErrorException(error)
@@ -310,6 +343,10 @@ internal class Parser(
     }
 
     fun parseSearchSubreddits(html: Document, instanceUrl: String): List<NetworkSubreddit> {
+        if (anubisCheck(html)) {
+            throw ChallengeException(ANUBIS_EXCEPTION_MSG)
+        }
+        
         val error = extractErrorMessage(html, instanceUrl)
         if (!error.isNullOrBlank()) {
             throw RedlibErrorException(error)
@@ -341,3 +378,5 @@ internal class Parser(
         return subredditList
     }
 }
+
+private const val ANUBIS_EXCEPTION_MSG = "Instance is protected by Anubis. Solve the challenge in the WebView (globe icon)"
