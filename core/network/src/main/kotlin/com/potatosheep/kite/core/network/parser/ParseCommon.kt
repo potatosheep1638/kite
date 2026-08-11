@@ -124,6 +124,15 @@ internal fun extractErrorMessage(html: Document, instanceUrl: String): String? {
     }
 }
 
+internal fun anubisCheck(html: Document): Boolean {
+    val anubisScript = html.select("script").first()
+    if (anubisScript != null && anubisScript.id().contains("anubis_version")) {
+        return true
+    }
+
+   return false
+}
+
 internal fun extractTimestamp(element: Element): Instant {
     val timestampSpan = element.select("span.created").first()
 
