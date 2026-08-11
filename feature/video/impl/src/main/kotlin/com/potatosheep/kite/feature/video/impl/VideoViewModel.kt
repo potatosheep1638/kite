@@ -14,6 +14,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.hls.HlsMediaSource
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import com.potatosheep.kite.core.data.repo.PostRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -54,18 +55,22 @@ class VideoViewModel @AssistedInject constructor(
                 .setUserAgent(headers["user-agent"])
             Log.d("VideoViewModel", "$headers")
 
-            val mediaSource = HlsMediaSource.Factory(okHttpDataSource)
-                .createMediaSource(
-                    MediaItem.Builder()
-                        .setUri(_videoLink)
-                        .setMimeType(
-                            if (isHLS.value)
-                                MimeTypes.APPLICATION_M3U8
-                            else
-                                MimeTypes.VIDEO_MP4
-                        )
-                        .build()
-                )
+            val mediaSource = if (isHLS.value)
+                HlsMediaSource.Factory(okHttpDataSource)
+                    .createMediaSource(
+                        MediaItem.Builder()
+                            .setUri(_videoLink)
+                            .setMimeType(MimeTypes.APPLICATION_M3U8)
+                            .build()
+                    )
+            else
+                ProgressiveMediaSource.Factory(okHttpDataSource)
+                    .createMediaSource(
+                        MediaItem.Builder()
+                            .setUri(_videoLink)
+                            .setMimeType(MimeTypes.VIDEO_MP4)
+                            .build()
+                    )
 
             _player.value = ExoPlayer.Builder(context).build().apply {
                 playWhenReady = true
